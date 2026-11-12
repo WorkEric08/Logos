@@ -1,0 +1,18 @@
+# dependências e saídas de build (se geram sozinhas: npm install / npm run build / npm run apk)
+node_modules/
+dist/
+dist-android/
+apk/
+*.apk
+*.log
+.DS_Store
+Thumbs.db
+
+# Android gerado (o resto da pasta android/ vai para o repositório)
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json

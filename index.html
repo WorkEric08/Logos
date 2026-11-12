@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=overlays-content" />
+<meta name="theme-color" content="#000000" />
+<meta name="description" content="Treino pessoal para concursos de banco: questões da Cesgranrio, simulado e progresso salvos só neste aparelho." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<title>Logos</title>
+<style>
+  /* Abertura: enquanto a animação não monta, a tela já é preta (nunca branca/clara), igual ao fundo da abertura nativa do PWA. */
+  html.splash body::before{content:"";position:fixed;inset:0;background:#000;z-index:200}
+</style>
+<script>
+  // Primeira pintura sem piscar: aplica o tema espelhado antes do CSS.
+  try { var t = localStorage.getItem('treino_tema'); if (t) document.documentElement.dataset.tema = t } catch (e) {}
+  // Abertura animada (2 s). A única chave de teste do app: localStorage.treino_skip_splash = '1' pula a abertura.
+  try { if (localStorage.getItem('treino_skip_splash') !== '1') document.documentElement.classList.add('splash') } catch (e) { document.documentElement.classList.add('splash') }
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

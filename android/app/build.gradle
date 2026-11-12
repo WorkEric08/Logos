@@ -1,0 +1,73 @@
+apply plugin: 'com.android.application'
+
+// versionName vem do package.json. versionCode SOBE SOZINHO a cada build (minutos desde 1970 ≈ 29,9 milhões; o limite do Android é 2,1
+// bilhões), então instalar por cima sempre é aceito. -PversionCode=N fixa um número (loja). NUNCA volte a um número fixo.
+def pacote = new groovy.json.JsonSlurper().parse(file('../../package.json'))
+def codigoVersao = project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : (int) (System.currentTimeMillis() / 60000L)
+
+android {
+    namespace = "br.com.treinobb"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "br.com.treinobb"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode codigoVersao
+        versionName pacote.version
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    // A chave de assinatura mora no projeto (android/app/debug.keystore = a chave de debug padrão, sem segredo): compilar em outra máquina
+    // assina igual e o Android aceita instalar por cima. NUNCA troque nem apague este arquivo (outra chave = desinstalar = perder os dados).
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

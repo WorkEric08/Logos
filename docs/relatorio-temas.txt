@@ -1,0 +1,81 @@
+Lidas 1163 questões novas; válidas 1158; de fora: BB-2014-AC-BAN-58 (anulada), BancodaAmazonia-2018-AC-BAN-42 (anulada), BNB-2024-AC-BAN-54 (anulada), CAIXA-2024-RS092024-AC-BAN-39 (anulada), CAIXA-2024-RS092024-AC-INF-44 (anulada)
+Antigas: 478 → casadas e substituídas pela nova 468; mantidas sem par 10 (2010-26, 2010-27, 2010-28, 2010-29, 2010-30, 2012-26, 2012-27, 2012-28, 2012-29, 2012-30)
+Gabarito trocado (antigo → novo) em 82 questões; casamento com texto pouco parecido (<0,60): nenhum
+bank.json: 1168 questões, 30 textos-base, 21 provas · imagens copiadas agora: 0 · com imagem: 400
+
+Questões por matéria: {
+  'Língua Portuguesa': 164,
+  'Matemática': 88,
+  'Matemática Financeira': 61,
+  'Atualidades do Mercado Financeiro': 70,
+  'Conhecimentos de Informática': 134,
+  'Vendas e Negociação': 194,
+  'Conhecimentos Bancários': 287,
+  'Língua Inglesa': 55,
+  'Legislação': 15,
+  'Estatística': 50,
+  'Ética': 35,
+  'Conhecimentos Digitais': 15
+}
+
+Temas por matéria:
+  Língua Portuguesa: Interpretação 70 | Reescrita e sintaxe 21 | Coesão e conectivos 19 | Pontuação 16 | Concordância 13 | Crase 12 | Colocação pronominal 11 | Regência 2
+  Matemática: Álgebra e funções 39 | Porcentagem e proporção 22 | Sequências 9 | Lógica 8 | Contagem e probabilidade 6 | Contagem 4
+  Matemática Financeira: Juros compostos 24 | Juros e taxas 12 | Amortização 12 | Juros simples 9 | Equivalência de capitais 4
+  Atualidades do Mercado Financeiro: Moeda e SFN 36 | Digital e fintechs 19 | Política monetária 10 | Regulação e ética 3 | Shadow banking 2
+  Conhecimentos de Informática: Redes e web 29 | Excel e Office 28 | BI e dados 22 | Segurança 21 | Sistemas e redes 19 | Mídia e EaD 9 | Colaboração e nuvem 6
+  Vendas e Negociação: Atendimento 80 | Técnicas de vendas 35 | Legislação 25 | Marketing digital e estratégia 24 | Qualidade e satisfação 10 | Comportamento do consumidor 9 | Ética e relacionamento 7 | Marketing de serviços 4
+  Conhecimentos Bancários: Tesouraria 109 | Câmbio 69 | Sistema Financeiro (SFN) 48 | Política monetária 30 | Regulação e ética 24 | Socioambiental 5 | Segurança cibernética 2
+  Língua Inglesa: Interpretação 24 | Vocabulário 19 | Gramática 12
+  Legislação: Legislação 15
+  Estatística: Probabilidade 24 | Distribuições 11 | Medidas descritivas 7 | Correlação e regressão 4 | Amostragem e inferência 2 | Gráficos e tabelas 2
+  Ética: Código de ética 20 | Compliance e integridade 11 | Socioambiental 4
+  Conhecimentos Digitais: Liderança e comportamento 11 | Metodologias ágeis e lean 4
+
+Temas por palavra-chave, só questões novas sem par (as pareadas herdam o tema antigo). "Padrão" = nenhuma regra casou:
+  Conhecimentos de Informática           84 questões ·   12 no tema padrão (14%)
+  Matemática                             35 questões ·   17 no tema padrão (49%)
+  Língua Portuguesa                      89 questões ·   44 no tema padrão (49%)
+  Legislação                             15 questões ·   15 no tema padrão (100%)
+  Atualidades do Mercado Financeiro      30 questões ·   15 no tema padrão (50%)
+  Vendas e Negociação                    85 questões ·    9 no tema padrão (11%)
+  Conhecimentos Bancários               192 questões ·   73 no tema padrão (38%)
+  Estatística                            50 questões ·    2 no tema padrão (4%)
+  Língua Inglesa                         30 questões ·   17 no tema padrão (57%)
+  Matemática Financeira                  30 questões ·    6 no tema padrão (20%)
+  Ética                                  35 questões ·   20 no tema padrão (57%)
+  Conhecimentos Digitais                 15 questões ·   11 no tema padrão (73%)
+
+Só na imagem (ia): 11 · de TI: 124 · prova antiga: 334
+
+Amostra de 30 (matéria | tema | como | enunciado):
+Conhecimentos de Informática | Segurança | regra | Com relação ao ambiente operacional Windows, tomando-se por base o Windows XP, analise as afirmativas a seguir. I – A restauração do sistema retorna o
+Conhecimentos Bancários | Tesouraria | padrao | Um cliente liga para o gerente do banco, que lhe vendeu um seguro de automóvel, buscando esclarecimentos sobre os prejuízos não indenizáveis, conforme
+Língua Portuguesa | Coesão e conectivos | regra | No texto, o referente da expressão em destaque está corretamente explicitado entre colchetes no
+Conhecimentos Bancários | Tesouraria | padrao | Um servidor público federal deseja mudar os rumos de sua carreira para integrar instituição financeira pública. Sabedor dos rígidos critérios de seleç
+Conhecimentos Bancários | Sistema Financeiro (SFN) | regra | PIX é o pagamento instantâneo brasileiro. É o meio de pagamento criado pelo Banco Central do Brasil em que os recursos são transferidos entre contas e
+Conhecimentos Bancários | Tesouraria | padrao | Algumas instituições financeiras são autorizadas a arrecadar tarifas públicas e impostos. O recolhimento de tais tarifas e impostos
+Conhecimentos Bancários | Tesouraria | padrao | X, que é amigo de Y, necessitava realizar uma operação de financiamento, com emissão de títulos de crédito. Por força da relação afetiva, Y foi avalis
+Conhecimentos Bancários | Tesouraria | padrao | A principal característica do crédito direto ao consumidor (CDC) é que esse instrumento de financiamento dispensa
+Conhecimentos Bancários | Câmbio | regra | Embora as taxas de câmbio R$/US$, cotadas diariamente nos mercados de câmbio à vista, sejam expressas em valores nominais, ao longo do tempo essas tax
+Conhecimentos Bancários | Tesouraria | padrao | Sobre o Fundo Constitucional de Financiamento do Nordeste (FNE), analise as assertivas a seguir. I - É restrito aos estados da região Nordeste. II - T
+Ética | Código de ética | padrao | J ingressou como sócio em determinada sociedade empresária possuindo cerca de dez por cento do capital votante. Após amplos debates, todos os sócios d
+Língua Portuguesa | Interpretação | padrao | Nesse texto, o fragmento do parágrafo 1 “havia solidão e silêncio” revela um sentimento de
+Conhecimentos de Informática | BI e dados | regra | Um banco de dados possui um modelo conceitual cuja descrição é feita pelo diagrama E-R a seguir. Admita-se que o estado desse banco de dados seja defi
+Conhecimentos de Informática | Redes e web | regra | Considere o código Node.js apresentado a seguir: var http = require('http'); var url = require('url'); http.createServer(function (req, res) { res.set
+Conhecimentos Bancários | Câmbio | regra | Na composição do Sistema Financeiro Nacional no Brasil, o órgão normativo responsável pela fixação das metas para a inflação, pelas diretrizes da polí
+Conhecimentos Bancários | Regulação e ética | regra | Uma gerente de um banco com atuação em diversos estados brasileiros e diferentes culturas tem sua principal atividade relacionada a revisar as polític
+Conhecimentos Bancários | Sistema Financeiro (SFN) | regra | T é agente fiscal da União Federal, atuando em grupo especial que monitora devedores qualificados. Após divisão interna de trabalho, T fica com a resp
+Matemática | Álgebra e funções | padrao | O comprimento de um grande fio corresponde à soma dos comprimentos de 24 fios menores. São eles: • 12 fios, cada um dos quais com comprimento que mede
+Conhecimentos de Informática | Segurança | regra | Um técnico bancário precisa garantir a segurança e a eficiência no uso de computadores com o sistema operacional Windows 11 em uma agência bancária. D
+Matemática | Álgebra e funções | padrao | Um fungo está se alastrando na parede, e a área contaminada pelo fungo varia no tempo de acordo com a função A: [0,∞) → , dada por A(t) = A0 . bt, em
+Conhecimentos Bancários | Tesouraria | padrao | No mercado de ações, existem instrumentos derivativos criados para minimizar os riscos de oscilação de preço, de modo a oferecer um mecanismo de prote
+Vendas e Negociação | Atendimento | materia | Um funcionário de determinado banco é o responsável pelo guichê de caixa da agência onde exerce suas funções. Com a transformação do banco em digital,
+Conhecimentos Bancários | Câmbio | regra | Em sua Carta de Conjuntura n. 65, do 4o trimestre de 2024, o Ipea descreveu Entre dezembro de 2023 e novembro de 2024, o preço do dólar em reais, toma
+Conhecimentos Bancários | Tesouraria | padrao | O gerente de um banco está realizando uma reunião com uma cliente, que está interessada em investir uma quantia significativa de dinheiro para um hori
+Atualidades do Mercado Financeiro | Moeda e SFN | padrao | Considere o texto sobre a vacinação contra a Covid-19 no Brasil. O Brasil atingiu a marca de mais de 300 milhões de doses de vacinas contra a Covid-19
+Conhecimentos Bancários | Sistema Financeiro (SFN) | regra | Ao final de 2020, o Banco Central do Brasil lançou o Sistema de Pagamentos Instantâneos, o PIX, que é um meio de pagamento alternativo aos meios de pa
+Língua Inglesa | Interpretação | padrao | The main purpose of the text is to
+Conhecimentos Bancários | Sistema Financeiro (SFN) | regra | A Comissão de Valores Mobiliários (CVM) detém personalidade jurídica e patrimônio próprios, é dotada de autoridade administrativa independente, conta 
+Conhecimentos Bancários | Tesouraria | padrao | Os bancos comerciais são entidades financeiras cujo objetivo principal é propiciar financiamento a pessoas físicas e jurídicas. O tipo de financiament
+Conhecimentos de Informática | Sistemas e redes | padrao | Um administrador de um computador com sistema operacional Linux criou uma terceira partição no segundo disco rígido SATA da máquina. A nomenclatura pa

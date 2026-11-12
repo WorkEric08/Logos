@@ -1,0 +1,70 @@
+
+== 1. Totais ==
+OK        total no app = 1.168 — app=1168
+OK        banco/*.json: 1.163 questões, 1.158 válidas — lidas=1163, válidas=1158, anuladas=5
+OK        app = 1.158 do banco novo + 10 antigas sem par — novas=1158, antigas mantidas=10
+OK        mesmos ids do banco novo (válidas) no app — faltam=0, sobram=0
+OK        nenhuma anulada no app — BB-2014-AC-BAN-58, BNB-2024-AC-BAN-54, BancodaAmazonia-2018-AC-BAN-42, CAIXA-2024-RS092024-AC-BAN-39, CAIXA-2024-RS092024-AC-INF-44
+por matéria (app): Conhecimentos Bancários: 287 | Vendas e Negociação: 194 | Língua Portuguesa: 164 | Conhecimentos de Informática: 134 | Matemática: 88 | Atualidades do Mercado Financeiro: 70 | Matemática Financeira: 61 | Língua Inglesa: 55 | Estatística: 50 | Ética: 35 | Legislação: 15 | Conhecimentos Digitais: 15
+por matéria (banco, nome do app): Conhecimentos Bancários: 287 | Vendas e Negociação: 194 | Língua Portuguesa: 164 | Conhecimentos de Informática: 134 | Matemática: 99 | Atualidades do Mercado Financeiro: 70 | Língua Inglesa: 55 | Estatística: 50 | Matemática Financeira: 40 | Ética: 35 | Conhecimentos Digitais: 15 | Legislação: 15
+OK        diferenças de matéria só nas Matemática→Matemática Financeira herdadas do banco antigo — 21 questões (esperado 21)
+por prova (app): banese-2025: 74 | bb-2010: 70 | bb-2012: 70 | bb-2018: 70 | bb-2021: 70 | bb-2023: 70 | bancodaamazonia-2024: 70 | bb-032015: 65 | bb-102015: 65 | bb-2014: 64 | bancodaamazonia-2021: 60 | caixa-2021: 60 | caixa-2024: 60 | bancodaamazonia-2018: 59 | bnb-2024: 59 | caixa-rs092024: 58 | bb-2021-ti: 35 | bancodaamazonia-2021-ti: 30 | bancodaamazonia-2024-ti: 30 | banese-2025-ti: 24 | caixa-2024-ti: 5
+por origem (app): cargo do Agente Comercial: 1034 | TI reaproveitada: 124 | antigo sem par: 10
+provas no banco (banco|edição|cargo): Banese|2025|Agente Comercial: 74 | BB|2018|Agente Comercial: 70 | BB|2021|Agente Comercial: 70 | BB|2023|Agente Comercial: 70 | Banco da Amazônia|2024|Agente Comercial: 70 | BB|2010|Agente Comercial: 65 | BB|2012|Agente Comercial: 65 | BB|03/2015|Agente Comercial: 65 | BB|10/2015|Agente Comercial: 65 | BB|2014|Agente Comercial: 64 | Banco da Amazônia|2021|Agente Comercial: 60 | CAIXA|2021|Agente Comercial: 60 | CAIXA|2024|Agente Comercial: 60 | Banco da Amazônia|2018|Agente Comercial: 59 | BNB|2024|Agente Comercial: 59 | CAIXA|RS 09/2024|Agente Comercial: 58 | BB|2021|TI: 35 | Banco da Amazônia|2021|TI: 30 | Banco da Amazônia|2024|TI: 30 | Banese|2025|TI: 24 | CAIXA|2024|TI: 5
+OK        toda prova tem rótulo e todo rótulo tem questão
+
+== 2. Campos ==
+OK        ids únicos
+OK        nenhum enunciado vazio
+OK        gabarito sempre A–E
+OK        5 alternativas preenchidas (ou marcada só-imagem)
+OK        as 11 só-imagem têm imagem — ia=11
+OK        matéria, tema, prova, ano e número preenchidos
+OK        gabarito é uma das chaves de alternativas
+(a "assunto" `a` vazio é normal nas questões novas sem par: o app mostra o tema)
+
+== 3. Imagens (arquivos) ==
+OK        toda imagem referenciada existe em public/q
+OK        nenhum arquivo órfão em public/q
+OK        todos os arquivos são PNG válidos (assinatura, IHDR, IEND, tamanho)
+OK        cada PNG é idêntico ao de banco/Imagens (md5)
+OK        toda imagem de questão válida do banco está no app
+OK        campo img do app = campo imagem do banco, questão por questão
+OK        400 questões com imagem — 400
+
+== 4. Textos-base ==
+OK        todo b aponta para um texto existente
+OK        nenhum texto-base vazio
+OK        nenhum texto-base órfão
+OK        toda questão com textoApoio no banco tem texto-base no app — 214 com texto; sem base no app: 0
+OK        texto-base do app = textoApoio do banco (normalizado)
+
+== 5. Gabaritos do app x banco/*.json ==
+OK        gabarito do app = gabarito do banco em todas as 1.158
+OK        as 10 antigas mantidas são BB 2010 e 2012 Q26–30, marcadas ant (gabarito não conferido) — 2010-26, 2010-27, 2010-28, 2010-29, 2010-30, 2012-26, 2012-27, 2012-28, 2012-29, 2012-30
+OK        as 10 mantidas conservam o gabarito antigo, sem mudança
+
+== 6. As 82 divergências de gabarito ==
+OK        banco/divergencias-gabarito.md lista 82 questões — 82
+OK        nas 82, o app tem o gabarito novo = banco novo, e o gabarito antigo bate com o backup
+OK        id-map.trocas tem as mesmas 82 (de/para corretos)
+OK        nenhuma questão trocada de gabarito fora do id-map.trocas
+OK        conferência manual: 81 das 82 com ✔; a única pendente é BB-2023-AC-ATU-23 (gabarito oficial, não conferido na norma do Banco Central) — ✔=81, pendentes=BB-2023-AC-ATU-23
+OK        BB 2010 Q3 não é divergência: gabarito antigo = novo
+
+== 7. id-map.json ==
+OK        os 478 ids antigos: ou estão no mapa ou continuam no app — no mapa=468, mantidos=10
+OK        nenhum id antigo aponta para id novo inexistente
+OK        nenhum id antigo mapeado continua existindo no app (sem ambiguidade)
+OK        nenhum caso de dois ids antigos para o mesmo id novo — nenhum
+OK        cada par antigo→novo tem mesmo número e ano
+
+== 8. Duplicatas ==
+OK        nenhuma prova+número repetida
+OK        nenhuma questão com texto igual em duas provas — 3 grupos de alternativas iguais descartados por enunciado diferente (alternativas genéricas)
+OK        nenhuma repetição de texto dentro da mesma prova
+
+== 9. Defeitos de dados conhecidos (decisão do dono) ==
+CONHECIDO BB-2018-AC-INF-55 — recorte de página inteira traz, embaixo, sobra cortada da coluna seguinte (alternativas D e E repetidas); as cinco alternativas aparecem completas na parte de cima
+
+Resumo: 0 falha(s), 1 defeito(s) conhecido(s) à espera de decisão, 0 aviso(s).

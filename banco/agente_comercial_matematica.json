@@ -1,0 +1,3617 @@
+[
+ {
+  "id": "BB-2010-AC-MAT-11",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 11,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BB-2010-AC-MAT-11.png",
+  "enunciado": "Um investidor aplicou certa quantia em um fundo de ações. 1 1 Nesse fundo, das ações eram da empresa A, eram 2 3 da empresa B e as restantes, da empresa C. Em um ano, o valor das ações da empresa A aumentou 20%, o das ações da empresa B diminuiu 30% e o das ações da empresa C aumentou 17%. Em relação à quantia total aplicada, ao final desse ano, este investidor obteve",
+  "alternativas": {
+   "A": "lucro de 10,3%.",
+   "B": "lucro de 7,0%.",
+   "C": "prejuízo de 5,5%.",
+   "D": "prejuízo de 12,4%.",
+   "E": "prejuízo de 16,5%."
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-12",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 12,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BB-2010-AC-MAT-12.png",
+  "enunciado": "Segundo dados do Sinduscon-Rio, em fevereiro de 2010 o custo médio da construção civil no Rio de Janeiro era R$875,18 por metro quadrado. De acordo com essa informação, qual era, em reais, o custo médio de construção de um apartamento de 75m2 no Rio de Janeiro no referido mês?",
+  "alternativas": {
+   "A": "65.638,50",
+   "B": "65.688,00",
+   "C": "66.048,50",
+   "D": "66.128,50",
+   "E": "66.634,00"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-13",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 13,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2010-AC-MAT-13.png",
+  "enunciado": "No Brasil, os clientes de telefonia móvel podem optar pelos sistemas pré-pago ou pós-pago. Em certa empresa de telefonia móvel, 17 em cada 20 clientes utilizam o sistema pré-pago. Sendo assim, o número de clientes que utilizam o sistema pré-pago supera o número de clientes do pós-pago em 24,36 milhões. Quantos milhões de clientes são atendidos por essa empresa?",
+  "alternativas": {
+   "A": "29,58",
+   "B": "30,25",
+   "C": "31,20",
+   "D": "32,18",
+   "E": "34,80"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-14",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 14,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2010-AC-MAT-14.png",
+  "enunciado": "De acordo com o Plano Nacional de Viação (PNV) de 2009, a malha de estradas não pavimentadas de Goiás tem 62.868km a mais do que a malha de estradas pavimentadas. Sabe-se, também, que a extensão total, em quilômetros, das estradas não pavimentadas supera em 393km o sêxtuplo da extensão das estradas pavimentadas. Quantos quilômetros de estradas pavimentadas há em Goiás?",
+  "alternativas": {
+   "A": "12.495",
+   "B": "12.535",
+   "C": "12.652",
+   "D": "12.886",
+   "E": "12.912"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-15",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 15,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2010-AC-MAT-15.png",
+  "enunciado": "Segundo dados do Instituto Internacional de Pesquisa da Paz de Estocolmo (Simpri), os gastos militares dos Estados Unidos vêm crescendo nos últimos anos, passando de 528,7 bilhões de dólares, em 2006, para 606,4 bilhões de dólares, em 2009. Considerando que este aumento anual venha acontecendo de forma linear, formando uma progressão aritmética, qual será, em bilhões de dólares, o gasto militar dos Estados Unidos em 2010?",
+  "alternativas": {
+   "A": "612,5",
+   "B": "621,3",
+   "C": "632,3",
+   "D": "658,5",
+   "E": "684,1"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-16",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2010-AC-MAT-16.png",
+  "enunciado": "Uma empresa oferece aos seus clientes desconto de 10% para pagamento no ato da compra ou desconto de 5% para pagamento um mês após a compra. Para que as opções sejam indiferentes, a taxa de juros mensal praticada deve ser, aproximadamente,",
+  "alternativas": {
+   "A": "0,5%.",
+   "B": "3,8%.",
+   "C": "4,6%.",
+   "D": "5,0%.",
+   "E": "5,6%."
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-17",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2010-AC-MAT-17.png",
+  "enunciado": "Um título com valor de face de R$ 1.000,00, faltando 3 meses para seu vencimento, é descontado em um banco que utiliza taxa de desconto bancário, ou seja, taxa de desconto simples “por fora”, de 5% ao mês. O valor presente do título, em reais, é",
+  "alternativas": {
+   "A": "860,00",
+   "B": "850,00",
+   "C": "840,00",
+   "D": "830,00",
+   "E": "820,00"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-18",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2010-AC-MAT-18.png",
+  "enunciado": "Considere um financiamento de R$ 100.000,00, sem entrada, a ser pago em 100 prestações mensais, pelo Sistema de Amortização Constante (SAC). Sabendo-se que a taxa de juros, no regime de juros compostos, é de 1% ao mês, a prestação inicial, se o prazo de pagamento for duplicado, será reduzida em",
+  "alternativas": {
+   "A": "100%.",
+   "B": "50%.",
+   "C": "25%.",
+   "D": "10%.",
+   "E": "5%."
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-19",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2010-AC-MAT-19.png",
+  "enunciado": "Um investimento obteve variação nominal de 15,5% ao ano. Nesse mesmo período, a taxa de inflação foi 5%. A taxa de juros real anual para esse investimento foi",
+  "alternativas": {
+   "A": "0,5%.",
+   "B": "5,0%.",
+   "C": "5,5%.",
+   "D": "10,0%.",
+   "E": "10,5%."
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2010-AC-MAT-20",
+  "banco": "BB",
+  "ano": 2010,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/04/2010)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BB-2010-AC-MAT-20.png",
+  "enunciado": "Uma urna contém 5 bolas amarelas, 6 bolas azuis e 7 bolas verdes. Cinco bolas são aleatoriamente escolhidas desta urna, sem reposição. A probabilidade de selecionar, no mínimo, uma bola de cada cor é æ13 ö æ12 ö æ11ö æ 7 ö æ 6 ö æ 5 ö çç ÷÷ + çç ÷÷ + çç ÷÷ - çç ÷÷ - çç ÷÷ - çç ÷÷ 5 5 5 5 5 5",
+  "alternativas": {
+   "A": "1 - è ø è ø è ø è ø è ø è ø æ18 ö çç ÷÷ è5ø æ13 ö æ12 ö æ11ö æ 7 ö æ 6 ö æ 5 ö çç ÷÷ + çç ÷÷ + çç ÷÷ - çç ÷÷ - çç ÷÷ - çç ÷÷ 5 5 5 5 5 5",
+   "B": "è ø è ø è ø è ø è ø è ø æ18 ö çç ÷÷ è5ø æ13 ö æ12 ö æ11ö çç ÷÷ + çç ÷÷ + çç ÷÷ è 5 ø è 5 ø è 5 ø -1",
+   "C": "æ18 ö çç ÷÷ è5ø æ13 ö æ12 ö æ11ö çç ÷÷ + çç ÷÷ + çç ÷÷ 5 5 5",
+   "D": "è ø è ø è ø æ18 ö çç ÷÷ è5ø æ13 ö æ12 ö æ11ö çç ÷÷ + çç ÷÷ + çç ÷÷ è5ø è5ø è5ø",
+   "E": "1 æ18 ö çç ÷÷ è5ø"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2010_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-11",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 11,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BB-2012-AC-MAT-11.png",
+  "enunciado": "No Brasil, quase toda a produção de latas de alumínio é reciclada. As empresas de reciclagem pagam R$ 320,00 por 100 kg de latas usadas, sendo que um quilograma corresponde a 74 latas. De acordo com essas informações, quantos reais receberá um catador ao vender 703 latas de alumínio?",
+  "alternativas": {
+   "A": "23,15",
+   "B": "23,98",
+   "C": "28,80",
+   "D": "28,96",
+   "E": "30,40"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-12",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 12,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BB-2012-AC-MAT-12.png",
+  "enunciado": "No modelo abaixo, os pontos A, B, C e D pertencem à mesma reta. O ponto A dista 65,8 mm do ponto D; o ponto B dista 41,9 mm do ponto D, e o ponto C está a 48,7 mm do ponto A. Qual é, em milímetros, a distância entre os pontos B e C?",
+  "alternativas": {
+   "A": "17,1",
+   "B": "23,1",
+   "C": "23,5",
+   "D": "23,9",
+   "E": "24,8"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-13",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 13,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BB-2012-AC-MAT-13.png",
+  "enunciado": "Numa pesquisa sobre acesso à internet, três em cada quatro homens e duas em cada três mulheres responderam que acessam a rede diariamente. A razão entre o número de mulheres e de homens participantes dessa 1 pesquisa é, nessa ordem, igual a . 2 Que fração do total de entrevistados corresponde àqueles que responderam que acessam a rede todos os dias?",
+  "alternativas": {
+   "A": "",
+   "B": "",
+   "C": "",
+   "D": "",
+   "E": ""
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-14",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 14,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2012-AC-MAT-14.png",
+  "enunciado": "Uma sequência numérica infinita (e1, e2, e3,..., en,...) é tal que a soma dos n termos iniciais é igual a n2 + 6n. O quarto termo dessa sequência é igual a",
+  "alternativas": {
+   "A": "9",
+   "B": "13",
+   "C": "17",
+   "D": "32",
+   "E": "40"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-15",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 15,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2012-AC-MAT-15.png",
+  "enunciado": "Revista Veja. São Paulo: Abril, 2249. ed, ano 44, n.52, 28 dez. 2011, p. 23. Edição especial. Sustentabilidade. Adaptado. Os gráficos acima apresentam dados sobre a produção e a reciclagem de lixo em algumas regiões do planeta. Baseando-se nos dados apresentados, qual é, em milhões de toneladas, a diferença entre as quantidades de lixo recicladas na China e nos EUA em um ano?",
+  "alternativas": {
+   "A": "9,08",
+   "B": "10,92",
+   "C": "12,60",
+   "D": "21,68",
+   "E": "24,80"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-16",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2012-AC-MAT-16.png",
+  "enunciado": "Uma moeda não tendenciosa é lançada até que sejam obtidos dois resultados consecutivos iguais. Qual a probabilidade de a moeda ser lançada exatamente três vezes?",
+  "alternativas": {
+   "A": "1/8",
+   "B": "1/4",
+   "C": "1/3",
+   "D": "1/2",
+   "E": "3/4"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-17",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2012-AC-MAT-17.png",
+  "enunciado": "Uma loja oferece um aparelho celular por R$ 1.344,00 à vista. Esse aparelho pode ser comprado a prazo, com juros de 10% ao mês, em dois pagamentos mensais iguais: um, no ato da compra, e outro, um mês após a compra. O valor de cada um dos pagamentos mensais é, em reais, de",
+  "alternativas": {
+   "A": "704,00",
+   "B": "705,60",
+   "C": "719,00",
+   "D": "739,20",
+   "E": "806,40"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-18",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2012-AC-MAT-18.png",
+  "enunciado": "Um investimento rende a taxa nominal de 12% ao ano com capitalização trimestral. A taxa efetiva anual do rendimento correspondente é, aproximadamente,",
+  "alternativas": {
+   "A": "12%",
+   "B": "12,49%",
+   "C": "12,55%",
+   "D": "13%",
+   "E": "13,43%"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-19",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2012-AC-MAT-19.png",
+  "enunciado": "João tomou um empréstimo de R$ 900,00 a juros compostos de 10% ao mês. Dois meses depois, João pagou R$ 600,00 e, um mês após esse pagamento, liquidou o empréstimo. O valor desse último pagamento foi, em reais, aproximadamente,",
+  "alternativas": {
+   "A": "240,00",
+   "B": "330,00",
+   "C": "429,00",
+   "D": "489,00",
+   "E": "538,00"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2012-AC-MAT-20",
+  "banco": "BB",
+  "ano": 2012,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (25/03/2012)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BB-2012-AC-MAT-20.png",
+  "enunciado": "O investimento necessário para montar uma pequena empresa é de R$ 10.000,00. Esse investimento renderá R$ 6.000,00 no final do primeiro ano, e R$ 5.500,00 no final do segundo. Depois desses dois anos, o dono dessa empresa pretende fechá-la. A taxa interna de retorno (TIR), anual, desse projeto é",
+  "alternativas": {
+   "A": "1%",
+   "B": "1,5%",
+   "C": "5%",
+   "D": "10%",
+   "E": "15%"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2012_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-11",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 11,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BB-2014-AC-MAT-11.png",
+  "enunciado": "Uma empresa contraiu um financiamento para a aquisição de um terreno junto a uma instituição financeira, no valor de dois milhões de reais, a uma taxa de 10% a.a., para ser pago em 4 prestações anuais, sucessivas e postecipadas. A partir da previsão de receitas, o diretor financeiro propôs o seguinte plano de amortização da dívida: Ano 1 – Amortização de 10% do valor do empréstimo; Ano 2 – Amortização de 20% do valor do empréstimo; Ano 3 – Amortização de 30% do valor do empréstimo; Ano 4 – Amortização de 40% do valor do empréstimo. Considerando as informações apresentadas, os valores, em milhares de reais, das prestações anuais, do primeiro ao quarto ano, são, respectivamente,",
+  "alternativas": {
+   "A": "700, 650, 600 e 500",
+   "B": "700, 600, 500 e 400",
+   "C": "200, 400, 600 e 800",
+   "D": "400, 560, 720 e 860",
+   "E": "400, 580, 740 e 880"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-12",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 12,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BB-2014-AC-MAT-12.png",
+  "enunciado": "Um cliente contraiu um empréstimo, junto a um banco, no valor de R$ 20.000,00, a uma taxa de juros compostos de 4% ao mês, com prazo de 2 trimestres, contados a partir da liberação dos recursos. O cliente quitou a dívida exatamente no final do prazo determinado, não pagando nenhum valor antes disso. Qual o valor dos juros pagos pelo cliente na data da quitação dessa dívida?",
+  "alternativas": {
+   "A": "R$ 5.300,00",
+   "B": "R$ 2.650,00",
+   "C": "R$ 1.250,00",
+   "D": "R$ 1.640,00",
+   "E": "R$ 2.500,00 Dados 1,042 1,043 1,044 1,045 1,046 1,047 1,082 1,125 1,170 1,217 1,265 1,316"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-13",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 13,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BB-2014-AC-MAT-13.png",
+  "enunciado": "Uma empresa gera números que são chamados de protocolos de atendimento a clientes. Cada protocolo é formado por uma sequência de sete algarismos, sendo o último, que aparece separado dos seis primeiros por um hífen, chamado de dígito controlador. Se a sequência dos seis primeiros algarismos forma o número n, então o dígito controlador é o algarismo das unidades de n3 – n2. Assim, no protocolo 897687-d, o valor do dígito controlador d é o algarismo das unidades do número natural que é resultado da expressão 8976873  8976872, ou seja, d é igual a",
+  "alternativas": {
+   "A": "0",
+   "B": "1",
+   "C": "4",
+   "D": "3",
+   "E": "2"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-14",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 14,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2014-AC-MAT-14.png",
+  "enunciado": "Durante 185 dias úteis, 5 funcionários de uma agência bancária participaram de um rodízio. Nesse rodízio, a cada dia, exatamente 4 dos 5 funcionários foram designados para trabalhar no setor X, e cada um dos 5 funcionários trabalhou no setor X o mesmo número N de dias úteis. O resto de N na divisão por 5 é",
+  "alternativas": {
+   "A": "4",
+   "B": "3",
+   "C": "0",
+   "D": "1",
+   "E": "2"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-15",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 15,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2014-AC-MAT-15.png",
+  "enunciado": "Numa empresa, todos os seus clientes aderiram a apenas um dos seus dois planos, Alfa ou Beta. O total de clientes é de 1.260, dos quais apenas 15% são do Plano Beta. Se x clientes do plano Beta deixarem a empresa, apenas 10% dos clientes que nela permanecerem estarão no plano Beta. O valor de x é um múltiplo de",
+  "alternativas": {
+   "A": "3",
+   "B": "8",
+   "C": "13",
+   "D": "11",
+   "E": "10"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-16",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2014-AC-MAT-16.png",
+  "enunciado": "Apenas três equipes participaram de uma olimpíada estudantil: as equipes X, Y e Z. A Tabela a seguir apresenta o número de medalhas de ouro, de prata e de bronze obtidas por essas equipes. ouro prata bronze total Equipe X 3 4 2 9 Equipe Y 1 6 8 15 Equipe Z 0 9 5 14 De acordo com os critérios adotados nessa competição, cada medalha dá a equipe uma pontuação diferente: 4 pontos por cada medalha de ouro, 3 pontos por cada medalha de prata e 1 ponto por cada medalha de bronze. A classificação final das equipes é dada pela ordem decrescente da soma dos pontos de cada equipe, e a equipe que somar mais pontos ocupa o primeiro lugar. Qual foi a diferença entre as pontuações obtidas pelas equipes que ficaram em segundo e em terceiro lugares?",
+  "alternativas": {
+   "A": "6",
+   "B": "5",
+   "C": "1",
+   "D": "2",
+   "E": "4"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-17",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2014-AC-MAT-17.png",
+  "enunciado": "Em uma caixa há cartões. Em cada um dos cartões está escrito um múltiplo de 4 compreendido entre 22 e 82. Não há dois cartões com o mesmo número escrito, e a quantidade de cartões é a maior possível. Se forem retirados dessa caixa todos os cartões nos quais está escrito um múltiplo de 6 menor que 60, quantos cartões restarão na caixa?",
+  "alternativas": {
+   "A": "12",
+   "B": "11",
+   "C": "3",
+   "D": "5",
+   "E": "10"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-18",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2014-AC-MAT-18.png",
+  "enunciado": "A variância de um conjunto de dados é 4 m2. Para o mesmo conjunto de dados foram tomadas mais duas medidas de variabilidade: a diferença entre o terceiro e o primeiro quartil e o coeficiente de variação. Esses dois valores caracterizam-se, respectivamente, por",
+  "alternativas": {
+   "A": "possuírem unidades de medida m2 e m.",
+   "B": "possuírem unidades de medida m e m2.",
+   "C": "ser adimensional e possuir unidade de medida m2.",
+   "D": "possuir unidade de medida m e ser adimensional.",
+   "E": "possuir unidade de medida m2 e ser adimensional."
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-19",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2014-AC-MAT-19.png",
+  "enunciado": "Considerando-se a mesma taxa de juros compostos, se é indiferente receber R$ 1.000,00 daqui a dois meses ou R$ 1.210,00 daqui a quatro meses, hoje, esse dinheiro vale",
+  "alternativas": {
+   "A": "R$ 909,09",
+   "B": "R$ 826,45",
+   "C": "R$ 466,51",
+   "D": "R$ 683,01",
+   "E": "R$ 790,00"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2014-AC-MAT-20",
+  "banco": "BB",
+  "ano": 2014,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (09/02/2014)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2014-AC-MAT-20.png",
+  "enunciado": "Sejam X o número de contratos realizados, e Y o número de contratos cancelados em uma determinada agência, por dia. A distribuição conjunta de X e Y é dada por Dado que pelo menos quatro contratos novos foram fechados, a probabilidade de que três contratos sejam cancelados no mesmo dia é:",
+  "alternativas": {
+   "A": "2 3",
+   "B": "1 3",
+   "C": "1 10",
+   "D": "1 8 ATUALIDADES DO MERCADO FINANCEIRO",
+   "E": "1 4"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem",
+   "recorte_automatico_conferir_imagem"
+  ],
+  "arquivoProva": "BB_2014_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-11",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 11,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-11.png",
+  "enunciado": "Observe a adição: U U + EU UE Sendo E e U dois algarismos não nulos e distintos, a soma E + U é igual a",
+  "alternativas": {
+   "A": "13",
+   "B": "14",
+   "C": "15",
+   "D": "16",
+   "E": "17"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-12",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 12,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-12.png",
+  "enunciado": "O número natural (2103 + 2102 + 2101  2100) é divisível por",
+  "alternativas": {
+   "A": "6",
+   "B": "10",
+   "C": "14",
+   "D": "22",
+   "E": "26"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-13",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 13,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-13.png",
+  "enunciado": "Aldo, Baldo e Caldo resolvem fazer um bolão para um concurso da Mega-Sena. Aldo contribui com 12 bilhetes, Baldo, com 15 bilhetes e Caldo, com 9 bilhetes. Eles combinaram que, se um dos bilhetes do bolão fosse sorteado, o prêmio seria dividido entre os três proporcionalmente à quantidade de bilhetes com que cada um contribuiu. Caldo também fez uma aposta fora do bolão e, na data do sorteio, houve 2 bilhetes ganhadores, sendo um deles o da aposta individual de Caldo, e o outro, um dos bilhetes do bolão. Qual a razão entre a quantia total que Caldo recebeu e a quantia que Baldo recebeu?",
+  "alternativas": {
+   "A": "0,8",
+   "B": "1,5",
+   "C": "2",
+   "D": "2,5",
+   "E": "3"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-14",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 14,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-14.png",
+  "enunciado": "Amanda e Belinha são amigas e possuem assinaturas de TV a cabo de empresas diferentes. A empresa de TV a cabo de Amanda dá descontos de 25% na compra dos ingressos de cinema de um shopping. A empresa de TV a cabo de Belinha dá desconto de 30% na compra de ingressos do mesmo cinema. O preço do ingresso de cinema, sem desconto, é de R$ 20,00. Em um passeio em família, Amanda compra 4 ingressos, e Belinha compra 5 ingressos de cinema no shopping, ambas utilizando-se dos descontos oferecidos por suas respectivas empresas de TV a cabo. Quantos reais Belinha gasta a mais que Amanda na compra dos ingressos?",
+  "alternativas": {
+   "A": "10",
+   "B": "15",
+   "C": "20",
+   "D": "25",
+   "E": "30"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-15",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 15,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-15.png",
+  "enunciado": "Em uma determinada agência bancária, para um cliente que chega entre 15 h e 16 h, a probabilidade de que o tempo de espera na fila para ser atendido seja menor ou igual a 15 min é de 80%. Considerando que quatro clientes tenham chegado na agência entre 15 h e 16 h, qual a probabilidade de que exatamente três desses clientes esperem mais de 15 min na fila?",
+  "alternativas": {
+   "A": "0,64%",
+   "B": "2,56%",
+   "C": "30,72%",
+   "D": "6,67%",
+   "E": "10,24%"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-16",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-16.png",
+  "enunciado": "Arthur contraiu um financiamento para a compra de um apartamento, cujo valor à vista é de 200 mil reais, no Sistema de Amortização Constante (SAC), a uma taxa de juros de 1% ao mês, com um prazo de 20 anos. Para reduzir o valor a ser financiado, ele dará uma entrada no valor de 50 mil reais na data da assinatura do contrato. As prestações começam um mês após a assinatura do contrato e são compostas de amortização, juros sobre o saldo devedor do mês anterior, seguro especial no valor de 75 reais mensais fixos no primeiro ano e despesa administrativa mensal fixa no valor de 25 reais. A partir dessas informações, o valor, em reais, da segunda prestação prevista na planilha de amortização desse financiamento, desconsiderando qualquer outro tipo de reajuste no saldo devedor que não seja a taxa de juros do financiamento, é igual a",
+  "alternativas": {
+   "A": "2.087,25",
+   "B": "2.218,75",
+   "C": "2.175,25",
+   "D": "2.125,00",
+   "E": "2.225,00"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-17",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-17.png",
+  "enunciado": "Um microempresário precisa aumentar seu capital de giro e resolve antecipar 5 cheques de 10.000 reais cada um, todos com data de vencimento para dali a 3 meses. O gerente do banco informa que ele terá exatamente dois custos para realizar a antecipação, conforme descritos a seguir. Custo 1 – Um desconto sobre o valor dos cheques a uma taxa de 4% ao mês. Esse desconto será diretamente proporcional ao valor dos cheques, ao tempo de antecipação e à taxa de desconto anunciados. Custo 2 – Custos operacionais fixos de 500 reais para antecipações de até 100 mil reais. Assim, comparando o valor de fato recebido pelo microempresário e o valor a ser pago após 3 meses (valor total dos cheques), o valor mais próximo da taxa efetiva mensal cobrada pelo banco, no regime de juros compostos, é de ((9",
+  "alternativas": {
+   "A": "5,2%",
+   "B": "4,5%",
+   "C": "4,7%",
+   "D": "5,0%",
+   "E": "4,3% (9999 Dados X X3 1,042 1,131 1,045 1,141 1,047 1,148 1,049 1,154 1,052 1,164"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-18",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-18.png",
+  "enunciado": "Um grupo de analistas financeiros composto por 3 especialistas – X, Y e Z – possui a seguinte característica: X e Y decidem corretamente com probabilidade de 80%, e Z decide corretamente em metade das vezes. Como as decisões são tomadas pela maioria, a probabilidade de o grupo tomar uma decisão correta é:",
+  "alternativas": {
+   "A": "0,16",
+   "B": "0,64",
+   "C": "0,48",
+   "D": "0,32",
+   "E": "0,80"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-19",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-19.png",
+  "enunciado": "Uma conta de R$ 1.000,00 foi paga com atraso de 2 meses e 10 dias. Considere o mês comercial, isto é, com 30 dias; considere, também, que foi adotado o regime de capitalização composta para cobrar juros relativos aos 2 meses, e que, em seguida, aplicou-se o regime de capitalização simples para cobrar juros relativos aos 10 dias. Se a taxa de juros é de 3% ao mês, o juro cobrado foi de",
+  "alternativas": {
+   "A": "R$ 64,08",
+   "B": "R$ 79,17",
+   "C": "R$ 40,30",
+   "D": "R$ 71,51",
+   "E": "R$ 61,96"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-032015-AC-MAT-20",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "03/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (15/03/2015)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2015-032015-AC-MAT-20.png",
+  "enunciado": "Em um período no qual a inflação acumulada foi de 100%, R$ 10.000,00 ficaram guardados em um cofre, ou seja, não sofreram qualquer correção. Nessas condições, houve uma desvalorização dos R$ 10.000,00 de",
+  "alternativas": {
+   "A": "1/4",
+   "B": "1/2",
+   "C": "2/3",
+   "D": "3/4",
+   "E": "1"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-03_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-11",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 11,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-11.png",
+  "enunciado": "A empresa ALFA tomou um empréstimo no valor de 100 mil reais, em janeiro de 2015, a uma taxa de juros de 12% ao ano, no regime de juros compostos, a serem pagos em 3 parcelas anuais, consecutivas e postecipadas. A primeira parcela, a ser paga em janeiro de 2016, corresponderá a 20% do valor do empréstimo; a segunda parcela, um ano após a primeira, será igual a 30% do valor do empréstimo, e a terceira parcela a ser paga, em janeiro de 2018, liquidará a dívida. A quantia, em milhares de reais, que mais se aproxima do valor da terceira parcela é igual a",
+  "alternativas": {
+   "A": "72,0",
+   "B": "90,5",
+   "C": "56,0",
+   "D": "64,2",
+   "E": "81,8"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-12",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 12,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-12.png",
+  "enunciado": "Um cliente foi a um banco tomar um empréstimo de 100 mil reais, no regime de juros compostos, a serem pagos após 3 meses por meio de um único pagamento. Para conseguir o dinheiro, foram apresentadas as seguintes condições: I - taxa de juros de 5% ao mês, incidindo sobre o saldo devedor acumulado do mês anterior; II - impostos mais taxas que poderão ser ﬁnanciados juntamente com os 100 mil reais. Ao fazer a simulação, o gerente informou que o valor total de quitação após os 3 meses seria de 117.500 reais. O valor mais próximo do custo real efetivo mensal, ou seja, a taxa mensal equivalente desse empréstimo, comparando o que pegou com o que pagou, é de",
+  "alternativas": {
+   "A": "[(1,1751/3  1) x 100]%",
+   "B": "[(1,1931/3  1) x 100]%",
+   "C": "[(1,051/3  1) x 100]%",
+   "D": "[(1,1581/3  1) x 100]%",
+   "E": "[(1,1891/3  1) x 100]%"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-13",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 13,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-13.png",
+  "enunciado": "Um cliente fez um investimento de 50 mil reais em um Banco, no regime de juros compostos. Após seis meses, ele resgatou 20 mil reais, deixando o restante aplicado. Após um ano do início da operação, resgatou 36 mil reais, zerando sua posição no investimento. A taxa semestral de juros proporcionada por esse investimento pertence a que intervalo abaixo?",
+  "alternativas": {
+   "A": "7,40% a 7,89%",
+   "B": "8,40% a 8,89%",
+   "C": "6,40% a 6,89%",
+   "D": "6,90% a 7,39%",
+   "E": "7,90% a 8,39% Dado 76  8,7"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-14",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 14,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-14.png",
+  "enunciado": "Um investimento rende à taxa de juros compostos de 12% ao ano com capitalização trimestral. Para obter um rendimento de R$ 609,00 daqui a 6 meses, deve-se investir, hoje, em reais,",
+  "alternativas": {
+   "A": "6.460",
+   "B": "10.000",
+   "C": "3.138",
+   "D": "4.852",
+   "E": "7.271"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-15",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 15,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-15.png",
+  "enunciado": "Fábio possui certa quantia aplicada em um fundo de investimentos. Pensando em fazer uma viagem, Fábio con1 1 sidera duas possibilidades: resgatar ou da quan4 5 tia aplicada. Optando pelo resgate maior, Fábio terá R$ 960,00 a mais para arcar com os custos de sua viagem. Qual é, em reais, o saldo do fundo de investimentos de Fábio?",
+  "alternativas": {
+   "A": "5.600,00",
+   "B": "19.200,00",
+   "C": "3.840,00",
+   "D": "4.800,00",
+   "E": "10.960,00"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-16",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-16.png",
+  "enunciado": "Em certo concurso, a pontuação de cada candidato é obtida da seguinte forma: por cada acerto o candidato recebe 3 pontos e, por cada erro, perde 1 ponto. Os candidatos A e B fizeram a mesma prova, porém A acertou 5 questões a mais do que B. Qual foi a diferença entre as pontuações obtidas pelos dois candidatos?",
+  "alternativas": {
+   "A": "15",
+   "B": "25",
+   "C": "5",
+   "D": "10",
+   "E": "20"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-17",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-17.png",
+  "enunciado": "Uma instituição financeira efetua o desconto de um título de valor de face de R$ 25.000,00 dois meses antes do vencimento, utilizando taxa de desconto simples bancário (por fora) de 9% ao mês. A instituição exige o pagamento de 2% do valor de face do título como taxa de administração no momento de desconto do título. A taxa bimestral de juros realmente cobrada é de",
+  "alternativas": {
+   "A": "20%",
+   "B": "25%",
+   "C": "11%",
+   "D": "16%",
+   "E": "22,5%"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-18",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 9,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-18.png",
+  "enunciado": "Cada vez que o caixa de um banco precisa de moedas para troco, pede ao gerente um saco de moedas. Em cada saco, o número de moedas de R$ 0,10 é o triplo do número de moedas de R$ 0,25; o número de moedas de R$ 0,50 é a metade do número de moedas de R$ 0,10. Para cada R$ 75,00 em moedas de R$ 0,50 no saco de moedas, quantos reais haverá em moedas de R$ 0,25?",
+  "alternativas": {
+   "A": "20",
+   "B": "25",
+   "C": "30",
+   "D": "10",
+   "E": "15"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-19",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 9,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-19.png",
+  "enunciado": "Um cliente foi sorteado em um plano de capitalização, cujo prêmio, após os descontos, foi de R$ 8.800,00. Esse prêmio foi dividido entre seus três filhos de modo que o segundo ganhou um quinto a mais que o primeiro, e o terceiro ganhou cinco sextos a mais que o segundo. Quanto recebeu o primeiro filho?",
+  "alternativas": {
+   "A": "R$ 4.000,00",
+   "B": "R$ 3.600,00",
+   "C": "R$ 2.000,00",
+   "D": "R$ 2.400,00",
+   "E": "R$ 4.400,00"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2015-102015-AC-MAT-20",
+  "banco": "BB",
+  "ano": 2015,
+  "edicao": "10/2015",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (18/10/2015)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 9,
+  "imagem": "imagens/BB-2015-102015-AC-MAT-20.png",
+  "enunciado": "A mãe de João decidiu ajudá-lo a pagar uma das prestações referentes a uma compra parcelada. Ela solicitou a antecipação do pagamento e, por isso, a financeira lhe concedeu um desconto de 6,25% sobre o valor original daquela prestação. João pagou um terço do novo valor, e sua mãe pagou o restante. A parte paga pela mãe de João corresponde a que fração do valor original da prestação?",
+  "alternativas": {
+   "A": "29 48",
+   "B": "1 24",
+   "C": "15 16",
+   "D": "5 8",
+   "E": "4 25"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2015-10_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-MAT-11",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 11,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2018-AC-MAT-11.png",
+  "enunciado": "Para x > 0, seja Sx a soma  S x   2nx  2 x  4  x  8  x  ... n 1 O número real x para o qual se tem S x ",
+  "alternativas": {
+   "A": "4",
+   "B": "log25",
+   "C": "3 2",
+   "D": "5 2",
+   "E": "log23 1 é 4"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-MAT-12",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 12,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2018-AC-MAT-12.png",
+  "enunciado": "O dono de uma loja deu um desconto de 20% sobre o preço de venda (preço original) de um de seus produtos e, ainda assim, obteve um lucro de 4% sobre o preço de custo desse produto. Se vendesse pelo preço original, qual seria o lucro obtido sobre o preço de custo?",
+  "alternativas": {
+   "A": "40%",
+   "B": "30%",
+   "C": "10%",
+   "D": "20%",
+   "E": "25%"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-MAT-13",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 13,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2018-AC-MAT-13.png",
+  "enunciado": "Sabe-se que g é uma função par e está definida em todo domínio da função f, e a função f pode ser expressa por f(x) = x2 + k . x . g(x). Se f(1) = 7, qual o valor de f(1)?",
+  "alternativas": {
+   "A": "7",
+   "B": "5",
+   "C": " 7",
+   "D": " 6",
+   "E": " 5"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-MAT-14",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 14,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BB-2018-AC-MAT-14.png",
+  "enunciado": "Considere o conjunto A cujos 5 elementos são números inteiros, e o conjunto B formado por todos os possíveis produtos de três elementos de A. Se B = {30, 20, 12, 0, 30}, qual o valor da soma de todos os elementos de A?",
+  "alternativas": {
+   "A": "5",
+   "B": "3",
+   "C": "12",
+   "D": "8",
+   "E": "12"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-MAT-15",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 15,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2018-AC-MAT-15.png",
+  "enunciado": "Uma sequência numérica tem seu termo geral representado por an, para n ≥ 1. Sabe-se que a1 = 0 e que a sequência cujo termo geral é bn = an+1  an, n ≥ 1, é uma progressão aritmética cujo primeiro termo é b1 = 9 e cuja razão é igual a 4. O termo a1000 é igual a",
+  "alternativas": {
+   "A": "2.002.991",
+   "B": "2.002.995",
+   "C": "4.000.009",
+   "D": "4.009.000",
+   "E": "2.003.000"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MAT-16",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2021-AC-MAT-16.png",
+  "enunciado": "Um banco tem agências em três regiões do país. Em cada região, trabalha-se com a comercialização de três segmentos: seguros (X), previdência (Y) e consórcios (Z). Cada equação linear que compõe o sistema abaixo representa a capacidade de uma regional produzir valor agregado para o banco, em cada segmento de atuação (lado esquerdo das equações), visando ao alcance das metas de lucro operacional em milhares de reais (lado direito das equações). 2X  5Y  4Z  690 região Sul  5X  2Y  4Z  720 região Sudeste 3X  3Y  2Z  540 região Norte  De acordo com esses dados, verifica-se que a contribuição de um dado segmento que atinge exatamente a meta de sua região é de",
+  "alternativas": {
+   "A": "R$160.000,00 no segmento seguros, na região Sul",
+   "B": "R$400.000,00 no segmento previdência, na região Sudeste",
+   "C": "R$180.000,00 no segmento consórcio, na região Norte",
+   "D": "R$90.000,00 no segmento seguros, na região Norte",
+   "E": "R$180.000,00 no segmento previdência, na região Sul"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MAT-17",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2021-AC-MAT-17.png",
+  "enunciado": "O rendimento de um título sofreu uma variação negativa de 3 pontos percentuais de um mês para o mês seguinte, ou seja, se no primeiro mês o título rendeu x%, no mês seguinte o mesmo título rendeu (x 3)%. O montante M(x) de capital arrecadado após esses dois meses em um investimento de R$10.000,00, em função da taxa de rendimento do primeiro mês, será dado por",
+  "alternativas": {
+   "A": "x² 10000",
+   "B": "x²  3x 10000",
+   "C": "x² 197x 10000",
+   "D": "x² 197x 9700",
+   "E": "x² 97x 9700"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MAT-18",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2021-AC-MAT-18.png",
+  "enunciado": "Uma profissional liberal comprou dois apartamentos com o objetivo de vendê-los. Na venda do primeiro deles, obteve um lucro de 36% sobre o preço de compra e, na do segundo, um lucro de 12%, também sobre o preço de compra. Ela recebeu por essas duas vendas uma quantia 27% maior do que a soma das quantias pagas na compra dos dois apartamentos. Nessas condições, sendo P a quantia paga pelo primeiro apartamento, e S a quantia paga pelo segundo, a razão P/S é igual a",
+  "alternativas": {
+   "A": "8/5",
+   "B": "5/3",
+   "C": "12/5",
+   "D": "17/14",
+   "E": "9/8"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MAT-19",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2021-AC-MAT-19.png",
+  "enunciado": "De quantas formas diferentes, em relação à ordem entre as pessoas, dois homens e quatro mulheres poderão ser dispostos em fila indiana, de modo que entre os dois homens haja, pelo menos, uma mulher?",
+  "alternativas": {
+   "A": "10",
+   "B": "20",
+   "C": "48",
+   "D": "480",
+   "E": "720"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MAT-20",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2021-AC-MAT-20.png",
+  "enunciado": "Um estudante precisa fazer um trabalho escolar em seu aparelho de telefone celular. Para isso, usará dois aplicativos, A e B, um de cada vez. Ele sabe que a bateria do seu aparelho, estando com carga total, é suficiente para até 4 horas de uso do aplicativo A e sabe também que, com carga total, a bateria é suficiente para até 1 hora e 20 minutos de uso do aplicativo B. Após se certificar de que a bateria de seu aparelho estava com carga total, deu início ao trabalho com o uso do aplicativo A. Depois de algum tempo, ele interrompeu o uso desse aplicativo e, imediatamente, iniciou o uso do aplicativo B, até a bateria descarregar completamente, 3 horas depois do início do trabalho. Por quanto tempo o estudante usou o aplicativo A?",
+  "alternativas": {
+   "A": "2h 10min",
+   "B": "2h 15min",
+   "C": "2h 20min",
+   "D": "2h 30min",
+   "E": "2h 50min"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MFI-26",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 26,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2021-AC-MFI-26.png",
+  "enunciado": "Uma pessoa está planejando comprar uma geladeira no valor de R$1.300,00, no futuro. Sabendo-se que ela pretende gastar exatamente esse valor e que dispõe de um capital de R$1.000,00, que será aplicado no dia de hoje a uma taxa de juros simples de 1,5% ao mês, qual será o prazo dessa aplicação, em meses, para que ela consiga comprar a geladeira à vista, o mais rápido possível?",
+  "alternativas": {
+   "A": "2",
+   "B": "16",
+   "C": "20",
+   "D": "50",
+   "E": "200"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MFI-27",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 27,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2021-AC-MFI-27.png",
+  "enunciado": "Qual é a taxa de juros simples utilizada por uma aplicação para tornar um capital inicial de R$1.000,00 em um montante de R$1.240,00, em um período de um ano?",
+  "alternativas": {
+   "A": "0,02 ao mês",
+   "B": "0,02% ao mês",
+   "C": "0,02 ao ano",
+   "D": "0,02% ao ano",
+   "E": "0,24% ao ano"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MFI-28",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 28,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2021-AC-MFI-28.png",
+  "enunciado": "Uma pessoa faz um financiamento no valor de R$10.000,00 em 10 vezes, a uma taxa de juros de 4,9% ao mês, sendo que o financiamento usa o sistema de amortização constante. Qual é o valor, em reais, a ser pago na 7a prestação desse financiamento?",
+  "alternativas": {
+   "A": "1.490",
+   "B": "1.334",
+   "C": "1.292",
+   "D": "1.196",
+   "E": "1.100"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MFI-29",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 29,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2021-AC-MFI-29.png",
+  "enunciado": "Em uma carta aos clientes, um investimento é oferecido com a promessa de recebimento de um montante de R$8.200,00 líquidos, após 2 anos, para quem aderisse investindo inicialmente R$5.000,00. O valor líquido pago é obtido após descontados R$250,00 de taxas e impostos. Para melhorar a comunicação com os clientes, julgaram interessante acrescentar a taxa de juros compostos usada no cálculo do valor bruto, isto é, sem o desconto. Qual é o valor da taxa anual que deve ser acrescentada na carta?",
+  "alternativas": {
+   "A": "2%",
+   "B": "3%",
+   "C": "20%",
+   "D": "25%",
+   "E": "30%"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2021-AC-MFI-30",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova C (26/09/2021)",
+  "numero": 30,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2021-AC-MFI-30.png",
+  "enunciado": "Uma pessoa deixou de pagar a fatura do cartão de crédito, de modo que, após dois meses, o valor inicial da fatura se transformou em uma dívida de R$26.450,00. Nunca foram feitas compras parceladas e não foram feitas compras adicionais durante esses dois meses. Considerando-se que foram cobrados, indevidamente, juros compostos de 15% ao mês e que, por determinação judicial, o valor inicial deva ser reconsiderado para uma nova negociação entre as partes, o valor inicial da dívida era de",
+  "alternativas": {
+   "A": "R$18.515,00",
+   "B": "R$18.815,00",
+   "C": "R$20.000,00",
+   "D": "R$21.000,00",
+   "E": "R$21.115,00"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MAT-16",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2023-AC-MAT-16.png",
+  "enunciado": "As 2023 assertivas a seguir estão escritas em um caderno. 1) Só 1 assertiva é falsa neste caderno. 2) Só 2 assertivas são falsas neste caderno. 3) Só 3 assertivas são falsas neste caderno. . . . n) Só n assertivas são falsas neste caderno. . . . 2022) Só 2022 assertivas são falsas neste caderno. 2023) Só 2023 assertivas são falsas neste caderno. Considerando-se essas 2023 assertivas, o número de assertivas verdadeiras é",
+  "alternativas": {
+   "A": "2023",
+   "B": "2022",
+   "C": "1011",
+   "D": "1",
+   "E": "0"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MAT-17",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2023-AC-MAT-17.png",
+  "enunciado": "J convenceu o diretor de um curso preparatório a abrir uma turma especialmente para o concurso em que ele pretende se inscrever, e comprometeu-se a trazer mais alunos para formar essa turma. O diretor do curso estabeleceu a seguinte condição: — Uma sala com 70 lugares, ou seja, com capacidade para até 70 estudantes, será disponibilizada para a turma, desde que cada estudante, incluindo você, J, pague mensalmente R$ 660,00, mais R$ 30,00 por cada lugar vago. Considerando-se a condição estabelecida pelo diretor, para que o curso tenha arrecadação mensal máxima com essa turma, ela deverá ter exatamente x estudantes. Dividindo-se x por 5, obtém-se resto igual a",
+  "alternativas": {
+   "A": "0",
+   "B": "1",
+   "C": "2",
+   "D": "3",
+   "E": "4"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MAT-18",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2023-AC-MAT-18.png",
+  "enunciado": "A sequência dos primeiros 2100 números inteiros positivos foi disposta em uma Tabela, da seguinte forma: Linha 1 Coluna 1 Coluna 2 Coluna 3 Coluna 4 Coluna 5 Coluna 6 1 2 3 4 5 6 7 8 9 10 11 14 15 16 17 18 19 20 21 22 23 26 27 28 29 30 Linha 2 Linha 3 13 Linha 4 Linha 5 . . . 25 . . . . . . . . . . . . . . . . . . Coluna 7 12 24 . . . Nessa distribuição, as linhas de número ímpar recebem só seis números da sequência, a partir da Coluna 1, ficando a Coluna 7 vazia; já as linhas de número par também recebem só seis números da sequência, mas a partir da Coluna 2, ficando a Coluna 1 vazia, como pode ser observado na Tabela apresentada. Sendo assim, os números 1808 e 2023 estão escritos, respectivamente, nas seguintes colunas:",
+  "alternativas": {
+   "A": "6 e 4",
+   "B": "3 e 3",
+   "C": "6 e 3",
+   "D": "6 e 2",
+   "E": "3 e 2"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MAT-19",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2023-AC-MAT-19.png",
+  "enunciado": "Três novas agências de um banco estão sendo criadas, e alguns poucos materiais ainda precisam ser comprados. A Tabela a seguir mostra esses materiais e suas respectivas quantidades, pedidas por cada uma dessas agências. Sabe-se que todos os armários são idênticos e têm o mesmo preço, o mesmo ocorrendo com as mesas e com as cadeiras. Armário Mesa Cadeira Custo total (R$) Agência X 4 7 10 7500 Agência Y 1 2 3 2080 Agência Z 2 2 2 ? O custo total da compra do material para a Agência Z, em R$, é de",
+  "alternativas": {
+   "A": "2.200,00",
+   "B": "2.380,00",
+   "C": "2.460,00",
+   "D": "2.520,00",
+   "E": "2.740,00"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MAT-20",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/BB-2023-AC-MAT-20.png",
+  "enunciado": "Um investidor muito supersticioso escolhe, mensalmente, um conjunto de três tipos de investimento para aplicar alguma quantia. Ele toma por regra dispor apenas dos mesmos nove tipos de investimentos e nunca repetir, em um mesmo mês, o mesmo conjunto de três tipos já usados em qualquer mês anterior. Por exemplo, se no 1o mês ele escolheu os investimentos de tipos A, B e C; no 2o mês, A, B e D; e no 3o mês, E, F e G, então ele não poderá investir novamente, num mesmo mês, por exemplo, no conjunto dos investimentos de tipos A, B e C, por já tê-lo usado no 1o mês. Considerando-se as condições descritas, o número máximo de meses em que o investidor poderá fazer esses investimentos é",
+  "alternativas": {
+   "A": "84",
+   "B": "60",
+   "C": "56",
+   "D": "48",
+   "E": "35"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MFI-26",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 26,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2023-AC-MFI-26.png",
+  "enunciado": "Um cliente tem duas opções para investir R$ 100.000,00 em um prazo de 2 anos. A primeira opção oferece um retorno de 12% ao ano no regime de juros compostos, mas há cobrança de 15% de imposto sobre os juros proporcionados pelo investimento. Já a segunda opção oferece um retorno de 10% ao ano no regime de juros compostos, mas sem qualquer cobrança de imposto. Ao escolher a opção mais lucrativa, ao final de exatos dois anos de investimento, esse cliente receberá a mais, em relação à opção menos lucrativa, uma quantia, em R$, igual a",
+  "alternativas": {
+   "A": "624,00",
+   "B": "824,00",
+   "C": "1.524,00",
+   "D": "2.940,00",
+   "E": "4.440,00"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MFI-27",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 27,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2023-AC-MFI-27.png",
+  "enunciado": "Um banco oferece para um cliente um investimento que lhe proporcionará uma taxa de juros de 1% ao mês, no regime de juros compostos. Esse mesmo banco também disponibiliza, para o mesmo cliente, uma linha de crédito de fácil acesso chamada cheque especial, cobrando uma taxa de juros de 4% ao mês, no regime de juros compostos. Para esse cliente, a diferença entre a taxa anual da operação financeira disponível no cheque especial e a taxa anual da operação financeira disponível no investimento oferecido é",
+  "alternativas": {
+   "A": "12,68%",
+   "B": "36,00%",
+   "C": "47,42%",
+   "D": "48,68%",
+   "E": "60,10% Dado: 1,0112 = 1,1268; 1,0412 = 1,6010"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MFI-28",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 28,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2023-AC-MFI-28.png",
+  "enunciado": "O capital de um cliente do segmento ultra-especial ficou aplicado durante 50 dias a uma taxa de juros simples de 1,5% ao mês. Ao final desse prazo, o cliente resgatou tudo e pagou R$ 4.500,00, referentes a 22,5% de imposto de renda sobre os juros proporcionados pelo investimento. Considerando-se o mês com 30 dias, o valor aplicado nessa operação, em R$, foi",
+  "alternativas": {
+   "A": "450.000,00",
+   "B": "700.000,00",
+   "C": "750.000,00",
+   "D": "800.000,00",
+   "E": "950.000,00"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MFI-29",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 29,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2023-AC-MFI-29.png",
+  "enunciado": "A empresa XYZ planeja comprar um equipamento em janeiro de 2023, cujo preço à vista é R$ 300.000,00, pagando com uma entrada e mais duas parcelas. A entrada, correspondente à primeira parcela, será paga em janeiro de 2023 (no ato da compra); a segunda parcela, em janeiro de 2024, no valor de R$ 150.000,00; e a terceira parcela, em janeiro de 2025, também no valor de R$ 150.000,00. Considerando-se a equivalência financeira a juros compostos, se a taxa de juros cobrada pelo vendedor é de 10% ao ano, o valor da entrada (primeira parcela no ato da compra), em R$, será, aproximadamente,",
+  "alternativas": {
+   "A": "20.000,00",
+   "B": "39.670,00",
+   "C": "48.750,00",
+   "D": "54.280,00",
+   "E": "63.000,00"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BB-2023-AC-MFI-30",
+  "banco": "BB",
+  "ano": 2023,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Agente Comercial Prova A (23/04/2023)",
+  "numero": 30,
+  "materia": "Matemática Financeira",
+  "pagina": 10,
+  "imagem": "imagens/BB-2023-AC-MFI-30.png",
+  "enunciado": "Uma empresa tomou um empréstimo de R$ 50.000,00 em janeiro de 2022, a uma taxa de juros compostos de 5% ao mês. Para amortizar parte da dívida, a empresa pagou R$ 30.000,00 em março de 2022, e R$ 20.000,00 em abril de 2022. No que se refere a esse empréstimo, o valor, em R$, do saldo devedor dessa empresa, em maio de 2022, era, aproximadamente,",
+  "alternativas": {
+   "A": "3.625,00",
+   "B": "3.806,00",
+   "C": "6.381,00",
+   "D": "6.700,00",
+   "E": "7.201,00"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2023_Escriturario_AgenteComercial_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-11",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 11,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BNB-2024-AC-MAT-11.png",
+  "enunciado": "Cerca de 36,7% dos aprovados no ITA estudaram em Fortaleza Um levantamento do Instituto Tecnológico de Aeronáutica (ITA) mostra que, nos vestibulares de 2012 a 2022, estudantes da capital cearense ocuparam 543 vagas, o que corresponde a cerca de 36,7% do total de vagas disponíveis. Fortaleza foi também a cidade que mais aprovou alunos em oito dos últimos 11 anos no ITA, um dos vestibulares mais difíceis do país. Disponível em: https://g1.globo.com/ce/ceara/educacao/ noticia/2022/12/15/36percent-dos-aprovados-no-ita-estudaram-em-fortaleza-entenda-por-que-o-ceara-tem-alta-aprovacao.ghtml. Acesso em: 3 fev. 2024. Adaptado. Considerando-se o texto, o número total aproximado de vagas disponíveis, no período citado, é obtido por",
+  "alternativas": {
+   "A": "543 ⋅ 100 36,7",
+   "B": "543 ⋅ 100 367",
+   "C": "543 ⋅ 100 0,367",
+   "D": "543 ⋅ 36,7 100",
+   "E": "543 ⋅ 367 100"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-12",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 12,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BNB-2024-AC-MAT-12.png",
+  "enunciado": "Três funcionários, F, G e H, trabalharam durante o mesmo número de horas, com uma produção de unidades por hora respectivamente igual a 6, 9 e 11. Ao todo, eles produziram 442 unidades. O número de unidades produzidas por G foi igual a",
+  "alternativas": {
+   "A": "102",
+   "B": "126",
+   "C": "144",
+   "D": "153",
+   "E": "187"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-13",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 13,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BNB-2024-AC-MAT-13.png",
+  "enunciado": "O ingresso para um evento em um clube custou R$ 45,00 para todo o público, excetuando-se apenas os estudantes, a quem foram dados 40% de desconto. O evento teve um público pagante de 106 pessoas e arrecadou um total de R$ 4.410,00. Nesse evento, a soma dos algarismos do número de pessoas que pagaram ingresso sem desconto é igual a",
+  "alternativas": {
+   "A": "16",
+   "B": "15",
+   "C": "14",
+   "D": "13",
+   "E": "12"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-14",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 14,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BNB-2024-AC-MAT-14.png",
+  "enunciado": "Em um determinado banco, atualmente, o investimento P conta com 6 vezes o número de clientes do investimento Q. Porém, anualmente, o número de clientes do investimento P decresce 8%, enquanto o do investimento Q cresce 14%. Supondo-se que essas taxas se mantenham, esses dois investimentos terão o mesmo número de clientes em um total de anos dado por",
+  "alternativas": {
+   "A": "6 ⋅ log10 114 , log10 0,92",
+   "B": "log10 14 6 ⋅ log10 8",
+   "C": "log10 6 log10 14 log10 8",
+   "D": "6 log10 1,14 log10 0,92",
+   "E": "log10 6 log10 1,14 log10 0,92"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-15",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 15,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BNB-2024-AC-MAT-15.png",
+  "enunciado": "Em uma confraternização de final de ano, os funcionários de um banco foram divididos em grupos de cinco funcionários, mas um único funcionário sobrou. Em uma nova tentativa, mas agora com exatamente a metade do número de funcionários, o número N (sendo N < 5) de funcionários que sobrou foi igual a",
+  "alternativas": {
+   "A": "4",
+   "B": "3",
+   "C": "2",
+   "D": "1",
+   "E": "0"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-16",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BNB-2024-AC-MAT-16.png",
+  "enunciado": "Considere (x0, y0, z0) a solução do sistema linear 2x 2y z 3 \u001a \u001b x y 3z 11 \u001a 3x y 7 \u0019 A soma x0 + y0 + z0 é igual a",
+  "alternativas": {
+   "A": "3",
+   "B": "7",
+   "C": "10",
+   "D": "11",
+   "E": "21 ."
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-17",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BNB-2024-AC-MAT-17.png",
+  "enunciado": "Uma senha será formada pelo sequenciamento aleatório de quatro letras escolhidas entre as letras A, E, O, Z, W e Y, sem repetições. Qual é a probabilidade de a senha formada ter duas vogais e duas consoantes ocupando posições intercaladas?",
+  "alternativas": {
+   "A": "1 2",
+   "B": "1 3",
+   "C": "1 4",
+   "D": "1 5",
+   "E": "1 6"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-18",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BNB-2024-AC-MAT-18.png",
+  "enunciado": "Em uma agência bancária, há 4 funcionários que atuam na gerência de atendimento ao cliente e 5 funcionários que atuam na gerência administrativa. Um grupo de 5 funcionários dessa agência deve ser formado para participar de uma reunião, atendendo-se à seguinte restrição: 2 atuando na gerência de atendimento ao cliente, e os 3 restantes, na gerência administrativa. Qual o número máximo de grupos diferentes que poderiam ser formados, atendendo-se a tal restrição?",
+  "alternativas": {
+   "A": "12",
+   "B": "24",
+   "C": "60",
+   "D": "120",
+   "E": "720"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-19",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BNB-2024-AC-MAT-19.png",
+  "enunciado": "Considere válidas as seguintes igualdades: (1,21)3 = ((1,1)2)3 = (1,1)6 = 1,772 Tais igualdades justificam o fato de serem equivalentes as taxas de juros compostos",
+  "alternativas": {
+   "A": "10% ao mês, 21% ao bimestre e 77,2% ao semestre",
+   "B": "10% ao mês, 21% ao trimestre e 77,2% ao semestre",
+   "C": "10% ao semestre, 21% ao trimestre e 77,2% ao ano",
+   "D": "1% ao mês, 2,1% ao bimestre e 7,72% ao semestre",
+   "E": "1% ao mês, 2,1% ao trimestre e 7,72% ao semestre"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BNB-2024-AC-MAT-20",
+  "banco": "BNB",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Analista Bancário 1 (28/04/2024)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 6,
+  "imagem": "imagens/BNB-2024-AC-MAT-20.png",
+  "enunciado": "No ano de 2023, um videogame foi lançado com um preço especial de lançamento. Ao longo do ano, no entanto, devido à demanda, o preço sofreu dois aumentos de 25% em regime composto. Em janeiro de 2024, o preço desse videogame, por causa de uma promoção, foi igualado ao seu preço especial de lançamento no ano de 2023. O desconto dado nessa promoção foi de",
+  "alternativas": {
+   "A": "31%",
+   "B": "36%",
+   "C": "50%",
+   "D": "56%",
+   "E": "64%"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BNB_2024_AnalistaBancario1_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2018-AC-MAT-06",
+  "banco": "Banco da Amazônia",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (29/04/2018)",
+  "numero": 6,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BancodaAmazonia-2018-AC-MAT-06.png",
+  "enunciado": "O comprimento de um grande fio corresponde à soma dos comprimentos de 24 fios menores. São eles: • 12 fios, cada um dos quais com comprimento que mede 14,7 cm; • 4 fios, cada um dos quais com comprimento que mede 0,3765 km; • 8 fios, cada um dos quais com comprimento que mede 13,125 dam. Esse grande fio foi dividido em 3 fios de igual comprimento, chamados de unidade modelo. Qual é a medida, em metros, do comprimento de uma unidade modelo?",
+  "alternativas": {
+   "A": "6385,500",
+   "B": "2557,764",
+   "C": "852,588",
+   "D": "94,302",
+   "E": "31,434"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2018_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2018-AC-MAT-07",
+  "banco": "Banco da Amazônia",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (29/04/2018)",
+  "numero": 7,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BancodaAmazonia-2018-AC-MAT-07.png",
+  "enunciado": "Considere a sequência numérica cujo termo geral é dado por an=213n, para n ≥ 1. Essa sequência numérica é uma progressão 1 . 8 (B) geométrica, cuja razão é 6.",
+  "alternativas": {
+   "A": "geométrica, cuja razão é",
+   "C": "geométrica, cuja razão é 3.",
+   "D": "aritmética, cuja razão é 3.",
+   "E": "aritmética, cuja razão é 1 . 8"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem",
+   "texto_alternativas_incompletas"
+  ],
+  "arquivoProva": "BASA_2018_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2018-AC-MAT-08",
+  "banco": "Banco da Amazônia",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (29/04/2018)",
+  "numero": 8,
+  "materia": "Matemática",
+  "pagina": 4,
+  "imagem": "imagens/BancodaAmazonia-2018-AC-MAT-08.png",
+  "enunciado": "Um valor inicial C0 foi capitalizado por meio da incidência de juros compostos mensais constantes iguais a 6,09%. Ao final de 6 meses, isto é, após 6 incidências dos juros, gerou-se o montante M. A partir do valor inicial C0, seria alcançado o mesmo montante M ao final de 12 meses (12 incidências), se os juros compostos mensais constantes tivessem sido iguais a",
+  "alternativas": {
+   "A": "1,045%",
+   "B": "1,450%",
+   "C": "3,045%",
+   "D": "3,450%",
+   "E": "3,000%"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2018_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2018-AC-MAT-09",
+  "banco": "Banco da Amazônia",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (29/04/2018)",
+  "numero": 9,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BancodaAmazonia-2018-AC-MAT-09.png",
+  "enunciado": "Sabe-se que 30% dos clientes de um banco são do sexo masculino e os 70% restantes são do sexo feminino. Entre os clientes do sexo masculino, a média do tempo de vínculo com o banco é igual a 4 anos e, entre os clientes do sexo feminino, é igual a 6 anos. Considerando-se todos os clientes, de ambos os sexos, qual é a média do tempo de vínculo de cada um com o banco?",
+  "alternativas": {
+   "A": "5 anos",
+   "B": "5,3 anos",
+   "C": "6 anos",
+   "D": "5,4 anos",
+   "E": "5,7 anos"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2018_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2018-AC-MAT-10",
+  "banco": "Banco da Amazônia",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (29/04/2018)",
+  "numero": 10,
+  "materia": "Matemática",
+  "pagina": 5,
+  "imagem": "imagens/BancodaAmazonia-2018-AC-MAT-10.png",
+  "enunciado": "No conjunto dos números reais, considere as seguintes duas inequações: Inequação 1: 5x 7 > x2  x + 1 Inequação 2: x + 6 > x + 10 Um número real x, que é solução da inequação 2, também será solução da inequação 1, se, e somente se, for solução da inequação",
+  "alternativas": {
+   "A": "x < 4",
+   "B": "4x 16 < 0",
+   "C": "x2 16 > 0",
+   "D": "x + 1 > x + 9 1 1",
+   "E": " x 4"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2018_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2021-AC-MAT-06",
+  "banco": "Banco da Amazônia",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (13/03/2022)",
+  "numero": 6,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BancodaAmazonia-2021-AC-MAT-06.png",
+  "enunciado": "Em outubro de 2021, segundo dados do Banco Central, os saques nas cadernetas de poupança superaram os depósitos em cerca de R$7,4 bilhões. Foram R$278 bilhões em depósitos e R$285,4 bilhões em saques, aproximadamente, no período. Disponível em: <https://g1.globo.com/economia/noticia /2021/11/05/saques-na-poupanca-superam-depositos-em-r-743-bilhoes-em-outubro.ghtml>. Acesso em: 12 nov. 21. Adaptado. Tomando-se como base o valor total dos depósitos, a diferença percentual entre os totais de retirada e de depósitos, no mês de outubro de 2021,",
+  "alternativas": {
+   "A": "foi de menos de 2%.",
+   "B": "ficou entre 2% e 8%.",
+   "C": "ficou entre 8% e 14%.",
+   "D": "ficou entre 14% e 20%.",
+   "E": "foi superior a 20%."
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2021_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2021-AC-MAT-07",
+  "banco": "Banco da Amazônia",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (13/03/2022)",
+  "numero": 7,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BancodaAmazonia-2021-AC-MAT-07.png",
+  "enunciado": "A Tabela a seguir apresenta as cotações, em dólares americanos, de 6 criptomoedas no dia 18 de novembro de 2021. Criptomoeda Ticker Preço Bitcoin BTC $58.685,62 Ethereum ETH $4.111,28 Binance Coin BNB $553,42 Tether USDT $1,00 Solana SOL $197,32 Cardano ADA $1,80 Disponível em: <https://www.seudinheiro.com/2021/bitcoin/bitcoin -btc-criptomoedas-hoje-18-11/>. Acesso em: 25 nov. 21. O valor de 1 Bitcoin corresponde a",
+  "alternativas": {
+   "A": "mais de 10 Ethereums",
+   "B": "menos de 100 Binance Coins",
+   "C": "aproximadamente 58 Tethers",
+   "D": "mais de 400 Solanas",
+   "E": "menos de 30.000 Cardanos"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2021_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2021-AC-MAT-08",
+  "banco": "Banco da Amazônia",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (13/03/2022)",
+  "numero": 8,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BancodaAmazonia-2021-AC-MAT-08.png",
+  "enunciado": "Uma loja anuncia uma geladeira cujo preço à vista é de R$ 3.500,00. Não dispondo deste capital, um cliente se propõe a pagar a geladeira, com juros compostos de 4% a.m., em quatro prestações mensais, de mesmo valor, sendo a primeira no ato da compra. Qual o valor aproximado da prestação que o cliente está se propondo a pagar em reais?",
+  "alternativas": {
+   "A": "875,00",
+   "B": "910,00",
+   "C": "927,13",
+   "D": "964,22",
+   "E": "1.023,63"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2021_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2021-AC-MAT-09",
+  "banco": "Banco da Amazônia",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (13/03/2022)",
+  "numero": 9,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BancodaAmazonia-2021-AC-MAT-09.png",
+  "enunciado": "Um banco oferece um financiamento utilizando uma taxa de juros simples de 6% a.a. Qual a taxa trimestral equivalente à taxa oferecida pelo banco?",
+  "alternativas": {
+   "A": "0,0147 a.t.",
+   "B": "0,15 a.t.",
+   "C": "0,50% a.t.",
+   "D": "1,47% a.t.",
+   "E": "1,50% a.t."
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2021_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2021-AC-MAT-10",
+  "banco": "Banco da Amazônia",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário (13/03/2022)",
+  "numero": 10,
+  "materia": "Matemática",
+  "pagina": 3,
+  "imagem": "imagens/BancodaAmazonia-2021-AC-MAT-10.png",
+  "enunciado": "A Tabela abaixo representa as frequências referentes aos resultados de alcatrão (mg) encontrados em cigarros sem filtro, a partir de uma amostra de 30 cigarros selecionados de várias marcas. Alcatrão (mg) Frequência [10, 14) 2 [14, 18) 4 [18, 22) x [22, 26) y [26, 30] 2 Se a média de alcatrão na amostra foi de 20,4 mg, qual o valor de xy ?",
+  "alternativas": {
+   "A": "6",
+   "B": "8",
+   "C": "10",
+   "D": "12",
+   "E": "14"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2021_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-MFI-31",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 31,
+  "materia": "Matemática Financeira",
+  "pagina": 8,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-MFI-31.png",
+  "enunciado": "Um empréstimo de R$ 30.000,00 será pago pelo Sistema de Amortização Constante (SAC), em 10 parcelas mensais, segundo uma taxa mensal de juros de 4%. A primeira parcela será paga um mês após a data do empréstimo. Qual será, em reais, o valor da quarta parcela?",
+  "alternativas": {
+   "A": "4.200,00",
+   "B": "4.080,00",
+   "C": "3.960,00",
+   "D": "3.840,00",
+   "E": "3.720,00"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-MFI-32",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 32,
+  "materia": "Matemática Financeira",
+  "pagina": 8,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-MFI-32.png",
+  "enunciado": "O preço atual de um produto é representado por P. Sabe-se que, nos próximos meses, o preço P receberá dois aumentos sucessivos de 6%, em regime composto, ao final dos quais passará a custar R$ 2.303,38. Qual é, em reais, o preço P?",
+  "alternativas": {
+   "A": "2.303,26",
+   "B": "2.050,00",
+   "C": "2.035,27",
+   "D": "2.026,97",
+   "E": "2.005,00"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-MFI-33",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 33,
+  "materia": "Matemática Financeira",
+  "pagina": 8,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-MFI-33.png",
+  "enunciado": "Sabe-se que, daqui a n meses, o montante M(n) obtido em uma capitalização será dado por M(n) = 11.000 . (1, 1)n. Qual será, em reais, o montante obtido daqui a 4 meses?",
+  "alternativas": {
+   "A": "11.446,64",
+   "B": "14.641,00",
+   "C": "16.105,10",
+   "D": "44.000,00",
+   "E": "48.400,00"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-MFI-34",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 34,
+  "materia": "Matemática Financeira",
+  "pagina": 8,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-MFI-34.png",
+  "enunciado": "Sabe-se que uma progressão aritmética cujo termo geral é representado por an , n=1, 2, 3 ... é tal que a sua razão é igual ao dobro do seu termo a1 . Em princípio, portanto, o seu termo geral an poderia ser dado por",
+  "alternativas": {
+   "A": "an = 4n - 2",
+   "B": "an = 2 + 4n",
+   "C": "an = 2n",
+   "D": "an = 2 . 4n+1",
+   "E": "an = 2 . 4n-1"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-MFI-35",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 35,
+  "materia": "Matemática Financeira",
+  "pagina": 9,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-MFI-35.png",
+  "enunciado": "O preço de lançamento de um produto é indicado por P. Ao longo de um ano, o preço do produto passou por alterações, feitas na seguinte ordem: • Um desconto de 20%; • Um aumento de 100%. O percentual de cada alteração foi relativo ao preço em curso no momento da alteração. Considerando-se que Q é o preço do produto ao final das duas alterações, então, para retornar ao preço de lançamento P, bastaria que se desse, sobre Q, um desconto de",
+  "alternativas": {
+   "A": "37,5%",
+   "B": "40,0%",
+   "C": "60,0%",
+   "D": "62,5%",
+   "E": "80,0%"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-11",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 11,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/Banese-2025-AC-MAT-11.png",
+  "enunciado": "Sejam f :   * e g :  *  as funções algebricamente definidas por f(x)=32x e g(x)=log9(x). Para todo x > 0, tem-se que f(g(x)) é igual a",
+  "alternativas": {
+   "A": "",
+   "B": "x x2",
+   "C": "x2 2",
+   "D": "2x2",
+   "E": "x"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-12",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 12,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/Banese-2025-AC-MAT-12.png",
+  "enunciado": "Sejam x, y e z números reais que satisfazem ao sistema linear dado a seguir: 2 x 3 y z 4 \u001b \u001a x z 1 O valor de x + y é igual a",
+  "alternativas": {
+   "A": "-3",
+   "B": "-1",
+   "C": "0",
+   "D": "1",
+   "E": "3"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-13",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 13,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/Banese-2025-AC-MAT-13.png",
+  "enunciado": "Uma sequência numérica é tal que seus termos a1= a2 = 1 e an+2 = an+1 -an, para todo n 1. O termo a35 dessa sequência é igual a",
+  "alternativas": {
+   "A": "-35",
+   "B": "-1",
+   "C": "0",
+   "D": "1",
+   "E": "35"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-14",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 14,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/Banese-2025-AC-MAT-14.png",
+  "enunciado": "Uma progressão geométrica é tal que o seu segundo termo a2 é igual a 4. Considerando-se que a1 e a3 são, respectivamente, o primeiro e o terceiro termos de tal progressão, então o produto a1 . a3 é igual a",
+  "alternativas": {
+   "A": "2",
+   "B": "4",
+   "C": "8",
+   "D": "16",
+   "E": "64"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-15",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 15,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/Banese-2025-AC-MAT-15.png",
+  "enunciado": "Em 2025, um certo campeonato de futebol contará com um total de T times, sendo um deles o campeão do ano anterior. Suponha que exista um esquema de apostas em que são escolhidos apenas dois desses T times, ordenadamente: o campeão e o vice-campeão. Por exemplo, a aposta “time W para campeão e time Y para vice-campeão” é diferente da aposta “time Y para campeão e time W para vice-campeão”. Nessas condições, o número de apostas diferentes, tais que o time campeão do ano anterior não figure, é dado por",
+  "alternativas": {
+   "A": "T2 - T",
+   "B": "T2 - 1",
+   "C": "(T2 - T)/2",
+   "D": "T2 - 3T + 2",
+   "E": "(T2 - 3T + 2)/2"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-16",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/Banese-2025-AC-MAT-16.png",
+  "enunciado": "Um laboratório farmacêutico precisa transferir 240 litros de vacina para ampolas de 15 cm3 de capacidade cada, enchendo-as completamente. Considerando-se essas informações, quantas ampolas serão utilizadas para essa transferência?",
+  "alternativas": {
+   "A": "160 Dado",
+   "B": "1.600 1 dm3 corresponde a 1 litro",
+   "C": "3.600",
+   "D": "16.000",
+   "E": "36.000"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-17",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/Banese-2025-AC-MAT-17.png",
+  "enunciado": "Considere que em uma empresa há um total de 200 funcionários, dos quais apenas 20% são mulheres. Sabe-se que, se x mulheres forem contratadas, o percentual de funcionários mulheres subirá para 50%. Qual a soma dos algarismos desse número x?",
+  "alternativas": {
+   "A": "3",
+   "B": "5",
+   "C": "6",
+   "D": "8",
+   "E": "9"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-18",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/Banese-2025-AC-MAT-18.png",
+  "enunciado": "Em um levantamento feito, ao consultar os 158 funcionários de uma empresa, constatou-se que um total de 38 deles possui conta no banco Alfa, um total de 57 possui conta no banco Beta e um total de 14 possui conta nesses dois bancos. Quantos funcionários dessa empresa não possuem conta no banco Alfa nem no Beta?",
+  "alternativas": {
+   "A": "49",
+   "B": "56",
+   "C": "63",
+   "D": "77",
+   "E": "81"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MAT-19",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 8,
+  "imagem": "imagens/Banese-2025-AC-MAT-19.png",
+  "enunciado": "Se você não canta, então eu choro. Se você canta, então eu não danço. Ora, eu danço. Logo,",
+  "alternativas": {
+   "A": "você canta e eu choro.",
+   "B": "você não canta e eu choro.",
+   "C": "você canta e eu não choro.",
+   "D": "você não canta e eu não choro.",
+   "E": "se eu choro, então você não canta."
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MFI-31",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 31,
+  "materia": "Matemática Financeira",
+  "pagina": 11,
+  "imagem": "imagens/Banese-2025-AC-MFI-31.png",
+  "enunciado": "Um cliente avalia tomar um empréstimo levando em consideração a taxa anual de juro cobrada por dois bancos parceiros: P e Q. O Banco P cobra uma taxa de juro de 5% ao mês, no regime de juros compostos; já o Banco Q cobra uma taxa de juro de 6% ao mês, no mesmo regime. A diferença entre as taxas de juros anuais equivalentes, cobradas, respectivamente, pelos Bancos P e Q é de, aproximadamente,",
+  "alternativas": {
+   "A": "12%",
+   "B": "14%",
+   "C": "18%",
+   "D": "22%",
+   "E": "24% Dado 1,066 = 1,42 1,056 = 1,34"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MFI-32",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 32,
+  "materia": "Matemática Financeira",
+  "pagina": 11,
+  "imagem": "imagens/Banese-2025-AC-MFI-32.png",
+  "enunciado": "Uma empresa contraiu um empréstimo no valor de R$ 50.000,00, a uma taxa de 5% ao mês, no regime de juros compostos, com a promessa de quitação total desse empréstimo em, no máximo, 6 meses. Após exatos 6 meses, a empresa não efetuou qualquer pagamento de juros sob a alegação de não ter condições de cumprir, naquele momento, o que havia prometido. Para resolver o problema, ela propõe que a dívida acumulada até então seja atualizada por mais seis meses, a uma taxa de 5% ao mês no regime de juros simples. O credor faz uma contraproposta, oferecendo uma taxa de 7% ao mês no regime de juros simples, a partir de um novo contrato com bens em garantia, considerando como principal o montante da dívida acumulada no momento. A empresa aceita a contraproposta. Considerando-se as condições apresentadas, o valor de quitação, em reais, imediatamente após esses 12 meses iniciais, é de, aproximadamente,",
+  "alternativas": {
+   "A": "76.000,00",
+   "B": "86.000,00",
+   "C": "90.000,00",
+   "D": "92.000,00",
+   "E": "95.000,00 Dado 1,056 = 1,34"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MFI-33",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 33,
+  "materia": "Matemática Financeira",
+  "pagina": 12,
+  "imagem": "imagens/Banese-2025-AC-MFI-33.png",
+  "enunciado": "Uma empresa de logística firmou um contrato para o transporte de mercadorias. O contrato estipula que, em caso de atraso no pagamento dos serviços prestados, o valor a ser pago seja equivalente ao valor do contrato atualizado a uma taxa de 2% ao mês no regime de juros compostos, além de uma multa fixa de 3% sobre o valor do contrato. Considere que o cliente atrasou o pagamento por 4 meses em um contrato no valor de R$ 50 milhões, sem ter feito qualquer pagamento intermediário. Dessa forma, o valor mais próximo do total a ser pago, incluindo multa e juros, em milhões de reais, é igual a",
+  "alternativas": {
+   "A": "54,1 Dado",
+   "B": "54,3 1,024 = 1,082",
+   "C": "55,1",
+   "D": "55,6",
+   "E": "56,1"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MFI-34",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 34,
+  "materia": "Matemática Financeira",
+  "pagina": 12,
+  "imagem": "imagens/Banese-2025-AC-MFI-34.png",
+  "enunciado": "Um apartamento avaliado em 1 milhão de reais foi comprado por uma pessoa a partir de uma entrada de 40% desse valor de avaliação e de um financiamento do valor restante, no sistema SAC, cujas prestações mensais são decrescentes e formam uma progressão aritmética. O financiamento foi realizado para durar exatamente 25 anos, de modo que a primeira prestação mensal do financiamento será de R$ 8.000,00 e a segunda prestação mensal será de R$ 7.980,00. Considerando-se apenas as informações apresentadas, o valor mais próximo do valor total a ser pago pelo apartamento, incluindo a entrada e o financiamento, em milhões de reais, é igual a",
+  "alternativas": {
+   "A": "1,50",
+   "B": "1,55",
+   "C": "1,60",
+   "D": "1,75",
+   "E": "1,90"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-AC-MFI-35",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário I (Prova A)",
+  "numero": 35,
+  "materia": "Matemática Financeira",
+  "pagina": 12,
+  "imagem": "imagens/Banese-2025-AC-MFI-35.png",
+  "enunciado": "O cliente de um banco fez uma série de 20 aplicações anuais de 5 mil reais, durante 20 anos, uma a cada ano, sendo a primeira aplicação em janeiro de 2001 e a última em janeiro de 2020. Sabe-se que nenhuma retirada foi realizada durante esse período de 20 anos e que a taxa de juro obtida nas aplicações foi de 10% ao ano, no regime de juros compostos. Sabe-se que o valor total, em janeiro de 2020, logo após a última aplicação, pode ser calculado pela soma dos termos de uma progressão geométrica. Considerando-se apenas essas informações, o valor total que o cliente terá com essas aplicações, em milhares de reais, em janeiro de 2020, imediatamente após realizar a aplicação de janeiro de 2020, é igual a",
+  "alternativas": {
+   "A": "270,8",
+   "B": "280,3",
+   "C": "285,5",
+   "D": "292,8",
+   "E": "296,5 Dado 1,120 = 6,71"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioI_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-11",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 11,
+  "materia": "Matemática Financeira",
+  "pagina": 6,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-11.png",
+  "enunciado": "Preocupado com sua saúde, um professor decidiu começar a correr. O profissional que o orientou estabeleceu como meta correr 5 km por dia. Entretanto, como o professor está fora de forma, terá de seguir um programa de treinamento gradual. Nas duas primeiras semanas, ele correrá, diariamente, 1 km e caminhará 4 km; na terceira e na quarta semanas, correrá 1,5 km e caminhará 3,5 km por dia. A cada duas semanas, o programa será alterado, de modo a reduzir a distância diária caminhada em 0,5 km e a aumentar a corrida em 0,5 km. Desse modo, se o professor não interromper o programa de treinamento, ele começará a correr 5 km diários na",
+  "alternativas": {
+   "A": "9a semana",
+   "B": "12a semana",
+   "C": "17a semana",
+   "D": "18a semana",
+   "E": "20a semana"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-12",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 12,
+  "materia": "Matemática Financeira",
+  "pagina": 6,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-12.png",
+  "enunciado": "Para ampliar o capital de giro de um novo negócio, um microempreendedor tomou um empréstimo no valor de R$20.000,00, em janeiro de 2021, a uma taxa de juros de 5% ao mês, no regime de juros compostos. Exatamente dois meses depois, em março de 2021, pagou 60% do valor do empréstimo, ou seja, dos R$20.000,00, e liquidou tudo o que devia desse empréstimo em abril de 2021. A quantia paga, em abril de 2021, que liquidou a referida dívida, em reais, foi de",
+  "alternativas": {
+   "A": "11.352,50",
+   "B": "11.152,50",
+   "C": "10.552,50",
+   "D": "10.452,50",
+   "E": "10.152,50"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-13",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 13,
+  "materia": "Matemática Financeira",
+  "pagina": 6,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-13.png",
+  "enunciado": "Na semana da renda fixa promovida por um determinado banco, o cliente X fez um investimento de 150 mil reais em um banco que paga 8% ao ano, com prazo de vencimento de 1 ano. Nesse mesmo dia, o cliente Y aplicou 150 mil reais na poupança, cuja taxa esperada é de 5% ao ano. Um ano depois, os dois sacaram o montante de cada operação. Considere que o cliente X pagou 20% de imposto de renda sobre os juros obtidos com a aplicação, enquanto o cliente Y não pagou imposto algum, e que nenhum dos dois sacou qualquer valor antes desse resgate. A partir dessas informações, verifica-se que a diferença entre o ganho de capital do cliente X e o ganho de capital do cliente Y, comparando-se apenas as operações apresentadas, em reais, foi de",
+  "alternativas": {
+   "A": "2.100,00",
+   "B": "2.400,00",
+   "C": "3.500,00",
+   "D": "4.100,00",
+   "E": "4.500,00"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-14",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 14,
+  "materia": "Matemática Financeira",
+  "pagina": 6,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-14.png",
+  "enunciado": "Um cliente pagou, via internet banking, quatro duplicatas vencidas com exatamente 12 dias de atraso, cujos valores de face são de R$4.200,00; R$3.800,00; R$2.600,00 e R$7.400,00. Nesse caso, para pagamentos até 30 dias após o vencimento, são cobrados juros simples à taxa de 6% ao mês, mais uma multa de 2% sobre o valor de face de cada duplicata. Considerando-se o mês comercial (30 dias), o valor total pago, em reais, por essas quatro duplicatas vencidas foi de",
+  "alternativas": {
+   "A": "18.432,00",
+   "B": "18.792,00",
+   "C": "18.872,00",
+   "D": "18.912,00",
+   "E": "18.982,00"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-15",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 15,
+  "materia": "Matemática Financeira",
+  "pagina": 6,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-15.png",
+  "enunciado": "Um banco oferece a um cliente um empréstimo de financiamento imobiliário pelo sistema SAC, no valor de R$120.000,00, pelo prazo de 12 meses, com taxa de juros de 1% ao mês. Qual é o valor da segunda prestação, em reais, a ser paga pelo cliente?",
+  "alternativas": {
+   "A": "10.000,00",
+   "B": "10.500,00",
+   "C": "10.900,00",
+   "D": "11.100,00",
+   "E": "11.200,00"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-16",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 16,
+  "materia": "Matemática Financeira",
+  "pagina": 6,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-16.png",
+  "enunciado": "Uma pessoa tem uma dívida no valor de R$2.000,00, vencendo no dia de hoje. Com dificuldade de quitá-la, pediu o adiamento do pagamento para daqui a 3 meses. Considerando-se uma taxa de juros compostos de 2% a.m., qual é o valor equivalente, aproximadamente, que o gerente do banco propôs que ela pagasse, em reais?",
+  "alternativas": {
+   "A": "2.020,40",
+   "B": "2.040,00",
+   "C": "2.080,82",
+   "D": "2.120,20",
+   "E": "2.122,42"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-17",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 17,
+  "materia": "Matemática Financeira",
+  "pagina": 6,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-17.png",
+  "enunciado": "Um cliente de um banco está tentando simular o valor de financiamento imobiliário que pode conseguir para adquirir uma casa. Fazendo seu orçamento, estabeleceu que poderia pagar uma prestação inicial (1º mês) de R$2.669,33. Sabendo-se que o banco utiliza o sistema Price em seus financiamentos, uma taxa de juros de 1% a.m., um prazo de 60 meses e uma amortização inicial (1º mês) de R$1.469,33, qual o valor máximo aproximado, em reais, que ele pode receber?",
+  "alternativas": {
+   "A": "120.000,00",
+   "B": "146.933,00",
+   "C": "160.159,80",
+   "D": "266.933,00",
+   "E": "413.866,00"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-18",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 18,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-18.png",
+  "enunciado": "Um empréstimo deve ser pago pelo sistema SAC em 5 parcelas mensais com juros de 3% ao mês. Se a terceira parcela paga no financiamento do empréstimo for igual a R$26.160,00, o valor total do empréstimo, em reais, será de",
+  "alternativas": {
+   "A": "120.000,00",
+   "B": "124.000,00",
+   "C": "128.500,00",
+   "D": "132.800,00",
+   "E": "135.600,00"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-19",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 19,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-19.png",
+  "enunciado": "Um banco possui, atualmente, um modelo de financiamento em regime de juros compostos, em que as parcelas são pagas, mensalmente, a uma taxa de juros de 2% ao mês. Para um certo perfil de clientes, o banco pretende possibilitar o pagamento da dívida a cada três meses, a uma taxa de juros trimestral equivalente à praticada no modelo atual. A melhor aproximação para o valor da taxa de juros trimestral desse novo modelo de financiamento é:",
+  "alternativas": {
+   "A": "2,48%",
+   "B": "6,00%",
+   "C": "6,12%",
+   "D": "7,28%",
+   "E": "8,00%"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-MFI-20",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 20,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2021-AC-MFI-20.png",
+  "enunciado": "Um imóvel pode ser comprado à vista pelo valor de R$240.000,00 ou pode ser financiado em 24 prestações mensais, a serem pagas de acordo com o sistema Price de amortização. Um potencial comprador, ciente da taxa de juros do financiamento, calculou quanto seria a soma das 24 prestações, encontrando, corretamente, o valor de R$272.331,64. A melhor aproximação para o valor da terceira parcela do financiamento, em reais, é de",
+  "alternativas": {
+   "A": "10.200,00",
+   "B": "10.240,00",
+   "C": "10.460,08",
+   "D": "11.124,12",
+   "E": "11.347,15"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-MFI-11",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 11,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2024-AC-MFI-11.png",
+  "enunciado": "Uma empresa investiu R$ 300.000,00 em uma aplicação com prazo de 50 dias, a uma taxa de juro de 0,9% ao mês, no regime de juros simples. Considere mês comercial (30 dias) para essa operação, em todo o período. Em seguida, investiu todo o montante da operação anterior, em outra aplicação, a uma taxa de juro composto de 1,0% ao mês, durante dois meses, resgatando todo o montante dessa segunda aplicação. Considere que ambas as operações são livres de impostos. Considerando-se o valor inicial da 1a aplicação e o valor final da 2a aplicação, o valor, em reais, que mais se aproxima do total de juros obtidos pela empresa é igual a",
+  "alternativas": {
+   "A": "10.620,00",
+   "B": "10.840,00",
+   "C": "11.420,00",
+   "D": "12.151,00",
+   "E": "12.440,00"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-MFI-12",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 12,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2024-AC-MFI-12.png",
+  "enunciado": "Para compor o capital de giro de sua empresa, um empresário tomou um empréstimo de R$ 100.000,00, em janeiro de 2024, a uma taxa de juro composto de 4% ao mês. Em março de 2024, após exatos 2 meses, efetuou o primeiro pagamento da dívida, pagando metade do saldo devedor. Em abril não efetuou qualquer pagamento, mas pretende quitar toda a dívida em maio de 2024, após exatos 4 meses. Considerando-se esse fluxo de capitais, o valor mais próximo, em reais, do saldo devedor desse empréstimo, em maio de 2024, é de",
+  "alternativas": {
+   "A": "57.934,00",
+   "B": "58.193,00",
+   "C": "58.493,00",
+   "D": "58.943,00",
+   "E": "59.806,00"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-MFI-13",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 13,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2024-AC-MFI-13.png",
+  "enunciado": "Uma determinada quantia foi emprestada a um cliente em janeiro de 2024, a uma taxa de 20% ao mês, no regime de juros compostos. Em fevereiro de 2024, não houve pagamentos. Em março de 2024, exatamente dois meses após a data do empréstimo, o cliente pagou R$ 1.440,00. E um mês após, em abril de 2024, pagou R$ 1.728,00, quitando a dívida. O valor do empréstimo realizado em janeiro de 2024, em reais, foi igual a",
+  "alternativas": {
+   "A": "1.800,00",
+   "B": "1.900,00",
+   "C": "2.000,00",
+   "D": "2.100,00",
+   "E": "2.200,00"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-MFI-14",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 14,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2024-AC-MFI-14.png",
+  "enunciado": "Um cliente comprou um imóvel no valor de R$ 600.000,00. Para isso, pagou 20% desse valor de entrada, em dezembro de 2023, e financiou o restante em prestações mensais no Sistema de Amortização Constante (SAC), a uma taxa de 0,5% ao mês, em um prazo de 20 anos, com a primeira prestação para janeiro de 2024 e a última para dezembro de 2043. Considere que a prestação mensal será composta de juros, amortização e uma taxa fixa de R$ 100,00 mensais (no ano de 2024) referente ao seguro. Considere também que todas as prestações desse financiamento sejam pagas dentro do prazo. A soma das 12 primeiras prestações (referentes ao período de janeiro de 2024 a dezembro de 2024) a serem pagas, em reais, por esse cliente nesse financiamento será igual a",
+  "alternativas": {
+   "A": "53.080,00",
+   "B": "53.340,00",
+   "C": "53.760,00",
+   "D": "53.900,00",
+   "E": "53.960,00"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-MFI-15",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 15,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2024-AC-MFI-15.png",
+  "enunciado": "Em um certo país, a lei exige que sejam exibidas a taxa mensal e a taxa anual equivalente, no regime de juros compostos, junto ao preço do produto que será financiado. Considerando-se que um estabelecimento cobra uma taxa de juro mensal de 5% ao mês, essa taxa anual é, aproximadamente, de",
+  "alternativas": {
+   "A": "34% Dado",
+   "B": "48% 1,056 = 1,34",
+   "C": "60%",
+   "D": "80%",
+   "E": "96%"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-MFI-11",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 11,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-MFI-11.png",
+  "enunciado": "Sabe-se que R$ 1.200,00 foram capitalizados a partir de uma taxa constante de juros simples mensais de 3%, durante n meses. Ao final do enésimo mês, o montante obtido foi de R$ 1.920,00. Qual é o valor de n?",
+  "alternativas": {
+   "A": "58",
+   "B": "36",
+   "C": "20",
+   "D": "13",
+   "E": "3"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-MFI-12",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 12,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-MFI-12.png",
+  "enunciado": "Uma sequência numérica possui termo geral representado por an, onde n indica um número natural. Sabe-se que a1 = 3, a2 = -2 e an = an-2- an-1, para todo n ≥ 3. O termo a7 dessa sequência é",
+  "alternativas": {
+   "A": "7",
+   "B": "- 7",
+   "C": "- 50",
+   "D": "31",
+   "E": "- 31"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-MFI-13",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 13,
+  "materia": "Matemática Financeira",
+  "pagina": 7,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-MFI-13.png",
+  "enunciado": "Um cliente investiu uma determinada quantia em um fundo prefixado, a uma taxa de juro de 13% ao ano, no regime de juros compostos. Após exatos 4 anos, resgatou todo o montante da aplicação, pagando de imposto de renda a quantia de R$ 18.900,00. O imposto de renda (IR) cobrado no momento do resgate é calculado aplicando-se um percentual sobre os juros proporcionados pelo investimento, ou seja, sobre a diferença entre o montante e o principal. Esse percentual depende do tempo que o dinheiro ficou investido, conforme mostrado na Tabela a seguir. Prazo do investimento Alíquota do IR Até 180 dias 22,5% Entre 181 e 360 dias 20,0% Entre 361 e 720 dias 17,5% A partir de 720 dias 15,0% Considerando-se apenas as premissas apresentadas, o valor investido, em reais, pelo cliente nessa aplicação foi de, aproximadamente,",
+  "alternativas": {
+   "A": "180.000,00",
+   "B": "200.000,00",
+   "C": "210.000,00",
+   "D": "189.000,00",
+   "E": "126.000,00 Dado 1,134 = 1,63 1,135 = 1,84"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-MFI-14",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 14,
+  "materia": "Matemática Financeira",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-MFI-14.png",
+  "enunciado": "Uma empresa comprou um equipamento, em junho de 2023, em 12 prestações mensais e iguais de R$ 46.305,00, no sistema PRICE, a uma taxa de juro de 5% ao mês, com a primeira prestação com vencimento para julho de 2023, vencendo sempre no mesmo dia de cada mês. Na data de vencimento da prestação de março de 2024, a empresa resolveu quitar as parcelas de março, abril, maio e junho, desse mesmo ano. Considerando-se o desconto racional composto, o valor, em reais, de quitação da dívida relativa a essas 4 parcelas, em março de 2024, é igual a",
+  "alternativas": {
+   "A": "185.220,00",
+   "B": "183.220,00",
+   "C": "172.405,00",
+   "D": "170.305,00",
+   "E": "168.320,00"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-MFI-15",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 15,
+  "materia": "Matemática Financeira",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-MFI-15.png",
+  "enunciado": "Uma empresa tem duas promissórias a receber, no valor de R$ 50.000,00 cada uma. A primeira será paga daqui a 30 dias e a outra daqui a 60 dias, contados a partir de hoje. O Banco W ofereceu uma proposta de ficar com as promissórias e pagar hoje, para a empresa, a quantia de R$ 90.000,00. O Banco Y ofereceu pagar hoje R$ 95.000,00 pelas duas promissórias. Nos dois casos, os bancos receberão as promissórias dos devedores, em suas respectivas datas. Considerando-se juros compostos e apenas essas premissas, a diferença entre a maior e a menor taxa de juro mensal cobrada nessa situação é igual a",
+  "alternativas": {
+   "A": "3,54%",
+   "B": "3,68%",
+   "C": "3,82%",
+   "D": "4,32%",
+   "E": "4,64% Dado 205 = 14, 3 215 = 14, 7"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-MAT-16",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 16,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2021-TI-MAT-16.png",
+  "enunciado": "Um escriturário mantém um desempenho de preencher 30 relatórios por hora e faz uma pausa de 10 minutos às 13h. Durante a pausa, seu chefe pergunta a que horas receberá todos os relatórios preenchidos. Se falta apenas 1 relatório e meio, e o escriturário pretende manter seu desempenho, a partir de que horas o chefe pode contar com todos os relatórios preenchidos?",
+  "alternativas": {
+   "A": "13h02min",
+   "B": "13h03min",
+   "C": "13h10min",
+   "D": "13h12min",
+   "E": "13h13min"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-MAT-17",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 17,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2021-TI-MAT-17.png",
+  "enunciado": "Durante um atendimento, o cliente de um banco relata ao gerente de atendimento sua disponibilidade para investir R$400.000,00. O gerente tem ao seu dispor 5 opções de investimento: renda fixa, CDB, fundo de ações, LCI e LCA. Ao cliente foi oferecida uma carteira diversificada de 20%, 10%, 30%, 15% e 25%, respectivamente. Sendo assim, verifica-se que o valor sugerido para",
+  "alternativas": {
+   "A": "renda fixa foi de R$80.000,00",
+   "B": "CDB foi de R$60.000,00",
+   "C": "fundo de ações foi de R$40.000,00",
+   "D": "LCI foi de R$100.000,00",
+   "E": "LCA foi de R$120.000,00"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-MAT-18",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 18,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2021-TI-MAT-18.png",
+  "enunciado": "Um fungo está se alastrando na parede, e a área contaminada pelo fungo varia no tempo de acordo com a função A: [0,∞) → , dada por A(t) = A0 . bt, em que b é uma constante maior que 1; A0 é a área da parede contaminada no instante inicial; e A(t) é a área contaminada após t dias. De acordo com esse modelo, depois de quantos dias a área contaminada estará triplicada?",
+  "alternativas": {
+   "A": "b 3",
+   "B": "3 b",
+   "C": "logb 3",
+   "D": "log3 b  1",
+   "E": "logb  3 "
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-MAT-19",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 19,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2021-TI-MAT-19.png",
+  "enunciado": "Um casal está muito apaixonado, mas devido à distância de suas casas e ao regime de trabalho dos dois, eles não conseguem se encontrar com a frequência de que gostariam. A moça só tem folga aos sábados, e o rapaz trabalha três dias seguidos, folgando no quarto dia. Se hoje é terça-feira e é dia de folga do rapaz, quantas folgas dele cairão no sábado nos próximos 365 dias?",
+  "alternativas": {
+   "A": "4",
+   "B": "8",
+   "C": "12",
+   "D": "13",
+   "E": "15"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-MAT-20",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 20,
+  "materia": "Matemática",
+  "pagina": 7,
+  "imagem": "imagens/BB-2021-TI-MAT-20.png",
+  "enunciado": "André, Bianca e Carol precisam pintar um painel de 50m2. Para pintar 1m2, André gasta 12 minutos, Bianca gasta 20 minutos, e Carol, 15 minutos. Supondo-se que os três pintaram, juntos, o mesmo painel, sem fazer pausas e a velocidades constantes, quanto tempo eles levaram para a conclusão da tarefa?",
+  "alternativas": {
+   "A": "3h 40min",
+   "B": "4h 10min",
+   "C": "5h 50min",
+   "D": "6h",
+   "E": "6h 20min"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "texto_pode_ter_perdido_formulas__usar_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ }
+]

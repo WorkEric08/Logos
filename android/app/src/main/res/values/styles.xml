@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="preto">#000000</color>
+
+    <!-- Tema do app: preto, sem barra de título. A janela e as barras do sistema são pretas em qualquer tema do app. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/preto</item>
+        <item name="android:statusBarColor">@color/preto</item>
+        <item name="android:navigationBarColor">@color/preto</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/preto</item>
+        <item name="android:statusBarColor">@color/preto</item>
+        <item name="android:navigationBarColor">@color/preto</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <!-- Abertura nativa: preto liso e SEM ícone (a abertura animada de 2 s é do próprio app, dentro da WebView). -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/preto</item>
+        <item name="windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+        <item name="android:windowBackground">@color/preto</item>
+    </style>
+</resources>

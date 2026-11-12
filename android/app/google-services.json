@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "364895773280",
+    "project_id": "logos-f9d33",
+    "storage_bucket": "logos-f9d33.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364895773280:android:555bfbabdcb9410b1a1905",
+        "android_client_info": {
+          "package_name": "br.com.treinobb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzAuQ-KSRlD15XntVi9pfatd6Bucb_-Zk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

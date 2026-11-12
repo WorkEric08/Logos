@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" width="1024" height="1024">
+  <!-- Ícone oficial: 3 arquivos em pé, azuis, o da frente com marcador laranja, em fundo preto. 1 unidade = 1/150 da largura; a arte tem 100 × 84 unidades. -->
+  <defs>
+    <path id="f" d="M6 0H34L48 14V58A6 6 0 0 1 42 64H6A6 6 0 0 1 0 58V6A6 6 0 0 1 6 0Z"/>
+    <path id="d" d="M34 0L48 14H34Z"/>
+  </defs>
+  <rect width="150" height="150" rx="33.55" fill="#000"/>
+  <g transform="translate(25.75 39.75)"><use href="#f" fill="#1B2D45"/><use href="#d" fill="#122136"/></g>
+  <g transform="translate(51.75 49.75)"><use href="#f" fill="#3A5578"/><use href="#d" fill="#2D4463"/></g>
+  <g transform="translate(77.75 59.75)">
+    <use href="#f" fill="#7F96B5"/><use href="#d" fill="#62799A"/>
+    <path d="M9 0H21V20L15 15L9 20Z" fill="#F28C28"/>
+    <rect x="9" y="30" width="30" height="4" rx="2" fill="#16283F"/>
+    <rect x="9" y="40" width="30" height="4" rx="2" fill="#16283F"/>
+    <rect x="9" y="50" width="18" height="4" rx="2" fill="#16283F"/>
+  </g>
+</svg>

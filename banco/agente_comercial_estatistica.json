@@ -1,0 +1,1302 @@
+[
+ {
+  "id": "BB-2018-AC-EST-21",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 21,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/BB-2018-AC-EST-21.png",
+  "enunciado": "A Tabela a seguir mostra a distribuição de pontos obtidos por um cliente em um programa de fidelidade oferecido por uma empresa. Pontos 0 2 3 4 6 8 9 Frequência 1 2 4 1 1 5 1 A mediana da pontuação desse cliente é o valor mínimo para que ele pertença à classe de clientes “especiais”. Qual a redução máxima que o valor da maior pontuação desse cliente pode sofrer sem que ele perca a classificação de cliente “especial”, se todas as demais pontuações forem mantidas?",
+  "alternativas": {
+   "A": "cinco unidades",
+   "B": "quatro unidades",
+   "C": "uma unidade",
+   "D": "duas unidades",
+   "E": "três unidades"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-22",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 22,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/BB-2018-AC-EST-22.png",
+  "enunciado": "Os jogadores X e Y lançam um dado honesto, com seis faces numeradas de 1 a 6, e observa-se a face superior do dado. O jogador X lança o dado 50 vezes, e o jogador Y, 51 vezes. A probabilidade de que o jogador Y obtenha mais faces com números ímpares do que o jogador X, é:",
+  "alternativas": {
+   "A": "1",
+   "B": "3/4",
+   "C": "1/4",
+   "D": "1/2",
+   "E": "1/6"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-23",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 23,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/BB-2018-AC-EST-23.png",
+  "enunciado": "Um pesquisador utilizou-se de um modelo de regressão linear simples para estudar a relação entre a variável dependente Y, expressa em reais, e a variável independente X, expressa em dias. Posteriormente, ele decidiu fazer uma transformação na variável dependente Y da seguinte forma: Yi  media (Y) , i  1,2,...,n desvio padrão (Y) Após a referida transformação, o coeficiente angular ficou",
+  "alternativas": {
+   "A": "aumentado da média e multiplicado pelo desvio padrão",
+   "B": "diminuído da média e dividido pelo desvio padrão",
+   "C": "inalterado",
+   "D": "diminuído da média",
+   "E": "dividido pelo desvio padrão"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-24",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 24,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/BB-2018-AC-EST-24.png",
+  "enunciado": "Uma instituição financeira pretende lançar no mercado um aplicativo para celular. Para isso, deseja relacionar o grau de conhecimento dos clientes com as variáveis: nível de escolaridade e idade. Uma amostra aleatória de 46 clientes foi selecionada e, posteriormente, aplicou-se o modelo de regressão linear, sendo a variável dependente o grau de conhecimento, em uma escala crescente, e as variáveis independentes (i) o nível de escolaridade, em anos de estudo com aprovação, e (ii) a idade, em anos completos. Os resultados obtidos para os coeficientes foram: Coeficientes Erro padrão Estatística t valor-P Interseção 50,7 4,1 12,4 8,5E16 Nível de escolaridade (anos de estudo com aprovação) 4,0 0,3 12,4 9,1E16 Idade (anos completos) 0,6 0,1 8,4 1,2E10 O grau de conhecimento esperado de um cliente com 10 anos de estudos com aprovação e com 30 anos de idade completos é",
+  "alternativas": {
+   "A": "108,7",
+   "B": "94,1",
+   "C": "54,1",
+   "D": "72,7",
+   "E": "86,1"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-25",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 25,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/BB-2018-AC-EST-25.png",
+  "enunciado": "Uma empresa cria uma campanha que consiste no sorteio de cupons premiados. O sorteio será realizado em duas etapas. Primeiramente, o cliente lança uma moeda honesta: se o resultado for “cara”, o cliente seleciona, aleatoriamente, um cupom da urna 1; se o resultado for “coroa”, o cliente seleciona, aleatoriamente, um cupom da urna 2. Sabe-se que 30% dos cupons da urna 1 são premiados, e que 40% de todos os cupons são premiados. Antes de começar o sorteio, a proporção de cupons premiados na urna 2 é de",
+  "alternativas": {
+   "A": "50%",
+   "B": "25%",
+   "C": "5%",
+   "D": "10%",
+   "E": "15%"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-26",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 26,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/BB-2018-AC-EST-26.png",
+  "enunciado": "Há dez anos a média das idades, em anos completos, de um grupo de 526 pessoas era de 30 anos, com desvio padrão de 8 anos. Considerando-se que todas as pessoas desse grupo estão vivas, o quociente entre o desvio padrão e a média das idades, em anos completos, hoje, é",
+  "alternativas": {
+   "A": "0,45",
+   "B": "0,42",
+   "C": "0,20",
+   "D": "0,27",
+   "E": "0,34"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-27",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 27,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/BB-2018-AC-EST-27.png",
+  "enunciado": "Para obter uma amostra de tamanho 1.000 dentre uma população de tamanho 20.000, organizada em um cadastro em que cada elemento está numerado sequencialmente de 1 a 20.000, um pesquisador utilizou o seguinte procedimento: I - calculou um intervalo de seleção da amostra, dividindo o total da população pelo tamanho da amostra: 20.000/1.000 = 20; II - sorteou aleatoriamente um número inteiro, do intervalo [1, 20]. O número sorteado foi 15; desse modo, o primeiro elemento selecionado é o 15o; III - a partir desse ponto, aplica-se o intervalo de seleção da amostra: o segundo elemento selecionado é o 35o (15+20), o terceiro é o 55o (15+40), o quarto é o 75o (15+60), e assim sucessivamente. O último elemento selecionado nessa amostra é o",
+  "alternativas": {
+   "A": "19.997o",
+   "B": "19.995o",
+   "C": "19.965o",
+   "D": "19.975o",
+   "E": "19.980o"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-28",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 28,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/BB-2018-AC-EST-28.png",
+  "enunciado": "29 A Tabela a seguir apresenta a distribuição da variável número de talões de cheques, X, solicitados no último mês de uma amostra de 200 clientes de um banco. Três caixas eletrônicos, X, Y e Z, atendem a uma demanda de 50%, 30% e 20%, respectivamente, das operações efetuadas em uma determinada agência bancária. Dados históricos registraram defeitos em 5% das operações realizadas no caixa X, em 3% das realizadas no caixa Y e em 2% das realizadas no caixa Z. Número de talões de cheques Frequência 0 40 1 50 2 70 3 30 5 10 Total 200 Com vistas à melhoria no atendimento aos clientes, esses caixas eletrônicos passaram por uma revisão completa que: I - reduziu em 25% a ocorrência de defeito; II - igualou as proporções de defeitos nos caixas Y e Z; e A função de distribuição empírica para a variável X, número de talões de cheques solicitados, é:  0; 0,005;   0,20;",
+  "alternativas": {
+   "A": "0,54",
+   "B": "0,46",
+   "C": "0,20",
+   "D": "0,26",
+   "E": "0,44 N U A SC R 10 O H"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "recorte_automatico_conferir_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-29",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 29,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/BB-2018-AC-EST-29.png",
+  "enunciado": "Três caixas eletrônicos, X, Y e Z, atendem a uma demanda de 50%, 30% e 20%, respectivamente, das operações efetuadas em uma determinada agência bancária. Dados históricos registraram defeitos em 5% das operações realizadas no caixa X, em 3% das realizadas no caixa Y e em 2% das realizadas no caixa Z. Com vistas à melhoria no atendimento aos clientes, esses caixas eletrônicos passaram por uma revisão completa que: I - reduziu em 25% a ocorrência de defeito; II - igualou as proporções de defeitos nos caixas Y e Z; e III - regulou a proporção de defeitos no caixa X que ficou reduzida à metade da nova proporção de defeitos do caixa Y. Considerando-se que após a conclusão do procedimento de revisão, sobreveio um defeito, a probabilidade de que ele tenha ocorrido no caixa Y é",
+  "alternativas": {
+   "A": "40%",
+   "B": "35%",
+   "C": "20%",
+   "D": "25%",
+   "E": "30%"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-30",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 30,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/BB-2018-AC-EST-30.png",
+  "enunciado": "Dentre as atribuições de um certo gerente, encontra-se o oferecimento do produto A, de forma presencial e individualizada, aos seus clientes. A probabilidade de o gerente efetuar a venda do produto A em cada reunião com um cliente é 0,40. Em 20% dos dias de trabalho, esse gerente não se reúne com nenhum cliente; em 30% dos dias de trabalho, ele se reúne com apenas 1 cliente; e em 50% dos dias de trabalho, ele se reúne, separadamente, com exatos 2 clientes. Em um determinado dia de trabalho, a probabilidade de esse gerente efetuar pelo menos uma venda presencial do produto A é",
+  "alternativas": {
+   "A": "0,54",
+   "B": "0,46",
+   "C": "0,20",
+   "D": "0,26",
+   "E": "0,44"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-31",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 31,
+  "materia": "Estatística",
+  "pagina": 11,
+  "imagem": "imagens/BB-2018-AC-EST-31.png",
+  "enunciado": "Os analistas de uma seguradora estimam corretamente que a probabilidade de um concorrente entrar no mercado de seguro de fiança locatícia é de 30%. É certo que se, de fato, o concorrente entrar no mercado, precisará aumentar seu quadro de funcionários. Sabe-se que, caso o concorrente não pretenda entrar no mercado desse segmento, existem 50% de probabilidade de que ele aumente o quadro de funcionários. Se o concorrente aumentou o quadro de funcionários, a probabilidade de que ele entre no mercado de seguro de fiança locatícia é de:",
+  "alternativas": {
+   "A": "13/20",
+   "B": "7/13",
+   "C": "3/10",
+   "D": "7/20",
+   "E": "6/13"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-32",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 32,
+  "materia": "Estatística",
+  "pagina": 11,
+  "imagem": "imagens/BB-2018-AC-EST-32.png",
+  "enunciado": "Uma escola de Ensino Médio decide pesquisar o comportamento de seus estudantes quanto ao número de refrigerantes consumidos semanalmente por eles. Para isso, uma amostra aleatória de 120 estudantes foi selecionada, e os dados foram sintetizados no histograma abaixo, em classes do tipo [0, 5), [5, 10), [10, 15), [15, 20), [20, 25) e [25, 30]. Consumo de Refrigerantes 60 Frequência 50 Frequência 40 30 20 10 0 0 5 10 15 20 25 30 Número de refrigerantes Qual o valor da amplitude interquartílica, obtido por meio do método de interpolação linear dos dados agrupados em classes?",
+  "alternativas": {
+   "A": "15",
+   "B": "15 2",
+   "C": "29 5",
+   "D": "47 7",
+   "E": "10"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-33",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 33,
+  "materia": "Estatística",
+  "pagina": 11,
+  "imagem": "imagens/BB-2018-AC-EST-33.png",
+  "enunciado": "Numa amostra de 30 pares de observações do tipo (xi , yi), com i = 1, 2, ..., 30, a covariância obtida entre as variáveis X e Y foi 2. Os dados foram transformados linearmente da forma (zi , wi) = (3xi + 1 , 2yi + 3), para i = 1, 2, ..., 30. Qual o valor da covariância entre as variáveis Z e W transformadas?",
+  "alternativas": {
+   "A": "41",
+   "B": "36",
+   "C": "7",
+   "D": "12",
+   "E": "17"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-34",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 34,
+  "materia": "Estatística",
+  "pagina": 11,
+  "imagem": "imagens/BB-2018-AC-EST-34.png",
+  "enunciado": "Uma amostra aleatória de tamanho 5 é retirada de uma população e observa-se que seus valores, quando postos em ordem crescente, obedecem a uma Progressão Aritmética. Se a variância amostral não viciada vale 40, qual é o valor da razão da Progressão Aritmética?",
+  "alternativas": {
+   "A": "3",
+   "B": "5 2",
+   "C": "4",
+   "D": "2 5",
+   "E": "1"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-35",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 35,
+  "materia": "Estatística",
+  "pagina": 11,
+  "imagem": "imagens/BB-2018-AC-EST-35.png",
+  "enunciado": "Uma professora do jardim da infância entregou um mesmo desenho para cada um de seus 10 alunos e distribuiu vários lápis de cor entre eles. A tarefa era pintar o desenho, que possuía diversas regiões. Cada uma dessas regiões apresentava a cor com a qual deveria ser pintada. Todos os alunos receberam a mesma quantidade de lápis de cor, mas nenhum aluno recebeu todas as cores necessárias para pintar todo o desenho e, portanto, eles precisavam se agrupar para conseguir completar a tarefa. Formando qualquer grupo de 6 alunos, uma região não poderia ser pintada, mas qualquer grupo de 7 alunos conseguiria completar a tarefa. Todas as regiões deveriam receber cores diferentes, e a professora distribuiu o menor número de lápis de cor para cada aluno. Quantos lápis de cor cada aluno recebeu?",
+  "alternativas": {
+   "A": "42",
+   "B": "63",
+   "C": "210",
+   "D": "105",
+   "E": "84"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-36",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 36,
+  "materia": "Estatística",
+  "pagina": 12,
+  "imagem": "imagens/BB-2018-AC-EST-36.png",
+  "enunciado": "Uma pesquisa foi encomendada para saber as condições de funcionamento das escolas de um município. O Gráfico I mostra a distribuição das escolas pelas quantidades de alunos, e o Gráfico II mostra a presença ou não de cantina e ginásio nas escolas com mais de 500 alunos. O número de escolas, com mais de 500 alunos, que não possuem cantina nem ginásio é",
+  "alternativas": {
+   "A": "15",
+   "B": "12",
+   "C": "2",
+   "D": "4",
+   "E": "6"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "recorte_automatico_conferir_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-37",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 37,
+  "materia": "Estatística",
+  "pagina": 12,
+  "imagem": "imagens/BB-2018-AC-EST-37.png",
+  "enunciado": "Define-se como desvio interquartílico a distância entre o 1º e o 3º Quartis. É usado para avaliar a existência de possíveis valores atípicos em um conjunto de dados. Valores aquém ou além de limites estabelecidos com base nessa medida devem ser investigados quanto à sua tipicidade em relação à distribuição. Geralmente o limite inferior é estabelecido como 1 vez e meia o valor desse desvio, abaixo do primeiro Quartil, enquanto o limite superior, como 1 vez e meia acima do terceiro Quartil. Considere os resumos estatísticos das três distribuições de consumo de energia elétrica, em kW, dos 50 apartamentos com mesma planta, de um edifício, em três períodos diferentes ao longo de um ano, conforme abaixo: PERÍODOS Consumo de Energia (kW) Janeiro-Abril Maio-Agosto Setembro-Dezembro Média 87 70 80 Mediana 85 75 80 Moda 83 77 80 1 Quartil 80 68 75 3o Quartil 90 80 85 Menor Valor 75 49 62 Maior Valor 102 92 99 Número de Apartamentos 50 50 50 o Conclui-se, a partir desses resumos, que",
+  "alternativas": {
+   "A": "um período apresenta pelo menos um apartamento com consumo abaixo, e dois períodos apresentam pelo menos um apartamento com consumo acima da tipicidade estabelecida.",
+   "B": "um período apresenta pelo menos um apartamento com consumo abaixo, e um período apresenta pelo menos um apartamento com consumo acima da tipicidade estabelecida.",
+   "C": "em nenhum período foram observados possíveis consumos atípicos.",
+   "D": "apenas um período apresenta pelo menos um apartamento com consumo abaixo da tipicidade estabelecida.",
+   "E": "apenas um período apresenta pelo menos um apartamento com consumo acima da tipicidade estabelecida."
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-39",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 39,
+  "materia": "Estatística",
+  "pagina": 13,
+  "imagem": "imagens/BB-2018-AC-EST-39.png",
+  "enunciado": "Em um jogo, os jogadores escolhem três números inteiros diferentes, de 1 a 10. Dois números são sorteados e se ambos estiverem entre os três números escolhidos por um jogador, então ele ganha um prêmio. O sorteio é feito utilizando-se uma urna com 10 bolas numeradas, de 1 até 10, e consiste na retirada de duas bolas da urna, de uma só vez, seguida da leitura em voz alta dos números nelas presentes. Qual é a probabilidade de um jogador ganhar um prêmio no sorteio do jogo?",
+  "alternativas": {
+   "A": "1 90",
+   "B": "1 30",
+   "C": "1 5",
+   "D": "1 15",
+   "E": "1 20"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-40",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 40,
+  "materia": "Estatística",
+  "pagina": 13,
+  "imagem": "imagens/BB-2018-AC-EST-40.png",
+  "enunciado": "Um professor elaborou 10 questões diferentes para uma prova, das quais 2 são fáceis, 5 são de dificuldade média, e 3 são difíceis. No momento, o professor está na fase de montagem da prova. A montagem da prova é a ordem segundo a qual as 10 questões serão apresentadas. O professor estabeleceu o seguinte critério de distribuição das dificuldades das questões, para ser seguido na montagem da prova: Questão Dificuldade 1 Fácil 2 Fácil 3 Média 4 Média 5 Média 6 Média 7 Média 8 Difícil 9 Difícil 10 Difícil De quantas formas diferentes o professor pode montar a prova seguindo o critério estabelecido?",
+  "alternativas": {
+   "A": "2520",
+   "B": "128",
+   "C": "6",
+   "D": "1440",
+   "E": "252"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-EST-36",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 36,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-EST-36.png",
+  "enunciado": "Um banco oferece dois serviços aos seus clientes. Sabe-se, no entanto, que 20% dos clientes não contratam qualquer um deles, 50% contratam apenas um e os 30% restantes contratam os dois serviços oferecidos. Qual é a média do número de serviços contratados pelos clientes desse banco?",
+  "alternativas": {
+   "A": "0,11",
+   "B": "1,00",
+   "C": "1,10",
+   "D": "1,30",
+   "E": "1,50"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-EST-37",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 37,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-EST-37.png",
+  "enunciado": "Considere a seguinte distribuição de dados: 67 34 76 14 24 18 28 42 71 A soma dos três quartis dessa distribuição é igual a",
+  "alternativas": {
+   "A": "186",
+   "B": "125",
+   "C": "124",
+   "D": "114",
+   "E": "102"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-EST-38",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 38,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-EST-38.png",
+  "enunciado": "Originalmente, uma distribuição possuía cinco dados: 2 7 11 5 3 Um sexto dado foi inserido, de modo que a nova distribuição passou a ter moda e mediana iguais. Qual foi o sexto dado inserido?",
+  "alternativas": {
+   "A": "2",
+   "B": "3",
+   "C": "5",
+   "D": "7",
+   "E": "11"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-EST-40",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 40,
+  "materia": "Estatística",
+  "pagina": 12,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-EST-40.png",
+  "enunciado": "Uma empresa adota cinco faixas salariais entre os seus funcionários. A Tabela a seguir representa a distribuição do número de funcionários em cada faixa salarial (FS). A última coluna da Tabela representa a distribuição acumulada do número de funcionários nas faixas menores ou iguais a FS. Faixa Salarial (FS) Número de Funcionários 1 23 2 34 3 31 4 12 5 8 Número de Funcionários nas Faixas ≤ FS (Distribuição Acumulada) Os valores da última coluna dessa Tabela são Número de Funcionários nas Faixas ≤ FS (Distribuição Acumulada) Número de Funcionários nas Faixas ≤ FS (Distribuição Acumulada)",
+  "alternativas": {
+   "A": "",
+   "B": "23",
+   "D": "108 108 108 108 108 Número de Funcionários nas Faixas ≤ FS (Distribuição Acumulada)",
+   "E": "85 51 20 8 0",
+   "C": "108 N U 100 A SC R 88 57 23 12 O H s Número de Funcionários nas Faixas ≤ FS (Distribuição Acumulada) Número de Funcionários nas Faixas ≤ FS (Distribuição Acumulada)"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-EST-31",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 31,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/CAIXA-2021-AC-EST-31.png",
+  "enunciado": "Os alunos de certa escola formaram um grupo de ajuda humanitária e resolveram arrecadar fundos para comprar alimentos não perecíveis. Decidiram, então, fazer uma rifa e venderam 200 tíquetes, numerados de 1 a 200. Uma funcionária da escola resolveu ajudar e comprou 5 tíquetes. Seus números eram 75, 76, 77, 78 e 79. No dia do sorteio da rifa, antes de revelarem o ganhador do prêmio, anunciaram que o número do tíquete sorteado era par. Considerando essa informação, a funcionária concluiu acertadamente que a probabilidade de ela ser a ganhadora do prêmio era de",
+  "alternativas": {
+   "A": "1,0%",
+   "B": "2,0%",
+   "C": "3,0%",
+   "D": "4,0%",
+   "E": "5,0%"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-EST-32",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 32,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/CAIXA-2021-AC-EST-32.png",
+  "enunciado": "Seis candidatos, aprovados para a penúltima etapa de um processo seletivo, foram submetidos a um teste de conhecimentos gerais com 10 itens do tipo “verdadeiro/falso”. Os dois primeiros candidatos acertaram 8 itens cada, o terceiro acertou 9, o quarto acertou 7, e os dois últimos, 5 cada. Pelas regras do concurso, passariam, para a etapa final da seleção, os candidatos cujo número de acertos fosse maior ou igual à mediana do número de acertos dos seis participantes. Quantos candidatos passaram para a etapa final?",
+  "alternativas": {
+   "A": "2",
+   "B": "3",
+   "C": "4",
+   "D": "5",
+   "E": "6"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-EST-33",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 33,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/CAIXA-2021-AC-EST-33.png",
+  "enunciado": "Recentemente, a Organização Mundial da Saúde (OMS) mudou suas diretrizes sobre atividades físicas, passando a recomendar que adultos façam atividade física moderada de 150 a 300 minutos por semana. Seguindo as recomendações da OMS, um motorista decidiu exercitar-se mais e, durante os sete dias da última semana, exercitou-se, ao todo, 285 minutos. Quantos minutos diários, em média, o motorista dedicou a atividades físicas na última semana?",
+  "alternativas": {
+   "A": "Mais de 46 min",
+   "B": "Entre 44 e 46 min",
+   "C": "Entre 42 e 44 min",
+   "D": "Entre 40 e 42 min",
+   "E": "Menos de 40 min"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-EST-34",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 34,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/CAIXA-2021-AC-EST-34.png",
+  "enunciado": "Um analista de investimentos acredita que o preço das ações de uma empresa seja afetado pela condição de fluxo de crédito na economia de um certo país. Ele estima que o fluxo de crédito na economia desse país aumente, com probabilidade de 20%. Ele estima também que o preço das ações da empresa suba, com probabilidade de 90%, dentro de um cenário de aumento de fluxo de crédito, e suba, com probabilidade de 40%, sob o cenário contrário. Uma vez que o preço das ações da empresa subiu, qual é a probabilidade de que o fluxo de crédito da economia tenha também aumentado?",
+  "alternativas": {
+   "A": "",
+   "B": "",
+   "C": "",
+   "D": "",
+   "E": "1 2 1 5 2 9 9 25 9 50"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2021-AC-EST-35",
+  "banco": "CAIXA",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (31/10/2021)",
+  "numero": 35,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/CAIXA-2021-AC-EST-35.png",
+  "enunciado": "Por estudos estatísticos, estima-se que um cliente de um certo banco tem 75% de probabilidade de ir para atendimento de caixa eletrônico, e 25% de ir para um atendimento personalizado. Em uma amostra de quatro clientes entrando no banco, qual é a probabilidade de que a maioria deles se dirija ao atendimento personalizado?",
+  "alternativas": {
+   "A": "",
+   "B": "",
+   "C": "",
+   "D": "",
+   "E": "1 64 5 256 3 64 13 256 27 64"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2021_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-EST-16",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 16,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-AC-EST-16.png",
+  "enunciado": "A Carteira de Finanças Sustentáveis da Caixa Econômica Federal contém iniciativas por meio das quais a instituição visa contribuir para uma sociedade mais justa e sustentável. Na apresentação de resultados do terceiro trimestre de 2023, a Caixa Econômica Federal divulgou que o valor total dessa carteira era de R$ 720,7 bilhões, conforme descrito a seguir. Produto Valor da carteira (em bilhões de reais) Comercial 31,9 FIES 51,7 Habitação 523,8 Minha Casa Minha Vida (Faixa 1) 9,5 Rural 8,4 Saneamento e Infraestrutura 95,4 A mediana dos valores da carteira dos produtos, em bilhões de reais, é, aproximadamente,",
+  "alternativas": {
+   "A": "120",
+   "B": "62",
+   "C": "52",
+   "D": "42",
+   "E": "31"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-EST-17",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 17,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-AC-EST-17.png",
+  "enunciado": "A Caixa Econômica Federal exerce a gestão e a distribuição centralizada de diversos programas sociais, podendo inclusive desempenhar o papel de administradora do benefício, em alguns casos. Em 2023, esses programas sociais representaram quase R$ 283 bilhões em benefícios pagos à população, entre janeiro e setembro. O destaque foi para o Bolsa Família, responsável por aproximadamente R$ 118 bilhões, beneficiando cerca de 24 milhões de famílias no mesmo período. Considere que esses 24 milhões de famílias foram beneficiados pelo programa durante todo o período considerado, ignorando a saída de famílias beneficiadas ou a entrada de novas famílias ao rol de beneficiados. O valor médio dos benefícios, em reais, recebidos por família durante todo o período é, aproximadamente, de",
+  "alternativas": {
+   "A": "5.000,00",
+   "B": "7.000,00",
+   "C": "10.000,00",
+   "D": "11.000,00",
+   "E": "12.000,00"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-EST-18",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 18,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-AC-EST-18.png",
+  "enunciado": "Uma pesquisa da Associação Brasileira das Entidades dos Mercados Financeiro e de Capitais (Anbima) mostrou que a probabilidade de um brasileiro adulto investir o seu dinheiro é de apenas 36%. Para esses, o investimento mais popular é a poupança, investimento realizado por 1 a cada 4 investidores brasileiros. Com base nessa pesquisa e considerando-se uma população brasileira de 140 milhões de brasileiros adultos, quantos milhões de brasileiros adultos investem na poupança?",
+  "alternativas": {
+   "A": "12,6",
+   "B": "35,0",
+   "C": "50,4",
+   "D": "54,0",
+   "E": "85,4"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-EST-19",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 19,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-AC-EST-19.png",
+  "enunciado": "A Caixa Econômica Federal é um dos maiores financiadores de habitação no país. A cada dia, são feitas cerca de 200 mil simulações de financiamentos habitacionais e 2.000 contratos novos são assinados. A probabilidade de que um par aleatório de simulações independentes resulte em pelo menos um novo contrato assinado é",
+  "alternativas": {
+   "A": "50,00%",
+   "B": "2,00%",
+   "C": "1,99%",
+   "D": "1,98%",
+   "E": "0,01%"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-AC-EST-20",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo (26/05/2024)",
+  "numero": 20,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-AC-EST-20.png",
+  "enunciado": "O gerente de um banco possui apenas quatro contas sob sua gestão, uma com saldo de R$ 30 mil, duas com saldo de R$ 50 mil e uma com saldo de R$ 70 mil. O coeficiente de variação dos saldos das contas sob a responsabilidade desse gerente é, aproximadamente,",
+  "alternativas": {
+   "A": "14,14% Dado",
+   "B": "28,28% 2 = 1, 414",
+   "C": "44,44%",
+   "D": "58,58%",
+   "E": "64,64%"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-EST-16",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 16,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-EST-16.png",
+  "enunciado": "Instituições financeiras realizam empréstimos na expectativa de receberem de volta o valor do empréstimo acrescido de juros. Nem sempre, todavia, o cliente paga ao banco o valor que lhe é devido, e isso se denomina inadimplência. A probabilidade de um cliente inadimplir varia de acordo com as características do cliente, como renda, idade ou se o cliente possui casa própria. Quando um cliente solicita um empréstimo, um modelo matemático utiliza essas características para estimar a probabilidade de o cliente inadimplir. Essa probabilidade estimada será usada para classificar o cliente conforme o seu risco de crédito. Esse risco pode variar de AA (para clientes cuja probabilidade de inadimplir é quase nula), passando por B, C, D, E, F, G e finalmente H, à medida que a probabilidade de inadimplência vai aumentando. Segundo a apresentação de resultados do terceiro trimestre de 2023, a Caixa Econômica Federal tem 92,7% de sua carteira com risco de crédito entre AA e C e encerrou 2023 com uma inadimplência de 2,16%. A variável risco de crédito descrita acima é uma variável",
+  "alternativas": {
+   "A": "escalar",
+   "B": "discreta",
+   "C": "contínua",
+   "D": "nominal",
+   "E": "ordinal"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-EST-17",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 17,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-EST-17.png",
+  "enunciado": "Em uma agência de um banco comercial, 20% das contas-correntes são contas conjuntas, isto é, contas que possuem dois ou mais titulares. Considerando-se que um gerente dessa agência administra 4 contas, qual é a probabilidade de que a maioria das contas que esse gerente administra sejam contas conjuntas?",
+  "alternativas": {
+   "A": "0,16%",
+   "B": "0,80%",
+   "C": "2,56%",
+   "D": "2,72%",
+   "E": "2,76%"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-EST-18",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 18,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-EST-18.png",
+  "enunciado": "Um grupo de 100 funcionários de uma empresa ganhou na Mega-Sena, e o prêmio foi dividido igualmente entre esses funcionários e depositado em suas respectivas contas-correntes. Considerando-se as medidas de dispersão dos saldos dessas contas, a única dessas medidas que foi alterada após o depósito do prêmio da Mega-Sena foi a(o)",
+  "alternativas": {
+   "A": "média, que aumentou.",
+   "B": "amplitude, que aumentou.",
+   "C": "distância interquartílica, que aumentou.",
+   "D": "desvio padrão, que aumentou.",
+   "E": "coeficiente de variação, que foi reduzido."
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-EST-19",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 19,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-EST-19.png",
+  "enunciado": "Um banco comercial avalia solicitações de empréstimo a partir de um modelo estatístico que utiliza variáveis como renda, idade, estado civil e tempo no emprego atual para estimar a probabilidade de o cliente ficar inadimplente. O banco está atualizando o modelo estatístico atual e, com esse intuito, fez um levantamento do perfil demográfico dos clientes inadimplentes. Na Tabela a seguir, observa-se a fração de clientes inadimplentes para cada estado civil e renda mensal, medida em termos de número de salários mínimos (SM). Não existem observações coincidentes com os extremos das classes. Renda em SM Estado civil De 1 a 5 SM De 5 a 10 SM De 10 a 20 SM Acima de 20 SM Solteiro 0,040 0,030 0,020 0,010 Casado 0,200 0,150 0,100 0,050 Divorciado 0,140 0,105 0,070 0,035 Viúvo 0,020 0,015 0,010 0,005 Sabendo-se que um cliente inadimpliu, a probabilidade de esse cliente ganhar menos do que 10 salários mínimos e ser solteiro, divorciado ou viúvo é",
+  "alternativas": {
+   "A": "0,30",
+   "B": "0,35",
+   "C": "0,40",
+   "D": "0,45",
+   "E": "0,50"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "recorte_automatico_conferir_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "CAIXA-2024-RS092024-AC-EST-20",
+  "banco": "CAIXA",
+  "ano": 2024,
+  "edicao": "RS 09/2024",
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Novo RS (29/09/2024)",
+  "numero": 20,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/CAIXA-2024-RS092024-AC-EST-20.png",
+  "enunciado": "O Fundo de Garantia do Tempo de Serviço (FGTS), administrado pela Caixa Econômica Federal (CEF), é um fundo que almeja proteger o trabalhador que for demitido sem justa causa. Na Tabela a seguir, encontram-se os resultados desse fundo entre 2016 e 2022, bem como os valores distribuídos aos trabalhadores nesse período. Todos os valores estão em bilhões de reais. Ano Resultado total Resultado distribuído 2016 14,6 7,3 2017 12,5 6,2 2018 12,2 12,2 2019 11,3 7,5 2020 8,5 8,1 2021 13,3 13,2 2022 12,8 12,7 Um superintendente da CEF deseja saber qual é a fração do Resultado total que foi distribuído. Para isso, calculou quanto a média do Resultado distribuído representava em relação à mediana do Resultado total, no período apresentado na Tabela. A razão entre a média do Resultado distribuído e a mediana do Resultado total é, aproximadamente,",
+  "alternativas": {
+   "A": "88%",
+   "B": "77%",
+   "C": "66%",
+   "D": "55%",
+   "E": "44%"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "CAIXA_2024-RS_TecnicoBancarioNovo_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-EST-26",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 26,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/BB-2021-TI-EST-26.png",
+  "enunciado": "Uma central de assistência técnica de celulares trabalha com três modelos de um mesmo fabricante. Para melhor organizar seu sistema, foi medido o tempo de serviço para o conserto de cada aparelho, desde a chegada do pedido de manutenção até a entrega do aparelho consertado, e cada um desses prazos foi classificado como Curto, Médio ou Longo. A Tabela abaixo mostra a distribuição dos tempos de serviço para cada um dos três modelos aos quais a empresa prestou assistência em 2020. Modelo Tempo de Serviço Curto Médio Longo Modelo A 10% 20% 70% Modelo B 20% 50% 30% Modelo C 40% 20% 40% Considerando-se que, ao longo do ano de 2020, essa empresa reparou 1.000 unidades do modelo A, 600 unidades do modelo B e 400 unidades do modelo C, qual foi a porcentagem destes atendimentos, nesse período, que tiveram tempo de serviço Curto ou Médio?",
+  "alternativas": {
+   "A": "29%",
+   "B": "48%",
+   "C": "52%",
+   "D": "58%",
+   "E": "96%"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-EST-27",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 27,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/BB-2021-TI-EST-27.png",
+  "enunciado": "Um certo sistema anti-incêndio funciona com 3 sensores acoplados de temperatura, de maneira a minimizar as chances de mau funcionamento. O alarme desse sistema soa sempre que grandes variações de temperatura são detectadas por, pelo menos, 2 desses 3 sensores. Considerando-se que a probabilidade de um sensor não reagir corretamente a uma grande variação de temperatura é 1/5, qual a probabilidade de esse sistema não disparar o alarme em uma situação de grande variação de temperatura?",
+  "alternativas": {
+   "A": "1/125",
+   "B": "5/125",
+   "C": "12/125",
+   "D": "13/125",
+   "E": "16/125"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-EST-28",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 28,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/BB-2021-TI-EST-28.png",
+  "enunciado": "Sejam X e Y duas variáveis aleatórias com as seguintes informações sobre as variâncias: (i) Var(X) = 4 (ii) Var(Y) = 9 (iii) Var(X+Y) = 9 Qual é o valor da covariância entre X e Y?",
+  "alternativas": {
+   "A": "4",
+   "B": "2",
+   "C": "0",
+   "D": "6",
+   "E": "36"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-EST-29",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 29,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/BB-2021-TI-EST-29.png",
+  "enunciado": "Um pesquisador recebeu os dados de uma amostra de tamanho 100 de uma população e calculou a média amostral , o desvio padrão amostral  e o coeficiente de va riação amostral CV  . Antes de iniciar a análise, ele foi  informado de que os dados dessa amostra estavam todos errados, mas que podiam ser corrigidos somando-se 3 a cada um dos dados que recebeu. Após fazer tal correção, o valor do coeficiente de variação amostral passou a ser",
+  "alternativas": {
+   "A": "3 3",
+   "B": "300   300",
+   "C": " 3",
+   "D": "   300",
+   "E": "   0,03"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "BB-2021-TI-EST-30",
+  "banco": "BB",
+  "ano": 2021,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Agente de Tecnologia (26/09/2021)",
+  "numero": 30,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/BB-2021-TI-EST-30.png",
+  "enunciado": "A relação do cliente com o sistema bancário tradicional vem passando por transformações nos últimos cincos anos com o crescimento dos bancos digitais. Analisar o perfil dos clientes dos bancos digitais, considerando idade, classe social, renda e motivação, é uma tarefa importante para os bancos tradicionais com o objetivo de preservar a posição de principal Banco na relação com o Cliente. Para tal fim, uma agência bancária analisou os seguintes dados de uma pesquisa amostral sobre bancos digitais: Em relação a bancos digitais, você... 45% 19% 14% 22% JÁ OUVIU FALAR SABE COMO FUNCIONA POSSUI RELACIONAMENTO NÃO CONHECE Entre aqueles que têm relacionamento com bancos digitais (14%), os principais motivos para iniciar esse relacionamento foram... 44% 39% 22% 16% 16% Valores das tarifas Pela inovação de ser um banco 100% digital Indicação de amigo / parente / conhecido Por ser diferente de outros bancos Para dividir o dinheiro em várias contas 41% 28% 20% 12% 12% Para resolver tudo pela internet Para ter mais uma fonte de crédito (cartão e limite) Para poder focar em investimentos Por estar insatisfeito com banco atual (não digital) Pela propaganda do banco Disponível em: <https://www.institutoqualibest.com/wp-content/uploads/2019/06/Finan%C3%A7as-Pessoais-V5-Banking-Fintech-Insights.pdf>. Acesso em: 21 jan. 2021. Adaptado. Escolhendo-se ao acaso um dos entrevistados dessa pesquisa, qual é, aproximadamente, a probabilidade de esse cliente ter um relacionamento com banco digital e de ter apresentado como motivo para iniciar esse relacionamento a facilidade de poder resolver tudo pela internet?",
+  "alternativas": {
+   "A": "5,7%",
+   "B": "6,2%",
+   "C": "6,4%",
+   "D": "7,2%",
+   "E": "7,8%"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "BB_2021_AgenteTecnologia_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-TI-EST-15",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Técnico Bancário III Desenvolvimento (Prova B)",
+  "numero": 15,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/Banese-2025-TI-EST-15.png",
+  "enunciado": "Um banco, comprometido em oferecer agilidade e eficiência aos seus clientes, realizou um estudo interno para analisar o tempo médio de aprovação de diferentes tipos de crédito. Durante o levantamento, os dados mostraram o seguinte: Tipo de Crédito Tempo médio de aprovação (dias úteis) Empréstimo Pessoal 3 Financiamento de Veículos 5 Financiamento Imobiliário 20 Crédito Educacional 7 Crédito para Viagens 5 Crédito Rural 3 W, o gerente de operações, se espantou ao descobrir que a aprovação de financiamentos imobiliários era tão demorada. Ele sugeriu que esses dados fossem apresentados de forma visual, para discussão em uma reunião estratégica. Ele queria que os líderes das áreas envolvidas tivessem clareza sobre as diferenças no tempo de aprovação e pudessem propor ações específicas para reduzir o prazo dos financiamentos imobiliários. A melhor forma de W representar graficamente os dados que constam na Tabela apresentada é através de um",
+  "alternativas": {
+   "A": "gráfico de linha",
+   "B": "gráfico de dispersão",
+   "C": "gráfico de barras",
+   "D": "gráfico de setores (ou de pizza)",
+   "E": "gráfico de área"
+  },
+  "gabarito": "C",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioIII-Desenvolvimento_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-TI-EST-16",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Técnico Bancário III Desenvolvimento (Prova B)",
+  "numero": 16,
+  "materia": "Estatística",
+  "pagina": 8,
+  "imagem": "imagens/Banese-2025-TI-EST-16.png",
+  "enunciado": "Um banco implementou um sistema de detecção de fraudes para monitorar transações realizadas com seu cartão de crédito. O sistema utiliza modelos probabilísticos para identificar transações suspeitas, com base em padrões históricos. Os analistas sabem que: • Apenas 1% de todas as transações são fraudulentas. • Quando uma transação é fraudulenta, o sistema a classifica como “suspeita” em 95% dos casos (taxa de acerto). • Quando uma transação não é fraudulenta, o sistema ainda a classifica como “suspeita” em 5% dos casos (falso positivo). Se o sistema classificou uma transação como suspeita, a probabilidade de ela realmente ser fraudulenta é de, aproximadamente,",
+  "alternativas": {
+   "A": "16%",
+   "B": "26%",
+   "C": "46%",
+   "D": "66%",
+   "E": "76%"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioIII-Desenvolvimento_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-TI-EST-17",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Técnico Bancário III Desenvolvimento (Prova B)",
+  "numero": 17,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/Banese-2025-TI-EST-17.png",
+  "enunciado": "O setor de Recursos Humanos de um banco está utilizando People Analytics para identificar padrões no desempenho dos funcionários e melhorar a alocação de talentos. Durante uma análise recente, a equipe utilizou dados de avaliações de desempenho (pontuações de 0 a 100) e correlacionou esses dados à quantidade de horas dedicadas a treinamentos no último semestre. J, membro da equipe, construiu um modelo de regressão linear para prever a pontuação de um funcionário na avaliação de desempenho (Y), em função do número de horas dedicadas a treinamentos no último semestre (X), obtendo o modelo a seguir. Ŷ = 50 + 0,5 X Ele verificou que o modelo atende a todas as premissas do modelo de regressão linear. A pontuação esperada de um funcionário que dedicou 60 horas a treinamento no último semestre é",
+  "alternativas": {
+   "A": "50",
+   "B": "60",
+   "C": "70",
+   "D": "80",
+   "E": "90"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioIII-Desenvolvimento_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-TI-EST-18",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Técnico Bancário III Desenvolvimento (Prova B)",
+  "numero": 18,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/Banese-2025-TI-EST-18.png",
+  "enunciado": "Existe uma série de métricas que são acompanhadas pelos bancos na gestão de suas carteiras de crédito: taxa de inadimplência, tempo médio de atraso, dentre outras. Monitorar essas métricas e suas evoluções ao longo do tempo é importante, pois é através dessas métricas que o banco pode avaliar se sua carteira de crédito está saudável. Um banco fez um levantamento do número de clientes em atraso e chegou à seguinte Tabela: Dias em atraso Número de Clientes 1 10 2 25 3 35 4 20 5 10 A amplitude interquartil dos dias em atraso é de",
+  "alternativas": {
+   "A": "1",
+   "B": "2",
+   "C": "3",
+   "D": "4",
+   "E": "5"
+  },
+  "gabarito": "B",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioIII-Desenvolvimento_prova.pdf"
+ },
+ {
+  "id": "Banese-2025-TI-EST-19",
+  "banco": "Banese",
+  "ano": 2025,
+  "edicao": null,
+  "cargoOrigem": "TI",
+  "prova": "Técnico Bancário III Desenvolvimento (Prova B)",
+  "numero": 19,
+  "materia": "Estatística",
+  "pagina": 9,
+  "imagem": "imagens/Banese-2025-TI-EST-19.png",
+  "enunciado": "Um banco oferece para seus clientes um seguro residencial. Esse seguro cobre o segurado em caso de danos ao imóvel causados por incêndio, queda de raio, explosão ou queda de aeronaves. W, gerente desse banco, vendeu esse seguro para P e para Q. A probabilidade de P acionar o seguro é de 10%, e a de Q, 20%. O fato de P acionar o seguro é independente de Q ter acionado ou não o seguro. A probabilidade de que o seguro não seja acionado nem por P e nem por Q é de",
+  "alternativas": {
+   "A": "2%",
+   "B": "30%",
+   "C": "32%",
+   "D": "50%",
+   "E": "72%"
+  },
+  "gabarito": "E",
+  "status": "valida",
+  "revisar": [
+   "ver_imagem"
+  ],
+  "arquivoProva": "Banese_2025_TecnicoBancarioIII-Desenvolvimento_prova.pdf"
+ },
+ {
+  "id": "BB-2018-AC-EST-38",
+  "banco": "BB",
+  "ano": 2018,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Escriturário (13/05/2018)",
+  "numero": 38,
+  "materia": "Estatística",
+  "pagina": 13,
+  "imagem": "imagens/BB-2018-AC-EST-38.png",
+  "enunciado": "39 Para ilustrar a importância da análise gráfica em análises de regressão linear, F. J. Anscombe produziu quatro conjuntos de pares (x, y) a partir das mesmas estatísticas suficientes, como: coeficientes linear e angular; soma dos quadrados dos resíduos e da regressão; e número de observações. Os diagramas de dispersão para as quatro bases de dados, juntamente com a reta da regressão (y = 4 + 0,5 x), encontram-se abaixo. Em um jogo, os jogadores escolhem três números inteiros diferentes, de 1 a 10. Dois números são sorteados e se ambos estiverem entre os três números escolhidos por um jogador, então ele ganha um prêmio. O sorteio é feito utilizando-se uma urna com 10 bolas numeradas, de 1 até 10, e consiste na retirada de duas bolas da urna, de uma só vez, seguida da leitura em voz alta dos números nelas presentes. Qual é a probabilidade de um jogador ganhar um prêmio no sorteio do jogo? Gráfico A y 12 10 8 6 4 2 5 x 12 10 8 6 4 2 15 5 10 Gráfico C y 12 10 8 6 4 2 10 Gráfico B y 10 x 12 10 8 6 4 2 15 x 1 20 40 5 10 15 Um professor elaborou 10 questões diferentes para uma prova, das quais 2 são fáceis, 5 são de dificuldade média, e 3 são difíceis. No momento, o professor está na fase de montagem da prova. A montagem da prova é a ordem segundo a qual as 10 questões serão apresentadas. O professor estabeleceu o seguinte critério de distribuição das dificuldades das questões, para ser seguido na montagem da prova: x – O gráﬁco B mostra um valor inﬂuente para gerar uma regressão linear. II – O gráﬁco C mostra uma possível observação outlier na regressão linear. III – O gráﬁco D mostra uma possível observação outlier na regressão linear. Questão Dificuldade Está correto SOMENTE o que se afirma em",
+  "alternativas": {
+   "A": "13 ESCRITURÁRIO - GABARITO 1",
+   "B": "",
+   "C": "1 5 Gráfico D y 5 15",
+   "D": "1 15 Com base nesses gráficos, considere as seguintes afirmativas: SC 1 90",
+   "E": "I U"
+  },
+  "gabarito": "D",
+  "status": "valida",
+  "revisar": [
+   "recorte_manual_conferir_imagem"
+  ],
+  "arquivoProva": "BB_2018_Escriturario_prova.pdf"
+ },
+ {
+  "id": "BancodaAmazonia-2024-AC-EST-39",
+  "banco": "Banco da Amazônia",
+  "ano": 2024,
+  "edicao": null,
+  "cargoOrigem": "Agente Comercial",
+  "prova": "Técnico Bancário Prova A (20/10/2024)",
+  "numero": 39,
+  "materia": "Estatística",
+  "pagina": 10,
+  "imagem": "imagens/BancodaAmazonia-2024-AC-EST-39.png",
+  "enunciado": "Um grupo é formado por jovens cujas idades variam entre 16 e 19 anos. O gráfico de colunas representa a distribuição do número (N) de jovens de acordo com suas idades (16 anos: 4; 17 anos: 5; 18 anos: 10; 19 anos: 1). O gráfico de setores que representa, em forma percentual, as frequências das idades desse grupo de jovens é",
+  "alternativas": {
+   "A": "(gráfico de setores, ver imagem)",
+   "B": "(gráfico de setores, ver imagem)",
+   "C": "(gráfico de setores, ver imagem)",
+   "D": "(gráfico de setores, ver imagem)",
+   "E": "(gráfico de setores, ver imagem)"
+  },
+  "gabarito": "A",
+  "status": "valida",
+  "revisar": [
+   "alternativas_sao_graficos__usar_imagem"
+  ],
+  "arquivoProva": "BASA_2024_TecnicoBancario_prova.pdf"
+ }
+]

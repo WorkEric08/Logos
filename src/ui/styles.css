@@ -1,0 +1,816 @@
+/* ───────── Tokens por papel ─────────
+   Paleta (referência "Shades of gray", 2026-11-08): cinzas azulados #0A0E15 · #212631 · #373F4E · #4E576A · #667085 no escuro e
+   #FFFFFF · #F0F1F5 · #E0E4EB · #D1D6E0 · #BFC6D4 no claro, com amarelo/laranja (#F0B23C) como cor de destaque.
+   SUBSTITUI a paleta anterior (Onyx/Charcoal + Light Azure #BFD8E3). Sem gradiente. Valores de cada tema em --t-*; o bloco comum
+   liga aos nomes que as telas leem. A barra de navegação (--rail-*) é escura nos dois temas, como na referência. */
+:root{
+  --t-bg:#f0f1f5; --t-panel:#ffffff; --t-card:#ffffff; --t-card2:#f0f1f5; --t-hi:#e0e4eb;
+  --t-ink:#0a0e15; --t-muted:#4e576a; --t-faint:#98a1b3;
+  --t-line:#d1d6e0; --t-line-strong:#667085;
+  --t-accent:#f0b23c; --t-accent-ink:#0a0e15; --t-accent-text:#8a5a00; --t-accent-soft:#f7e3b7;
+  --t-btn:#0a0e15; --t-btn-ink:#ffffff;
+  --t-ok:#17794f; --t-ok-soft:#dcf3e8; --t-on-ok:#ffffff; --t-err:#b3322a; --t-err-soft:#f9dfdb; --t-on-err:#ffffff;
+  --t-warn-soft:#fbf1d9; --t-warn-line:#d9a92b; --t-toast-act:#f0b23c;
+  --t-shadow:0 1px 2px rgba(10,14,21,.05),0 10px 24px -16px rgba(10,14,21,.25);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-tema="light"]):not([data-tema="dark"]){
+  --t-bg:#0f131a; --t-panel:#0a0e15; --t-card:#161b24; --t-card2:#1d2330; --t-hi:#2a3140;
+  --t-ink:#f0f1f5; --t-muted:#aeb6c7; --t-faint:#667085;
+  --t-line:#262d3a; --t-line-strong:#667085;
+  --t-accent:#f0b23c; --t-accent-ink:#0a0e15; --t-accent-text:#f0b23c; --t-accent-soft:#2a3140;
+  --t-btn:#f0f1f5; --t-btn-ink:#0a0e15;
+  --t-ok:#52c796; --t-ok-soft:#10281f; --t-on-ok:#04120c; --t-err:#ff8a80; --t-err-soft:#331816; --t-on-err:#1a0504;
+  --t-warn-soft:#2b2410; --t-warn-line:#8a6d1d; --t-toast-act:#0a0e15; --t-shadow:none; color-scheme:dark}}
+:root[data-tema="dark"]{
+  --t-bg:#0f131a; --t-panel:#0a0e15; --t-card:#161b24; --t-card2:#1d2330; --t-hi:#2a3140;
+  --t-ink:#f0f1f5; --t-muted:#aeb6c7; --t-faint:#667085;
+  --t-line:#262d3a; --t-line-strong:#667085;
+  --t-accent:#f0b23c; --t-accent-ink:#0a0e15; --t-accent-text:#f0b23c; --t-accent-soft:#2a3140;
+  --t-btn:#f0f1f5; --t-btn-ink:#0a0e15;
+  --t-ok:#52c796; --t-ok-soft:#10281f; --t-on-ok:#04120c; --t-err:#ff8a80; --t-err-soft:#331816; --t-on-err:#1a0504;
+  --t-warn-soft:#2b2410; --t-warn-line:#8a6d1d; --t-toast-act:#0a0e15; --t-shadow:none; color-scheme:dark}
+:root{
+  --bg:var(--t-bg); --panel:var(--t-panel); --card:var(--t-card); --card2:var(--t-card2); --hi:var(--t-hi);
+  --ink:var(--t-ink); --muted:var(--t-muted); --faint:var(--t-faint);
+  --line:var(--t-line); --line-strong:var(--t-line-strong);
+  --accent:var(--t-accent); --accent-ink:var(--t-accent-ink); --accent-text:var(--t-accent-text); --accent-soft:var(--t-accent-soft);
+  --btn:var(--t-btn); --btn-ink:var(--t-btn-ink);
+  --ok:var(--t-ok); --ok-soft:var(--t-ok-soft); --on-ok:var(--t-on-ok); --err:var(--t-err); --err-soft:var(--t-err-soft); --on-err:var(--t-on-err);
+  --warn-soft:var(--t-warn-soft); --warn-line:var(--t-warn-line); --toast-act:var(--t-toast-act); --shadow:var(--t-shadow);
+  --brand:#f0b23c; --brand-ink:#0a0e15;
+  /* barra de navegação (a mesma nos dois temas) */
+  --rail-bg:#0a0e15; --rail-btn:#212631; --rail-btn-hi:#2a3140; --rail-ink:#bfc6d4; --rail-line:#667085;
+  --f-ui:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-read:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:4px; --nav-h:0px; --sab:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)); --sat:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)); --sal:max(env(safe-area-inset-left,0px),var(--safe-area-inset-left,0px)); --sar:max(env(safe-area-inset-right,0px),var(--safe-area-inset-right,0px));
+  /* áreas seguras: no navegador/PWA vale env(); no APK o plugin SystemBars do Capacitor injeta --safe-area-inset-* (no APK sem viewport-fit=cover a WebView já recua e tudo vale 0) */
+  --rail-w:76px; --rail-ms:250ms;
+  --ease-out:cubic-bezier(.22,1,.36,1); --aside-w:340px;
+}
+
+/* ───────── Base ───────── */
+*{box-sizing:border-box}
+html{height:100%;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+body{height:100%;margin:0;overscroll-behavior:none;background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-ui);user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+#root{height:100%}
+input,textarea{user-select:text;-webkit-user-select:text}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+img{-webkit-user-drag:none}
+button:focus-visible,summary:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent-text);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.small{font-size:12px}
+.big{font-size:16px}
+.boot{height:100dvh;background:var(--bg)}
+
+/* ───────── Casca: barra de navegação à esquerda (celular: 64 px com aba retrátil · computador: trilho de 96 px) + conteúdo ───────── */
+.shell{height:100dvh;display:flex;flex-direction:row;background:var(--bg)}
+.scroll-y{position:relative;flex:1;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:none;scrollbar-width:none;background:var(--bg); /* x oculto: a tela que desliza (translateX) não gera rolagem lateral no meio da animação */
+  padding-left:max(16px,var(--sal));padding-right:max(16px,var(--sar))}
+/* Teclado aberto: um espaçador no FIM do conteúdo (não padding do .scroll-y: o position:sticky respeita o padding do contêiner e subiria os botões do pé para cima do teclado). */
+.scroll-y::after{content:"";display:block;height:var(--teclado,0px)}
+.scroll-y::-webkit-scrollbar{display:none}
+.page{max-width:760px;margin:0 auto;padding:20px 0 28px}
+.icon{flex:none;display:block}
+/* Sem barras de rolagem em lugar nenhum (a rolagem continua funcionando): nem no site, nem no app */
+*{scrollbar-width:none}
+*::-webkit-scrollbar{display:none;width:0;height:0}
+.rail-veu{display:none}
+.slot{display:none}
+.painel-alca{display:none}
+
+/* ───────── Cabeçalho, seções, linhas com “+” ───────── */
+.top{display:flex;flex-direction:column;gap:2px;margin-bottom:16px}
+.top h1{font-size:30px;line-height:1.2;font-weight:700;letter-spacing:-.02em}
+.top small{color:var(--muted);font-size:13.5px}
+.hr{display:block;position:relative;height:1px;margin:16px 0;background:var(--line);--hr-bg:var(--bg)}
+.hr::before,.hr::after{content:"+";position:absolute;top:50%;transform:translateY(-52%);font:400 15px/1 var(--f-ui);color:var(--faint);background:var(--hr-bg);padding:0 2px}
+.hr::before{left:-2px} .hr::after{right:-2px}
+.hr.lg{display:none}
+.card .hr{--hr-bg:var(--card)}
+.slot .hr{--hr-bg:var(--panel)}
+.sec{display:flex;align-items:center;gap:12px;margin:28px 0 12px;font:500 12px/1.3 var(--f-ui);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.sec::after{content:"";flex:1 1 24px;height:1px;background:var(--line)}
+.sec:first-child{margin-top:0}
+
+/* ───────── Cartões, botões, chips ───────── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.card h3{font-size:16px;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--card2);color:var(--ink);border-radius:5px;padding:11px 16px;font-weight:600;min-height:48px;text-align:center}
+.btn.pri{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+.btn.dark{background:#0a0e15;color:#fff;border-color:#0a0e15}
+.btn.warn{border-color:var(--err);color:var(--err);background:transparent}
+/* Botão desativado é SÓLIDO em todo o app (nunca translúcido): com opacidade, o degradê do rodapé e o conteúdo que rola atrás apareciam através dele. */
+.btn[disabled],.btn.pri[disabled],.btn.warn[disabled]{opacity:1;background:var(--card2);color:var(--muted);border-color:var(--line);cursor:default}
+.btn:active:not([disabled]){transform:scale(.98)}
+@media (hover:hover){.btn:not(.pri):not(.dark):not([disabled]):hover{background:var(--hi)}.btn.pri:not([disabled]):hover,.btn.dark:not([disabled]):hover{opacity:.88}}
+.small-btn{min-height:40px;padding:6px 14px;border-radius:5px}
+.filebtn{cursor:pointer}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>.btn{flex:1 1 150px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line-strong);background:var(--card);border-radius:5px;padding:7px 14px;font-size:14px;min-height:38px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.chip small{font:400 11.5px var(--f-num);opacity:.75;margin-left:6px}
+@media (hover:hover){.chip[aria-pressed="false"]:hover{background:var(--hi)}}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:5px;background:var(--card2);border:1px solid var(--line);margin-top:10px}
+.seg button{border:0;background:none;border-radius:3px;padding:9px 6px;min-height:42px;font-size:14px;color:var(--muted);font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.badge{flex:none;width:40px;height:40px;border-radius:5px;display:grid;place-items:center;background:var(--hi);color:var(--ink);font:600 13px/1 var(--f-ui);letter-spacing:.04em}
+.badge.pct{width:auto;min-width:48px;padding:0 8px;font-family:var(--f-num);font-weight:500}
+.bar{height:6px;background:var(--hi);border-radius:4px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%;background:var(--accent-text);border-radius:4px}
+.bar i.ok{background:var(--ok)}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .25s}}
+.field{margin-top:16px}
+.field:first-child{margin-top:0}
+.field>label,.field>.lb{display:block;font:500 11.5px/1.3 var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0}
+.warnbox{margin:0 0 14px;padding:10px 12px;border-radius:4px;background:var(--warn-soft);border:1px solid var(--warn-line);font-size:13.5px}
+
+/* ───────── Divisão da página ───────── */
+.split{display:flex;flex-direction:column;gap:16px}
+.col{min-width:0;display:flex;flex-direction:column;gap:0;container-type:inline-size}
+.side{min-width:0}
+.side.first{order:-1}
+.split.ini{gap:0}
+.split.ini>.col{display:contents}
+.split.ini .late{order:2}
+.split.ini>.side.first{order:1;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+
+/* ───────── Início ───────── */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:16px;border-radius:var(--r);background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);min-height:104px;min-width:0}
+.tile .icon{color:var(--accent-text);margin-bottom:6px}
+.tile b{font-size:16.5px;line-height:1.2;font-weight:600}
+.tile span{font-size:13px;line-height:1.35;color:var(--muted)}
+.tile[disabled]{opacity:1;background:var(--card2);cursor:default}
+.tile[disabled] b,.tile[disabled] span,.tile[disabled] .icon{color:var(--muted)}
+.tile:active:not([disabled]){transform:scale(.98)}
+@media (hover:hover){.tile:not([disabled]):hover{background:var(--hi)}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 10px;box-shadow:var(--shadow);min-width:0}
+.stat b{display:block;font:600 28px/1.1 var(--f-ui);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat b .muted{font-size:14px;font-weight:500;letter-spacing:0}
+.stat>span{display:block;margin-top:4px;font-size:12.5px;line-height:1.3;color:var(--muted)}
+/* “pastas” = matérias */
+.folders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.folder{display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:2px;min-width:0;padding:14px;border-radius:var(--r);background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
+.ftop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:22px}
+.fpc{font:500 13px var(--f-num);color:var(--accent-text);text-align:right}
+.fpc small{display:block;font-size:11px;color:var(--muted)}
+.fnm{font-weight:700;font-size:16px;line-height:1.25;overflow-wrap:anywhere}
+.fsub{font-size:12.5px;line-height:1.3;color:var(--muted);margin-bottom:12px}
+.fsub>span{display:block}
+.folder .bar{margin-top:auto}
+.folder:active{transform:scale(.99)}
+@media (hover:hover){.folder:hover,.file:hover{background:var(--hi)}}
+/* “arquivos” = provas */
+.files{display:flex;flex-direction:column;gap:8px}
+/* provas do Início: trilha "Bancos › Banco › Cargo" e a ordem */
+.provas>.sec:first-child{margin-top:28px}
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:2px 4px;margin:-2px 0 12px;font-size:14px;color:var(--muted)}
+.crumbs button{border:0;background:none;padding:6px 6px;min-height:36px;border-radius:4px;color:var(--muted);font-weight:500;overflow-wrap:anywhere;text-align:left}
+.crumbs button[aria-current="page"]{color:var(--ink);font-weight:700;cursor:default}
+@media (hover:hover){.crumbs button:not([aria-current]):hover{background:var(--hi)}}
+/* as três ordens são títulos (não botões): cada uma com a lista de provas já nessa ordem */
+.provas-grupo{margin-top:22px}
+.provas-grupo:first-of-type{margin-top:6px}
+.provas-grupo .provas-titulo{margin:0 0 10px}
+.crumb{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
+.file{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;width:100%;padding:10px 12px;border-radius:var(--r);background:var(--card);border:1px solid var(--line)}
+.ftx{display:flex;flex-direction:column;min-width:0}
+.fname{font-weight:600;font-size:14.5px;line-height:1.3;overflow-wrap:anywhere}
+.fmeta{font-size:12.5px;color:var(--muted)}
+.file:active{transform:scale(.995)}
+.side-h{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
+.side-h .icon{color:var(--muted)}
+/* painel de progresso (só em tela larga) */
+.preview{display:grid;place-items:center;border-radius:var(--r);background:var(--card2);border:1px solid var(--line);padding:22px 0}
+.ring{position:relative;width:148px;height:148px}
+.ring svg{display:block;width:100%;height:100%}
+.ring .rt,.ring .rp{fill:none;stroke-width:9;stroke-linecap:round}
+.ring .rt{stroke:var(--hi)} .ring .rp{stroke:var(--accent-text)}
+.ring span{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--muted)}
+.ring b{font:600 32px/1.1 var(--f-ui);color:var(--ink);letter-spacing:-.02em}
+.ptitle{font-size:16px;font-weight:700;line-height:1.3}
+.pmeta{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
+.plabel{margin:18px 0 10px;font-size:13px;font-weight:600}
+.plist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.plist li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px;align-items:center;font-size:13.5px}
+.plist .badge{width:32px;height:32px;border-radius:4px;font-size:11px}
+.plist .num{color:var(--muted);font-size:12.5px}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center}
+.act{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:6px 0;font-size:12.5px;font-weight:600;color:var(--ink)}
+.act+.act::before{content:"+";position:absolute;left:-4px;top:2px;font-weight:400;color:var(--faint)}
+.actic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--card2);border:1px solid var(--line)}
+.act[disabled]{opacity:1;color:var(--muted);cursor:default}
+.act[disabled] .actic{background:var(--card2);color:var(--muted)}
+@media (hover:hover){.act:not([disabled]):hover .actic{background:var(--hi)}}
+
+/* ───────── Treinar ───────── */
+.filters{padding:18px 16px}
+.filters .hr{margin:18px 0}
+.fbottom,.fctl{display:block}
+.fbottom .field+.field,.fctl .field{margin-top:16px}
+.fbottom>.field:first-child{margin-top:0}
+/* Treinar */
+.tr .chip{padding:6px 12px;min-height:36px}
+/* Filtros do Treinar: cada grupo é uma GRADE de colunas iguais (os botões se alinham em colunas e linhas, todos do mesmo tamanho).
+   Celular: 2 colunas (Quantidade 4, Ordem 3); em tela larga, o máximo de colunas de pelo menos 160 px. */
+.filters .chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.filters .chips.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.filters .chips.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.filters .chip{width:100%;min-width:0;padding:6px 4px;font-size:13px;text-align:center;line-height:1.25;overflow-wrap:anywhere;text-wrap:balance}
+.filters .chip small{margin-left:4px}
+/* Quantidade (10 · 20 · 30 · 40 · 50 · Todas). UMA linha só quando o PRÓPRIO CAMPO tem 320 px ou mais (computador, tablet: colunas iguais e "Todas" um pouco mais larga
+   com o total embaixo do nome); com menos que isso, até DUAS linhas de 3 colunas (10 20 30 / 40 50 Todas) com botões de 44 px ou mais e "Todas 1168" numa linha só.
+   Celular em pé (viewport < 600 px) sempre usa as duas linhas, de botões maiores. As grades (--cols-larga / --cols-estreita) vêm de ui/Views.tsx, pelo número de opções. */
+.filters .field:has(>.chips.qtd){container:qtd / inline-size}
+.filters .chips.qtd{gap:6px;grid-template-columns:var(--cols-estreita)}
+.filters .chips.qtd .chip{padding:6px 0;min-width:0}
+.filters .chips.qtd .chip small{display:inline;margin-left:4px}
+@container qtd (min-width:320px){
+  .filters .chips.qtd{grid-template-columns:var(--cols-larga)}
+  .filters .chips.qtd .chip small{display:block;margin:0;line-height:1.2}
+}
+@media (max-width:599px){
+  .filters .chips.qtd{grid-template-columns:var(--cols-estreita)}
+  .filters .chips.qtd .chip small{display:inline;margin-left:4px}
+}
+@container (min-width:600px){.filters .chip{font-size:14px;padding:6px 8px}}
+@container (min-width:600px){.filters .chips:not(.c3):not(.c4){grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
+.nohint{margin:0}
+.tr .count b{font-size:34px}
+.tr .go .btn,.tr .go-btn{min-height:52px;width:100%}
+.tr .bar,.tr .bar i{border-radius:2px}
+/* Desempenho: matérias em grade, temas em duas tabelas lado a lado */
+.tbls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.tbls .t2 thead{display:none}
+.tbls .card.tbl{align-self:start}
+.tbls .t2 tr:first-child td{border-top:0}
+/* Mais: cartões em grade */
+.mgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:stretch}
+.nt .note{margin:10px 0 0;break-inside:avoid}
+.nt .note:first-child{margin-top:8px}
+.sum{display:grid;gap:10px;margin:0;font-size:13.5px}
+.sum div{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.sum dt{color:var(--muted)} .sum dd{margin:0;text-align:right;font-weight:600;overflow-wrap:anywhere}
+.count{line-height:1.2;display:flex;align-items:baseline;gap:6px;margin:0 0 12px;color:var(--muted);font-size:13.5px}
+.count b{font:600 30px/1.2 var(--f-ui);color:var(--ink);letter-spacing:-.02em;margin-right:6px}
+.side.go{position:sticky;bottom:0;z-index:2;padding:14px 0 8px;margin-top:4px;background:linear-gradient(to top,var(--bg) 70%,transparent)}
+.go .btn{width:100%;min-height:52px}
+
+/* ───────── Desempenho ───────── */
+.rowlist{display:flex;flex-direction:column;gap:10px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:10px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:500 11px/1.3 var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+td.n,th.n{text-align:right;font-family:var(--f-num)}
+.scroll{overflow-x:auto}
+.card.tbl{padding:6px 14px}
+
+/* ───────── Mais ───────── */
+textarea{width:100%;min-height:110px;border:1px solid var(--line-strong);border-radius:5px;background:var(--card2);color:var(--ink);padding:12px;font:12.5px/1.4 var(--f-num)}
+select{width:100%;padding:10px;border:1px solid var(--line-strong);border-radius:5px;background:var(--card2);color:var(--ink);font:inherit}
+.about .note:first-child{margin-top:0}
+
+/* ───────── Questão ───────── */
+.qbar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.qbar .bar{flex:1;height:8px}
+.qbar .cnt{font:500 13px var(--f-num)}
+.qbar .btn{gap:4px;padding-left:10px}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 16px 16px;box-shadow:var(--shadow)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tag{font-size:12px;line-height:1.3;padding:3px 9px;border-radius:3px;background:var(--card2);border:1px solid var(--line);color:var(--muted)}
+.tag.m{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.enun{font:400 18px/1.55 var(--f-read);margin:0 0 16px;white-space:pre-line;overflow-wrap:anywhere}
+details.base{margin:0 0 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--card2)}
+details.base summary{padding:11px 14px;font-weight:600;cursor:pointer;font-size:13.5px}
+details.base .txt{padding:2px 14px 14px;font:400 16.5px/1.6 var(--f-read);white-space:pre-line;max-height:52vh;overflow:auto;overflow-wrap:anywhere}
+.alts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.alt{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:start;width:100%;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:5px;padding:11px 12px;min-height:52px}
+.alt .bub{width:34px;height:34px;border-radius:5px;border:1.5px solid var(--line-strong);display:grid;place-items:center;font:600 14px var(--f-ui);color:var(--muted)}
+.alt .tx{font:400 16.5px/1.45 var(--f-read);overflow-wrap:anywhere;padding-top:3px}
+.alt .mk{display:none;width:22px;height:22px;margin-top:6px}
+.alt[aria-pressed="true"]{border-color:var(--accent-text)}
+.alt[aria-pressed="true"] .bub{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.alt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.alt.ok .bub{background:var(--ok);border-color:var(--ok);color:var(--on-ok)}
+.alt.err{border-color:var(--err);background:var(--err-soft)}
+.alt.err .bub{background:var(--err);border-color:var(--err);color:var(--on-err)}
+.alt.ok .mk,.alt.err .mk{display:block}
+.alt.ok .mk{color:var(--ok)} .alt.err .mk{color:var(--err)}
+.alt.dim{opacity:.62}
+@media (hover:hover){.alt:not([disabled]):hover{border-color:var(--accent-text)}}
+.fb{margin-top:16px;padding:14px;border-radius:var(--r);border:1px solid var(--line);background:var(--card2)}
+.fb.ok{border-color:var(--ok)} .fb.err{border-color:var(--err)}
+.fb b.v{font-size:16px}
+.fb p{margin:4px 0 0;color:var(--muted);font-size:13.5px}
+.pg{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:var(--shadow)}
+.pg:first-of-type{margin-top:0}
+figure.pg{margin:12px 0 0}
+.pg img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:3px;background:#fff}
+.pg .note{margin:10px 0 0}
+.pgside{display:flex;flex-direction:column}
+.foot{display:flex;gap:10px;margin-top:16px}
+.foot .btn{flex:1;min-height:52px}
+.foot.sticky{position:sticky;bottom:0;z-index:2;margin-top:0;padding:14px 0 8px;background:linear-gradient(to top,var(--bg) 70%,transparent)}
+
+/* ───────── Resultado ───────── */
+.scorecard{border-radius:var(--r);padding:20px;color:var(--brand-ink);background:var(--brand)}
+.scorecard .lb{display:block;font:600 11.5px/1.3 var(--f-ui);letter-spacing:.18em;text-transform:uppercase;color:rgba(10,14,21,.72);margin-bottom:8px}
+.score{font:600 44px/1 var(--f-ui);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.score .muted{color:rgba(10,14,21,.72);font-size:16px;font-weight:500;letter-spacing:0}
+.rules{display:grid;gap:8px;margin:16px 0 0;padding:0;list-style:none;font-size:13.5px}
+.rules li{display:flex;gap:10px;align-items:baseline;max-width:100%}
+.rules .d{width:10px;height:10px;border-radius:50%;flex:none;background:#a32a22}
+.rules .d.ok{background:#0f6b45}
+.scorecard .note{color:rgba(10,14,21,.8)}
+.cartao{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:8px}
+.cell{aspect-ratio:1;border-radius:5px;border:1.5px solid var(--line-strong);background:var(--card);font:500 13px var(--f-num);display:grid;place-items:center;color:var(--ink)}
+.cell.ok{background:var(--ok);border-color:var(--ok);color:var(--on-ok)}
+.cell.err{background:var(--err);border-color:var(--err);color:var(--on-err)}
+@media (hover:hover){.cell:hover{border-color:var(--accent-text)}}
+
+.wide-only{display:none}
+
+/* ───────── Aviso ───────── */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + var(--sab) + 14px);background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:5px;font-size:14px;z-index:60;width:max-content;max-width:calc(100vw - 16px);white-space:nowrap;display:flex;gap:16px;align-items:center;animation:tin 380ms var(--ease-out);box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+.toast button{border:0;background:none;color:var(--toast-act);font-weight:700;min-height:36px;padding:0 6px}
+@keyframes tin{from{opacity:0;transform:translate(-50%,12px)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ───────── Celular estreito ───────── */
+
+/* ───────── Celular largo / tablet ───────── */
+@media (min-width:600px){
+  .top h1{font-size:34px}
+  .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sheet{padding:22px 22px 20px}
+  .folders{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+}
+
+/* ───────── Computador: trilho à esquerda (como a referência) ───────── */
+@media (min-width:900px){
+  .nav.rail{position:relative;flex:none;width:96px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:28px 8px}
+  .rail-itens{display:flex;flex-direction:column;gap:10px;width:100%}
+  .rail-item{position:relative;flex:none;width:calc(100% + 8px);margin-right:-8px;padding:0 8px 0 0;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:0;background:none;border-radius:6px;color:var(--muted);font:500 10px/1.1 var(--f-ui);letter-spacing:.05em;text-transform:uppercase}
+  .rail-ico{display:grid;place-items:center}
+  .rail-lb{text-align:center}
+  .rail-item[aria-current="page"]{color:var(--ink);font-weight:700}
+  .rail-item[aria-current="page"] .icon{color:var(--accent-text)}
+  .rail-item[aria-current="page"]::before{content:"";position:absolute;top:50%;right:0;width:3px;height:30px;transform:translateY(-50%);border-radius:3px 0 0 3px;background:var(--accent-text)}
+  .rail-alca{display:none}
+  .scroll-y{padding-left:40px;padding-right:40px}
+  .page{max-width:1280px;margin:0;padding:28px 0 40px}
+  .page.ini,.page.xl{max-width:2000px} /* só o Início: o conteúdo ocupa o espaço até o painel, sem vazio no meio (as outras telas seguem em 1280 px) */
+  .top{flex-direction:row;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:0;flex-wrap:wrap}
+  .top h1{font-size:26px;font-weight:600}
+  .hr.lg{display:block;margin:14px 0 24px}
+  .toast{bottom:28px;left:50%}
+}
+
+/* ───────── Computador largo: painel de detalhes na coluna da direita (altura toda) ───────── */
+@media (min-width:1180px){
+  .slot{display:block;flex:none;width:var(--aside-w);overflow-y:auto;overscroll-behavior:none;scrollbar-width:none;background:var(--panel);border-left:1px solid var(--line);padding:28px 24px 32px}
+  .slot::-webkit-scrollbar{display:none}
+  .slot:empty{display:none}
+  /* painel da questão: largura padrão 36vw (até 560 px); a pessoa alarga arrastando a borda esquerda (--painel-w, ui/PainelAlca.tsx).
+     Limites iguais aos de core/painel.ts: no mínimo 320 px e a questão sempre com 460 px + o trilho (96 px) */
+  .slot:has(.pgside){width:clamp(320px,var(--painel-w,min(560px,36vw)),calc(100vw - 556px))}
+  .shell:has(.slot .pgside) .painel-alca{display:block;position:relative;flex:none;width:0;z-index:6}
+  .painel-pega{position:absolute;top:0;bottom:0;left:-8px;width:16px;cursor:col-resize;touch-action:none;outline:none}
+  .painel-pega::before{content:"";position:absolute;top:50%;left:50%;width:4px;height:48px;transform:translate(-50%,-50%);border-radius:2px;background:var(--line-strong);transition:background .15s,height .15s}
+  .painel-pega::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;transform:translateX(-50%);background:transparent;transition:background .15s}
+  .painel-pega:hover::before,.painel-pega:focus-visible::before,.painel-pega[data-arrastando]::before{background:var(--accent-text);height:64px}
+  .painel-pega:hover::after,.painel-pega:focus-visible::after,.painel-pega[data-arrastando]::after{background:var(--accent-text)}
+  .painel-pega[data-arrastando]{width:48px;left:-24px} /* durante o arrasto a área de captura cresce: o dedo/mouse não "escapa" */
+  .split.ini>.col{display:flex}
+  .sec.first{margin-top:4px} /* Início sem o cartão de destaque: a 1ª seção sobe junto do título */
+  .toast{left:calc(50% - 170px)}
+  .wide-only{display:block}
+  .side-h.wide-only{display:flex}
+  .sum.wide-only{display:grid}
+  .narrow-only{display:none}
+  .col>.wide-only>.sec:first-child{margin-top:28px} /* título “Por matéria” do Início, abaixo das pastas dos bancos */
+  .provas>.sec:first-child{margin-top:4px} /* no Início largo as pastas dos bancos sobem junto do título (as matérias vêm abaixo) */
+  .side-in .pg{background:none;border:0;box-shadow:none;padding:0;margin-top:14px}
+  .side-in .pg:first-of-type{margin-top:0}
+  .side-in .card{background:none;border:0;box-shadow:none;padding:0}
+  .side-in .card.tbl{padding:0}
+  .side-in .sec{display:none}
+  .foot.sticky{padding-bottom:0}
+}
+
+/* ───────── Tela larga: o conteúdo cresce com a janela (consulta pela largura da coluna) ───────── */
+@container (min-width:760px){
+  .mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mgrid .span{grid-column:1/-1}
+  .filters{padding:22px 24px}
+  .fbottom{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:0 32px;align-items:start}
+  .fctl{border-left:1px solid var(--line);padding-left:32px}
+  .fctl .field:first-child{margin-top:0}
+}
+@container (min-width:900px){
+  .tbls{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .tbls .t2 thead{display:table-header-group}
+  .nt{columns:2;column-gap:32px}
+  .folders{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  .files{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:8px 12px} /* provas em colunas, não em linhas gigantes */
+}
+
+/* ───────── Imagem da questão (banco Cesgranrio) ───────── */
+.qfig{margin:0 0 16px}
+.qfig a{display:block}
+.qimg{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:3px;background:#fff}
+.qfig figcaption{margin:6px 0 0}
+.side-in .qfig{margin:0 0 14px}
+.alts.letras{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.alts.letras .alt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 2px;min-height:60px}
+.alts.letras .alt .mk{width:18px;height:18px;margin:0}
+@container (min-width:1350px){
+  .folders{grid-template-columns:repeat(6,minmax(0,1fr))} /* monitor grande: 6 matérias por linha */
+}
+
+/* ───────── Marcar e anotar (tela da questão) ───────── */
+.marcar[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.marcar[aria-pressed="true"] .icon{fill:currentColor}
+@media (max-width:420px){.marcar span{display:none}.qbar .marcar{padding-left:10px;padding-right:10px}}
+.nota{margin-top:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--card2)}
+.nota summary{display:flex;align-items:center;gap:8px;padding:11px 14px;font-weight:600;font-size:13.5px;cursor:pointer}
+.nota summary .icon{color:var(--muted)}
+.nota textarea{display:block;width:calc(100% - 24px);min-height:84px;margin:0 12px 12px;background:var(--card);font:14px/1.45 var(--f-ui);resize:vertical}
+
+/* ───────── Evolução (Desempenho) ───────── */
+.evo{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
+.evo .note{margin:4px 0 0}
+.bars{display:flex;align-items:stretch;gap:3px;height:160px;margin-top:16px}
+.bcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;border-radius:3px}
+.bcol:focus-visible{outline:2px solid var(--accent-text);outline-offset:1px}
+.btrack{position:relative;flex:1;border-bottom:1px solid var(--line-strong)}
+@media (hover:hover){.bcol:hover .btrack{background:var(--card2)}}
+.bstack{position:absolute;bottom:0;left:50%;width:min(100%,28px);transform:translateX(-50%);display:flex;flex-direction:column}
+.bstack i{display:block;flex-basis:0;min-height:0;border-radius:2px 2px 0 0}
+.berr{background:var(--line-strong)}
+.bok{background:var(--accent-text);box-shadow:0 -2px 0 var(--card)} /* 2 px da cor do cartão separam as duas faixas */
+.blb{margin-top:6px;text-align:center;font:500 11px/1 var(--f-num);color:var(--muted)}
+.bcol.hoje .blb{color:var(--ink);font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:12px 0 0;font-size:12.5px;color:var(--ink)}
+.legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.legend .sw.ok{background:var(--accent-text)} .legend .sw.err{background:var(--line-strong)}
+.legend .muted{color:var(--muted)}
+.simlist{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:12px}
+.simlist li{display:grid;grid-template-columns:44px minmax(0,1fr) 44px auto;gap:12px;align-items:center;font-size:13.5px}
+.simlist .num{color:var(--muted);font-size:12.5px} .simlist b.num{color:var(--ink);font-size:13.5px;text-align:right}
+.sbar{position:relative;height:8px;background:var(--hi);border-radius:2px}
+.sbar i{display:block;height:100%;background:var(--accent-text);border-radius:2px}
+.sbar u{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:var(--ink);text-decoration:none}
+/* 2026-11-10: o gráfico ocupa a largura toda (o mês inteiro, 28 a 31 barras) e os simulados vêm ABAIXO dele, em duas colunas
+   que se alternam (1º à esquerda, 2º à direita, 3º à esquerda...). Em coluna estreita (celular) é uma lista só, na mesma ordem. */
+.blb{white-space:nowrap;margin-inline:-8px}
+.bcol.futuro .blb{opacity:.55}
+@container (max-width:759px){
+  .bars{gap:2px}
+  .blb.raro{visibility:hidden} /* 31 números não cabem: só 1, 5, 10, 15... */
+}
+@container (min-width:640px){
+  .simlist{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 32px}
+}
+
+/* ───────── Celular / toque (site responsivo) ─────────
+   Alvos de toque ≥ 44 px, campos com 16 px (o Safari do iPhone amplia a página ao focar campo menor), sem barras de rolagem
+   internas. */
+.bars{touch-action:pan-y}
+@media (pointer:coarse){
+  .chip,.tr .chip,.small-btn,.seg button,.crumbs button{min-height:44px}
+  .chip{min-width:44px}
+  .marcar{min-width:44px}
+  details.base summary,.nota summary{padding-top:14px;padding-bottom:14px}
+  textarea,.nota textarea,select,input{font-size:16px}
+  summary,a,label{touch-action:manipulation}
+}
+/* telas baixas (celular deitado): botões do pé mais baixos e a barra com menos respiro, para sobrar altura ao conteúdo */
+@media (max-height:500px) and (max-width:899px){
+  .foot .btn,.go .btn{min-height:44px}
+  .foot.sticky,.side.go{padding-top:8px}
+  .page{padding-top:12px}
+}
+
+/* ───────── Abertura animada (Splash.tsx) ───────── */
+.splash{position:fixed;inset:0;z-index:100;background:#000;transition:opacity 150ms linear;overflow:hidden}
+.splash.saindo{opacity:0}
+.splash svg{display:block}
+.splash-aviso{position:absolute;left:16px;right:16px;bottom:calc(32px + var(--sab));display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;color:#a9bcd3;font-size:14px}
+.splash-aviso p{margin:0}
+.splash-aviso .btn{background:#0a0e15;color:#fff;border-color:#2a3140}
+
+/* ───────── Flashcards (Cards.tsx) ─────────
+   Celular primeiro: alvos de 44+ px, o polegar alcança tudo, uma ação principal por tela e movimento curto (≤ 280 ms) que explica o que
+   mudou: a sub-tela entra pela direita e volta pela esquerda, o que aparece desliza para o lugar, o que some encolhe. Tudo isso respeita
+   prefers-reduced-motion (regra global mais abaixo no arquivo). */
+.sec .secbtn{order:2;letter-spacing:0;text-transform:none;font:600 13px/1.2 var(--f-ui);min-height:36px;padding:4px 12px}
+.campo{display:block;width:100%;border:1px solid var(--line-strong);border-radius:5px;background:var(--card2);color:var(--ink);padding:11px 12px;font:16px/1.45 var(--f-ui);user-select:text;-webkit-user-select:text;transition:border-color .15s,box-shadow .15s}
+.campo:focus{border-color:var(--accent-text)}
+textarea.campo{min-height:116px;resize:vertical}
+textarea.campo.auto{resize:none;overflow-y:auto;max-height:42dvh;scrollbar-width:none}
+textarea.campo.auto::-webkit-scrollbar{display:none}
+
+/* movimento */
+@keyframes fc-avanca{from{opacity:0;transform:translateX(28px)}}
+@keyframes fc-recua{from{opacity:0;transform:translateX(-28px)}}
+@keyframes fc-entra{from{opacity:0;transform:translateY(10px)}}
+@keyframes fc-pop{from{opacity:0;transform:scale(.96)}}
+@keyframes fc-carta{from{opacity:0;transform:translateX(22px)}}
+@keyframes fc-verso{from{opacity:0;transform:translateY(8px)}}
+@keyframes fc-sobe{from{opacity:0;transform:translateY(12px)}}
+@keyframes fc-sai{
+  0%{opacity:1;transform:none;max-height:var(--h,120px);margin-bottom:0}
+  45%{opacity:0;transform:translateX(36px);max-height:var(--h,120px);margin-bottom:0}
+  100%{opacity:0;transform:translateX(36px);max-height:0;margin-bottom:-10px;padding-top:0;padding-bottom:0;border-width:0}
+}
+.fc-tela.avanca{animation:fc-avanca .24s var(--ease-out) backwards}
+.fc-tela.recua{animation:fc-recua .24s var(--ease-out) backwards}
+.fc-entra{animation:fc-entra .26s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 40ms)}
+.fc-pop{animation:fc-pop .3s var(--ease-out) backwards}
+
+.fcnovo{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.fcnovo label,.fcform label{display:block;font:500 11.5px/1.3 var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* estado vazio / fim de sessão */
+.fcvazio{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.fcvazio h3{margin:6px 0 0;font-size:18px}
+.fcvazio .note{margin:0;font-size:14px;line-height:1.5}
+.fcvazio .row{margin-top:14px;width:100%}
+.fcvazio-ic{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--accent-soft);color:var(--accent-text)}
+.fcfinal{align-items:center;text-align:center;padding:26px 18px}
+.fcfinal .ring{margin-bottom:4px}
+.fcfinal .note{max-width:34ch}
+
+/* baralhos: o cartão inteiro abre o baralho; "Estudar" fica à parte, à direita do resumo */
+.decks{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.deck{position:relative;display:flex;flex-direction:column;transition:transform .12s,background-color .15s,border-color .15s}
+.deck h3{margin:0;font-size:17px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.deck-abrir{display:flex;align-items:center;min-height:44px;width:100%;padding:0;border:0;background:none;text-align:left;font:inherit;color:inherit;overflow-wrap:anywhere}
+.deck-abrir::after{content:"";position:absolute;inset:0;border-radius:inherit}
+.deck:has(.deck-abrir:focus-visible){outline:2px solid var(--accent-text);outline-offset:2px}
+.deck:has(.deck-abrir:active){transform:scale(.985)}
+@media (hover:hover){.deck:has(.deck-abrir:hover){background:var(--card2)}}
+.deckmeta{margin:4px 0 12px;font-size:13px;line-height:1.45;color:var(--muted)}
+.deck .bar{margin-bottom:14px}
+.deckfim{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:auto}
+.fctags{display:flex;flex-wrap:wrap;gap:6px;flex:1 1 130px;min-width:0}
+.fctag{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;line-height:1.3;padding:3px 9px;border-radius:3px;background:var(--card2);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.fctag.rev{background:var(--accent-soft);border-color:var(--warn-line);color:var(--accent-text)}
+.fctag.ok{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.deck-estudar{position:relative;z-index:1;flex:0 0 auto;min-width:118px;min-height:48px}
+.fc-stats{margin-bottom:4px}
+
+/* um baralho: três ações em sequência (Estudar, Novo cartão, Renomear) */
+.fcacoes{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:8px;margin:4px 0 16px}
+.fcacoes>.btn{min-width:0;padding:10px 6px;font-size:14.5px;line-height:1.2;overflow-wrap:anywhere}
+.fcbusca{margin:0 0 14px}
+
+/* lista de cartões: tocar no cartão edita; a lixeira exclui (com Desfazer); a linha encolhe ao sair */
+.fclista{list-style:none;margin:0 0 12px;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.fcrow{display:flex;align-items:stretch;padding:0;overflow:hidden}
+.fclista.entrada .fcrow{animation:fc-entra .26s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 30ms)}
+.fcrow.saindo{animation:fc-sai .32s var(--ease-out) forwards;pointer-events:none}
+.fcedit{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px 4px 14px 14px;border:0;background:none;text-align:left;font:inherit;color:inherit;transition:background-color .15s}
+.fcedit:active{background:var(--card2)}
+@media (hover:hover){.fcedit:hover{background:var(--card2)}}
+.fctxt{display:flex;flex-direction:column;gap:6px;min-width:0;width:100%}
+.fctxt b{font-weight:600;white-space:pre-line;overflow-wrap:anywhere}
+.fctxt span{color:var(--muted);font:400 15px/1.45 var(--f-read);white-space:pre-line;overflow-wrap:anywhere}
+.fcdel{flex:none;width:52px;display:grid;place-items:center;border:0;border-left:1px solid var(--line);background:none;color:var(--muted);transition:background-color .15s,color .15s}
+.fcdel:active{background:var(--err-soft);color:var(--err)}
+@media (hover:hover){.fcdel:hover{background:var(--err-soft);color:var(--err)}}
+
+/* editor */
+.fced .col{max-width:760px}
+.fcform{display:flex;flex-direction:column;gap:18px}
+.fcform .field{margin:0}
+.fcform .field>label{margin-bottom:8px}
+.fccount{display:block;margin-top:6px;text-align:right;font:500 12px var(--f-num);color:var(--muted)}
+.top small.ok{color:var(--ok);font-weight:600;animation:fc-entra .2s var(--ease-out) backwards}
+.fcswitch{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:8px 12px;border:1px solid var(--line-strong);border-radius:5px;background:var(--card);text-align:left;font:inherit;color:inherit}
+.fcswitch-tx{display:flex;flex-direction:column;gap:2px;min-width:0;font-size:14.5px;font-weight:500}
+.fcswitch-tx small{font-size:12.5px;font-weight:400;color:var(--muted)}
+.fctrilho{position:relative;flex:none;width:46px;height:28px;border-radius:14px;background:var(--hi);transition:background-color .18s}
+.fctrilho i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--ink);transition:transform .2s var(--ease-out)}
+.fcswitch[aria-checked="true"]{border-color:var(--accent-text)}
+.fcswitch[aria-checked="true"] .fctrilho{background:var(--accent)}
+.fcswitch[aria-checked="true"] .fctrilho i{transform:translateX(18px);background:var(--accent-ink)}
+
+/* estudo */
+.fcstudy{max-width:980px;margin:0 auto} /* o texto do cartão encolhe até caber na tela (useTextoQueCabe, --fc-fs): sem rolagem vertical */
+.fccont{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;font:500 12.5px/1.3 var(--f-num);color:var(--muted)}
+.fccont span{padding:3px 10px;border-radius:12px;border:1px solid transparent;transition:background-color .2s,color .2s,border-color .2s}
+.fccont .on{background:var(--accent-soft);border-color:var(--warn-line);color:var(--accent-text)}
+.fcface{position:relative;min-height:260px;display:flex;flex-direction:column;gap:10px;padding:20px 20px 22px;-webkit-tap-highlight-color:transparent}
+.fc-carta{animation:fc-carta .22s var(--ease-out) backwards}
+.fcface-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.fcface .lb{font:500 11.5px/1.3 var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.fctexto{margin:0 0 6px;font:400 var(--fc-fs,22px)/1.45 var(--f-read);white-space:pre-line;overflow-wrap:anywhere}
+.fcdiv{border:0;border-top:1px solid var(--line);margin:8px 0 12px;width:100%}
+.fcverso{display:flex;flex-direction:column;gap:6px;visibility:hidden} /* reservado no layout antes de virar: o texto não muda de tamanho nem de lugar ao mostrar a resposta */
+.fcverso.aberto{visibility:visible;animation:fc-verso .22s var(--ease-out) backwards}
+.fcdica{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:13px;color:var(--muted)}
+.fcnotas>.btn.pri{flex:1}
+.fcbotoes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;animation:fc-sobe .18s var(--ease-out) backwards}
+.fcn{position:relative;flex-direction:column;gap:2px;min-height:64px;padding:8px 4px;border-width:1px 1px 3px;transition:transform .1s}
+.fcn:active{transform:scale(.96)}
+.fcn b{font-size:14.5px;line-height:1.2}
+.fcn small{font:400 12px/1.2 var(--f-num);color:var(--muted)}
+.fcn0{border-color:var(--err);background:var(--err-soft)}
+.fcn1{border-bottom-color:var(--warn-line);background:var(--warn-soft)}
+.fcn2{border-bottom-color:var(--line-strong)}
+.fcn3{border-color:var(--ok);background:var(--ok-soft)}
+kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-radius:3px;padding:0 5px;color:var(--muted)}
+.btn.pri kbd{color:inherit;opacity:.7;border-color:currentColor;margin-left:8px}
+.fcn kbd{position:absolute;top:4px;right:5px;padding:0 4px}
+@container (min-width:600px){
+  .decks{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fcacoes{display:flex;flex-wrap:wrap}
+  .fcacoes>.btn{flex:0 1 auto;padding:11px 20px;font-size:15px}
+}
+@container (min-width:900px){
+  .decks{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .fclista{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@container (min-width:1350px){
+  .decks{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (min-width:600px){.fcface{padding:30px 32px}}
+.criarcard{margin-top:12px}
+/* celular: o cartão ocupa a altura e os botões de nota ficam no pé, ao alcance do polegar */
+@media (max-width:899px){
+  .page:has(.fcstudy){padding-bottom:8px}
+  .fcstudy{display:flex;flex-direction:column;min-height:calc(100dvh - var(--sab) - 28px)}
+  .fcstudy .fcface{flex:1}
+}
+@media (pointer:coarse){.sec .secbtn{min-height:44px}}
+/* a aba da barra de navegação cobre ~34 px da borda esquerda: o texto dos cartões começa depois dela */
+@media (max-width:899px){.deck,.fcform,.fcnovo,.fcvazio:not(.fcfinal){padding-left:22px}.fcedit{padding-left:22px}}
+@media (max-width:359px){.fcacoes>.btn{font-size:13.5px}.deck-estudar{min-width:104px}}
+
+/* ───────── Celular (< 900 px): Navigation Rail SOBREPOSTA, com aba retrátil ─────────
+   O conteúdo não se mexe: ocupa a tela toda com a mesma margem de sempre. A barra (64 px, escura, botões de 44 px com rótulo curto,
+   item ativo em amarelo/laranja com um ponto) fica fora da tela e só a aba (nome da tela na vertical + seta) aparece na borda
+   esquerda. Ao abrir, a barra desliza por CIMA do conteúdo e o conteúdo ganha um desfoque (.rail-veu); tocar num destino, no
+   desfoque ou na aba, ou arrastar para a esquerda, devolve tudo ao estado de repouso. */
+@media (max-width:899px){
+  .nav.rail{position:fixed;top:0;bottom:0;left:0;z-index:50;box-sizing:border-box;width:calc(var(--rail-w) + var(--sal));display:flex;
+    padding:calc(var(--sat) + 14px) 0 calc(var(--sab) + 14px) var(--sal);background:var(--rail-bg);color:var(--rail-ink);touch-action:pan-y;
+    box-shadow:10px 0 28px -10px rgba(0,0,0,.65);transform:translateX(0);
+    transition:transform var(--rail-ms) var(--ease-out),box-shadow var(--rail-ms) var(--ease-out)}
+  .shell[data-recolhida] .nav.rail{transform:translateX(-100%);box-shadow:none}
+  .rail-itens{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:10px;overflow-y:auto;overscroll-behavior:none;touch-action:pan-y}
+  .rail-item{position:relative;flex:none;width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;padding:2px 0;border:0;background:none;color:var(--rail-ink);-webkit-tap-highlight-color:transparent}
+  /* onde ficam os ícones na barra (Mais › Aba da barra): margens automáticas empurram o grupo; se não couber, a lista rola do começo (sem cortar o 1º ícone) */
+  .nav.rail[data-icones="meio"] .rail-item:first-child,.nav.rail[data-icones="baixo"] .rail-item:first-child{margin-top:auto}
+  .nav.rail[data-icones="meio"] .rail-item:last-child{margin-bottom:auto}
+  .rail-ico{width:52px;height:52px;border-radius:11px;display:grid;place-items:center;background:var(--rail-btn);color:var(--rail-ink);
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 6px 10px -5px rgba(0,0,0,.6);transition:background 120ms,transform 120ms}
+  .rail-lb{max-width:72px;text-align:center;font:500 10px/1.15 var(--f-ui);letter-spacing:-.01em}
+  .rail-item:active .rail-ico{transform:scale(.92);background:var(--rail-btn-hi)}
+  .rail-item[aria-current="page"] .rail-ico{background:var(--accent);color:var(--accent-ink)}
+  .rail-item[aria-current="page"] .rail-lb{color:#fff;font-weight:700}
+  .rail-item[aria-current="page"]::after{content:"";position:absolute;right:4px;top:24px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  /* aba: acompanha a borda direita da barra (fora da tela com a barra recolhida, sobra só ela na borda esquerda) */
+  .rail-alca{position:absolute;left:calc(100% - 12px);top:calc(var(--sat) + 8px + (100% - var(--sat) - var(--sab) - 16px - 46px) * var(--aba-pos,.5));width:46px;height:46px;padding:0;border:0;background:none;z-index:6;touch-action:none;-webkit-tap-highlight-color:transparent;transition:top var(--rail-ms) var(--ease-out)}
+  .rail-alca-vis{position:absolute;inset:6px 0 6px 12px;display:grid;place-items:center;
+    background:var(--rail-bg);color:var(--rail-ink);border-radius:0 8px 8px 0;box-shadow:4px 0 10px -6px rgba(0,0,0,.55)}
+  .rail-seta .icon{transition:transform var(--rail-ms) var(--ease-out)}
+  .rail-alca:active .rail-alca-vis{background:var(--rail-btn)}
+  .shell[data-recolhida] .rail-seta .icon{transform:rotate(180deg)}
+  .shell[data-recolhida] .rail-itens{visibility:hidden}
+  /* aba do lado DIREITO: tudo espelhado (a barra abre da direita, por cima do conteúdo) */
+  .nav.rail[data-lado="dir"]{left:auto;right:0;width:calc(var(--rail-w) + var(--sar));padding:calc(var(--sat) + 14px) var(--sar) calc(var(--sab) + 14px) 0;box-shadow:-10px 0 28px -10px rgba(0,0,0,.65)}
+  .shell[data-recolhida] .nav.rail[data-lado="dir"]{transform:translateX(100%);box-shadow:none}
+  .nav.rail[data-lado="dir"] .rail-item[aria-current="page"]::after{right:auto;left:3px}
+  .nav.rail[data-lado="dir"] .rail-alca{left:auto;right:calc(100% - 12px)}
+  .nav.rail[data-lado="dir"] .rail-alca-vis{inset:6px 12px 6px 0;border-radius:8px 0 0 8px;box-shadow:-4px 0 10px -6px rgba(0,0,0,.55)}
+  .nav.rail[data-lado="dir"] .rail-seta .icon{transform:rotate(180deg)}
+  .shell[data-recolhida] .nav.rail[data-lado="dir"] .rail-seta .icon{transform:none}
+  /* segurar e arrastar a aba: ela "levanta", segue o dedo sem animação e as guias das bordas aparecem */
+  .nav.rail[data-movendo]{transition:none}
+  .nav.rail[data-movendo] .rail-alca{transition:none;z-index:60}
+  .rail-alca[data-movendo] .rail-alca-vis{background:var(--rail-btn-hi);box-shadow:0 0 0 1px var(--rail-line),0 8px 18px -6px rgba(0,0,0,.7);transform:scale(1.06)}
+  .rail-guias{position:fixed;inset:0;z-index:45;pointer-events:none}
+  .rail-guias i{position:absolute;top:var(--sat);bottom:var(--sab);width:2px;border-radius:1px;background:var(--rail-line);opacity:.35;transition:opacity 120ms linear}
+  .rail-guias i.esq{left:1px} .rail-guias i.dir{right:1px}
+  .rail-guias i[data-ativo]{opacity:.9}
+  /* desfoque do conteúdo enquanto a barra está aberta (também recebe o toque que fecha) */
+  .rail-veu{display:block;position:fixed;inset:0;z-index:40;touch-action:none;background:rgba(10,14,21,.32);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
+    opacity:1;transition:opacity var(--rail-ms) var(--ease-out)}
+  .shell[data-recolhida] .rail-veu{opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--rail-ms) var(--ease-out),visibility 0s linear var(--rail-ms)}
+  /* conteúdo: sempre com a margem da aba à esquerda, esteja a barra aberta ou não */
+  /* título grande à ESQUERDA (em todas as telas), com uma linha fina embaixo */
+  .top{align-items:flex-start;text-align:left;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+  .top h1{font-size:34px;line-height:1.2}
+  .top small{max-width:100%}
+  .toast{bottom:calc(var(--sab) + 18px);max-width:calc(100vw - 16px)}
+  .foot.sticky,.side.go{padding-bottom:calc(8px + var(--sab))}
+}
+@media (max-width:899px) and (max-height:500px){
+  .nav.rail{padding-top:calc(var(--sat) + 6px);padding-bottom:calc(var(--sab) + 6px)}
+  .rail-itens{gap:4px}
+}
+@media (max-width:339px){.folders{grid-template-columns:minmax(0,1fr)}}
+.alts.letras .alt .bub{width:32px;height:32px}
+
+/* ───────── Imagem em tela cheia (APK) ───────── */
+.ampliador{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;background:#000;color:#fff}
+.ampliador-barra{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(var(--sat) + 8px) 12px 8px}
+.ampliador-zoom{display:flex;align-items:center;gap:10px;font-size:14px}
+.ampliador-rolo{flex:1;min-height:0;overflow:auto;overscroll-behavior:none;touch-action:pan-x pan-y pinch-zoom;background:#fff}
+.ampliador-rolo img{display:block;max-width:none;height:auto}
+@media (min-width:900px){.so-celular{display:none}}
+
+/* ───────── Reordenar os ícones da barra (segurar e arrastar) ─────────
+   O ícone arrastado segue o dedo (transform inline, sem transição); os vizinhos deslizam para abrir espaço (transição abaixo);
+   ao soltar, ele desliza até o lugar escolhido e só então a ordem muda no DOM. */
+.rail-itens[data-reordenando] .rail-item:not([data-arrastando]){transition:transform 180ms var(--ease-out)}
+.rail-item[data-arrastando]{z-index:3}
+@media (max-width:899px){
+  .rail-item[data-arrastando] .rail-ico{transform:scale(1.1);background:var(--rail-btn-hi);box-shadow:0 0 0 1px var(--rail-line),0 12px 22px -6px rgba(0,0,0,.8)}
+  .rail-item[data-arrastando] .rail-lb{color:#fff}
+}
+@media (min-width:900px){.rail-item[data-arrastando]{background:var(--hi);box-shadow:0 0 0 1px var(--line-strong),0 12px 22px -8px rgba(0,0,0,.4)}}
+@media (prefers-reduced-motion:reduce){.rail-itens[data-reordenando] .rail-item:not([data-arrastando]){transition:none}}
+
+/* ───────── Aviso “encerrar o simulado?” (ConfirmarSaida.tsx) ───────── */
+.dialogo-veu{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;padding:calc(var(--sat) + 16px) 16px calc(var(--sab) + 16px);background:rgba(0,0,0,.6);overscroll-behavior:none}
+.dialogo{width:100%;max-width:420px;max-height:100%;overflow:auto;padding:20px}
+.dialogo h2{margin:0 0 8px;font:600 20px/1.25 var(--f-ui)}
+.dialogo p{margin:0 0 16px;color:var(--muted);font-size:14.5px;line-height:1.5}
+.dialogo .row{display:flex;gap:10px;flex-wrap:wrap}
+.dialogo .row .btn{flex:1 1 150px;min-height:48px}
+/* tempo do simulado (resultado e histórico) */
+.scorecard .tempo{margin:10px 0 0;font-size:13.5px;color:rgba(10,14,21,.8)}
+.scorecard .tempo b{font-weight:600;font-variant-numeric:tabular-nums}
+.simlist .dur{grid-column:2 / -1;margin-top:-6px;color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+
+/* ───────── Movimento do app todo (2026-11-10): o mesmo estilo dos Cards em todas as telas ─────────
+   Vocabulário: telas deslizam (avanca/recua) ou sobem de leve (troca); grupos entram em cascata (até 10 itens, 40 ms entre eles);
+   barras e anel crescem; respostas e avisos aparecem. Só opacity/transform (barato no celular), 0,2–0,5 s, nada fica animando depois.
+   "Reduzir movimento" do aparelho: animação e atraso viram ~0 (regra no fim do bloco). Detalhes e regras: README, "Movimento". */
+@keyframes fc-troca{from{opacity:0;transform:translateY(6px)}}
+@keyframes fc-carta-volta{from{opacity:0;transform:translateX(-22px)}}
+@keyframes fc-veu{from{opacity:0}}
+@keyframes fc-marca{from{opacity:0;transform:scale(.4)}}
+@keyframes fc-barra{from{width:0}}
+@keyframes fc-barra-y{from{transform:translateX(-50%) scaleY(0)}}
+@keyframes fc-anel{from{stroke-dasharray:0 400}}
+@keyframes fc-marca-rail{from{transform:translateY(-50%) scaleY(0)}}
+.fc-tela.troca{animation:fc-troca .2s var(--ease-out) backwards}
+
+/* questão: a seguinte entra pela direita, a anterior pela esquerda (o pé com Anterior/Próxima não se mexe) */
+.sheet.q-avanca{animation:fc-carta .2s var(--ease-out) backwards}
+.sheet.q-recua{animation:fc-carta-volta .2s var(--ease-out) backwards}
+.fb,.criarcard{animation:fc-verso .22s var(--ease-out) backwards}
+.alt.ok .mk,.alt.err .mk{animation:fc-marca .28s var(--ease-out) backwards}
+.pg,.qfig{animation:fc-entra .26s var(--ease-out) backwards}
+.alt{transition:background-color .15s,border-color .15s,opacity .2s,transform .1s}
+.alt:active:not([disabled]){transform:scale(.99)}
+.alt .bub{transition:background-color .15s,border-color .15s,color .15s}
+
+/* grupos entram em cascata: cartões, botões grandes, números, listas, seções do Mais e do Desempenho */
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>*{animation:fc-entra .26s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 40ms)}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(2){--i:1}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(3){--i:2}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(4){--i:3}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(5){--i:4}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(6){--i:5}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(7){--i:6}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(8){--i:7}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(9){--i:8}
+:is(.tiles,.folders,.files,.stats,.mgrid,.evo,.simlist,.tbls,.rules)>:nth-child(n+10){--i:9}
+.cartao>.cell{animation:fc-pop .24s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 14ms)}
+.scorecard{animation:fc-pop .3s var(--ease-out) backwards}
+.side-in{animation:fc-entra .26s var(--ease-out) backwards}
+.note[role="alert"]{animation:fc-verso .22s var(--ease-out) backwards}
+
+/* gráficos: barras sobem do chão, barras de progresso e o anel crescem até o valor */
+.bstack{transform-origin:50% 100%;animation:fc-barra-y .45s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 14ms)}
+.bcol{--i:0}
+.bar i,.sbar i{animation:fc-barra .5s var(--ease-out) backwards}
+.ring .rp{animation:fc-anel .7s var(--ease-out) backwards}
+
+/* aviso "Encerrar o simulado?": o véu aparece e a caixa cresce de leve */
+.dialogo-veu{animation:fc-veu .18s linear backwards}
+.dialogo{animation:fc-pop .26s var(--ease-out) backwards}
+
+/* toques: botões, chips, cartões e células respondem suave (cor, borda e um leve afundar) */
+.btn,.chip,.tile,.folder,.file,.cell,.seg button{transition:background-color .15s,border-color .15s,color .15s,transform .12s}
+@media (min-width:900px){.rail-item[aria-current="page"]::before{animation:fc-marca-rail .25s var(--ease-out) backwards}}
+
+/* "reduzir movimento" do aparelho: nada desliza, cresce ou espera: o atraso das cascatas também some (senão os itens ficariam invisíveis até o atraso acabar) */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-delay:0s!important}}
