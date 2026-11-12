@@ -12,7 +12,20 @@
           "package_name": "br.com.treinobb"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "364895773280-s6seeme2qu3talu1n8k0oipujvt4n5ut.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.treinobb",
+            "certificate_hash": "16859bbadbc97aefa3d4513ae95c04f0feabea58"
+          }
+        },
+        {
+          "client_id": "364895773280-0arcig8p2g83lq5m5dh9d654ou3kdmo9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAzAuQ-KSRlD15XntVi9pfatd6Bucb_-Zk"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "364895773280-0arcig8p2g83lq5m5dh9d654ou3kdmo9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

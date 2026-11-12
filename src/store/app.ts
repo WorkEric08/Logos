@@ -12,6 +12,7 @@ import idMap from '../data/id-map.json'
 import { desfazerZerar, gravarResposta, gravarSimulado, gravarZerar, loadAll, refazerEventosDoAparelho, replaceAll, saveHist, saveMarks, saveOne, saveTema } from '../services/db'
 import { prepararSincronizacao } from '../services/sync/preparar'
 import { baseDe, resposta, simulado, zerar } from '../core/sync/eventos'
+import { apagarEventoNaNuvem } from '../services/sync/ponte'
 
 export const BANK = bank.q as unknown as Question[]
 export const BASES = bank.bases as Record<string, string>
@@ -62,6 +63,8 @@ interface State {
   setNote: (id: string, text: string) => void
   flushMarks: () => void
   resetAll: () => Promise<void>
+  /** A nuvem trouxe coisa nova (outro aparelho): relê do banco local o que mudou. */
+  recarregar: (o: { progresso: boolean; marcas: boolean }) => Promise<void>
   setTema: (t: string) => void
   showToast: (text: string, action?: ToastMsg['action']) => void
   clearToast: () => void
@@ -199,11 +202,16 @@ export const useApp = create<State>((set, get) => {
         // o zerar é um evento (vale para todos os aparelhos); nada é apagado, então desfazer é só apagar o evento e refazer o progresso a partir dos eventos
         const z = zerar(aparelho, Date.now())
         await gravarZerar(z)
-        get().showToast(AVISOS.progressoZerado, { label: 'Desfazer', run: () => { void desfazerZerar(z.id).then((d) => set({ prog: d.prog, hist: d.hist })) } })
+        get().showToast(AVISOS.progressoZerado, { label: 'Desfazer', run: () => { apagarEventoNaNuvem(z.id); void desfazerZerar(z.id).then((d) => set({ prog: d.prog, hist: d.hist })) } })
         return
       }
       await replaceAll({}); await saveHist(HIST_VAZIO)
       get().showToast(AVISOS.progressoZerado, { label: 'Desfazer', run: () => { set({ prog: before, hist: histAntes }); void replaceAll(before); void saveHist(histAntes) } })
+    },
+    recarregar: async (o) => {
+      if (o.marcas && marksTimer) { clearTimeout(marksTimer); marksTimer = undefined; await saveMarks(get().marks) } // anotação ainda por gravar sai antes de reler (a mais nova vence)
+      const r = await loadAll()
+      set({ ...(o.progresso ? { prog: r.prog, hist: r.hist } : {}), ...(o.marcas ? { marks: r.marks } : {}) })
     },
     toggleMark: (id) => { const marks = alternarMarca(get().marks, id, Date.now()); set({ marks }); void saveMarks(marks) },
     // A anotação é gravada meio segundo depois da última tecla (e ao sair do campo), não a cada letra.

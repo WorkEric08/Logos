@@ -4,7 +4,7 @@ import type { Hist } from '../../core/historico'
 import { conferir } from '../../core/sync/conferir'
 import { baseDe, derivar } from '../../core/sync/eventos'
 import type { ProgressMap } from '../../core/types'
-import { gravarBase, gravarConferencia, idDoAparelho, lerEventos, refazerEventosDoAparelho } from '../db'
+import { gravarBase, gravarConferencia, idDoAparelho, lerEventos, refazerEventosDoAparelho, syncAtivo } from '../db'
 
 /** Devolve o id do aparelho. Quem chama trata o erro: a sincronização nunca pode impedir o app de abrir. */
 export async function prepararSincronizacao(prog: ProgressMap, hist: Hist, agora = Date.now()): Promise<string> {
@@ -18,7 +18,8 @@ export async function prepararSincronizacao(prog: ProgressMap, hist: Hist, agora
   // Cura: se os eventos ficaram para trás (ex.: uma abertura em que a preparação falhou e as respostas só foram pelo caminho antigo) ou nasceram com ids
   // antigos, o que a tela mostra é a verdade e os eventos DESTE aparelho são refeitos como uma base. Só enquanto nenhum outro aparelho escreveu eventos:
   // depois que houver registros de outros aparelhos (ou já enviados à nuvem), refazer os próprios eventos os afastaria dos que já saíram daqui.
-  if (dif.length && eventos.every((e) => e.dev === dev)) {
+  // Com a conta Google já usada neste aparelho (meta 'sync:ativo') a cura NUNCA roda: os eventos daqui podem já estar na nuvem e refazê-los os afastaria dos enviados.
+  if (dif.length && eventos.every((e) => e.dev === dev) && !(await syncAtivo())) {
     curou = dif.length
     await refazerEventosDoAparelho(dev, temDados ? baseDe(dev, agora, prog, hist) : null)
     eventos = await lerEventos(); dif = conferir(derivar(eventos), { prog, hist })

@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { ALL_SUBJECTS, SOURCE_KEYS, SUBJECT, shortSource } from '../core/subjects'
 import { baseDaProva, filterPool, opcoesQtd, qtdEfetiva, totals } from '../core/filters'
 import { contar as contarCards } from '../core/cards'
@@ -7,6 +7,7 @@ import { diaDe, diasDoMes, sequencia } from '../core/historico'
 import { useCards } from '../store/cards'
 import { useAba } from '../store/aba'
 import { useOrdemRail } from '../store/ordemRail'
+import { useConta } from '../services/sync/conta'
 import { ICONES, descreverAba, type Icones } from '../core/aba'
 
 import { BANK, TF, useApp } from '../store/app'
@@ -286,6 +287,38 @@ export function Desempenho() {
   )
 }
 
+/** Conta Google e sincronização: entrar é opcional (o app funciona igual sem conta e sem internet). */
+function Conta() {
+  const { estado, usuario, sync, detalhe, ocupado, erro, entrar, sair } = useConta()
+  const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
+  useEffect(() => {
+    const on = () => setOnline(true), off = () => setOnline(false)
+    window.addEventListener('online', on); window.addEventListener('offline', off)
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
+  }, [])
+  const situacao = sync === 'erro' ? `Não sincronizou agora (${detalhe || 'erro'}). O app segue funcionando; tente de novo mais tarde.`
+    : !online ? 'Sem internet: o que você fizer fica guardado aqui e sobe quando voltar.'
+    : sync === 'ok' ? 'Sincronizado.' : 'Sincronizando…'
+  return (
+    <div className="card conta"><h3>Conta e sincronização</h3>
+      {estado === 'dentro' && usuario ? (
+        <>
+          <p className="note" data-testid="conta-email">Conectado como <b>{usuario.email}</b>{usuario.nome ? ` (${usuario.nome})` : ''}.</p>
+          <p className="note" role="status" data-testid="conta-situacao">{situacao}</p>
+          <p className="note">Progresso, histórico, cartões, marcações e anotações ficam iguais no celular e no computador. Sair da conta não apaga nada deste aparelho.</p>
+          <div className="row" style={{ marginTop: 10 }}><button className="btn" disabled={ocupado} onClick={() => void sair()}>Sair da conta</button></div>
+        </>
+      ) : (
+        <>
+          <p className="note">Entre com a conta Google para manter o progresso, os cartões e as marcações iguais no celular e no computador. Sem conta, tudo continua funcionando só neste aparelho.</p>
+          <div className="row" style={{ marginTop: 10 }}><button className="btn pri" disabled={ocupado || estado === 'iniciando'} onClick={() => void entrar()}>{ocupado ? 'Entrando…' : 'Entrar com Google'}</button></div>
+        </>
+      )}
+      {erro && <p className="note" role="alert" data-testid="conta-erro" style={{ color: 'var(--err)' }}>{erro}</p>}
+    </div>
+  )
+}
+
 export function Mais() {
   const aba = useAba()
   const tema = useApp((s) => s.tema)
@@ -295,8 +328,9 @@ export function Mais() {
     <>
       <div className="split edge tr">
         <div className="col">
-          <Top title="Mais" sub="aparência, barra de navegação e sobre o banco" />
+          <Top title="Mais" sub="conta, aparência, barra de navegação e sobre o banco" />
           <div className="mgrid">
+            <Conta />
             <div className="card"><h3>Aparência</h3>
               <div className="seg" role="group" aria-label="Tema">
                 {[['auto', 'Do aparelho'], ['light', 'Claro'], ['dark', 'Escuro']].map(([v, l]) =>

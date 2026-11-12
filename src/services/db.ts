@@ -2,6 +2,7 @@ import Dexie, { type Table } from 'dexie'
 import type { Progress, ProgressMap } from '../core/types'
 import { limparHist, limparMarks, type Hist, type Marks } from '../core/historico'
 import { limparCards, type Ajustes, type Baralho, type Cartao, type DadosCards } from '../core/cards'
+import { chaveBaralho, chaveCartao, chaveMarca, CHAVE_AJUSTES, CHAVE_HIST_CARDS, maisNovo, tipoDe, type ItemNuvem, type Sinc } from '../core/sync/nuvem'
 import { derivar, tempoDe, type EvBase, type EvResposta, type EvSimulado, type EvZerar, type Evento } from '../core/sync/eventos'
 
 interface Row extends Progress { id: string }
@@ -17,6 +18,7 @@ class TreinoDb extends Dexie {
   decks!: Table<Baralho, string>
   cards!: Table<Cartao, string>
   eventos!: Table<Linha, string>
+  sinc!: Table<Sinc, string>
   constructor() {
     super('treino-bb')
     this.version(1).stores({ prog: 'id', meta: 'key' })
@@ -24,9 +26,24 @@ class TreinoDb extends Dexie {
     this.version(2).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b' })
     // v3 (sincronização): só ACRESCENTA a tabela de eventos (respostas, simulados, zerar, evento-base); prog, meta, decks e cards não são tocadas.
     this.version(3).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]' })
+    // v4 (conta Google): só ACRESCENTA a tabela `sinc` (quando e por qual aparelho cada cartão, baralho, marcação e ajuste mudou, e as lápides de exclusão).
+    // Os dados continuam nas tabelas de sempre; `sinc` só diz o que precisa subir ou descer.
+    this.version(4).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]', sinc: 'id' })
   }
 }
 const db = new TreinoDb()
+
+// ---------- conta Google: carimbo de alteração (quando e por qual aparelho) ----------
+let aparelhoCache: string | null = null
+let ultimoU = 0
+/** Quando alguma coisa que a sincronização envia muda: a sincronização se inscreve aqui (só um ouvinte). */
+let ouvinte: (() => void) | null = null
+export const aoMudarLocal = (fn: (() => void) | null) => { ouvinte = fn }
+const avisa = <T>(p: Promise<T>): Promise<T> => p.then((r) => { try { ouvinte?.() } catch { /* quem escuta não pode derrubar a gravação */ } return r })
+/** Carimbo crescente: duas alterações no mesmo milissegundo ainda se distinguem (senão a segunda não subiria). */
+const novoU = () => (ultimoU = Math.max(Date.now(), ultimoU + 1))
+const marcar = (chaves: string[], apagado = false) =>
+  db.sinc.bulkPut(chaves.map((id) => ({ id, u: novoU(), dev: aparelhoCache ?? '', ...(apagado ? { x: 1 as const } : {}) })))
 
 /** Histórico e marcações ficam na tabela `meta` (JSON), então o esquema do banco não muda e nada do progresso antigo é tocado. */
 const lerJson = async (key: string): Promise<unknown> => { try { const v = (await db.meta.get(key))?.value; return v ? JSON.parse(v) : null } catch { return null } }
@@ -47,7 +64,14 @@ export async function replaceAll(prog: ProgressMap) {
 }
 export const saveTema = (value: string) => db.meta.put({ key: 'tema', value })
 export const saveHist = (h: Hist) => db.meta.put({ key: 'hist', value: JSON.stringify(h) })
-export const saveMarks = (m: Marks) => db.meta.put({ key: 'marks', value: JSON.stringify(m) })
+/** Marcações: grava e carimba só o que mudou (uma chave por questão), para a sincronização enviar só isso. */
+export const saveMarks = (m: Marks) => avisa(db.transaction('rw', db.meta, db.sinc, async () => {
+  const antes = limparMarks(await lerJson('marks'))
+  const mudou = Object.entries(m).filter(([id, x]) => JSON.stringify(antes[id]) !== JSON.stringify(x)).map(([id]) => chaveMarca(id))
+  const sumiu = Object.keys(antes).filter((id) => !(id in m)).map(chaveMarca)
+  await db.meta.put({ key: 'marks', value: JSON.stringify(m) })
+  await marcar(mudou); await marcar(sumiu, true)
+}))
 
 export function askPersist() {
   try { void navigator.storage?.persist?.() } catch { /* sem suporte: segue */ }
@@ -58,29 +82,33 @@ export async function loadCards(): Promise<DadosCards> {
   const [baralhos, cartoes] = await Promise.all([db.decks.toArray(), db.cards.toArray()])
   return limparCards({ baralhos, cartoes, ajustes: await lerJson('fc'), hist: await lerJson('fchist') }, limparHist)
 }
-export const saveBaralho = (b: Baralho) => db.decks.put(b)
-export const saveCartao = (c: Cartao) => db.cards.put(c)
-export const saveCartoes = (cs: Cartao[]) => db.cards.bulkPut(cs)
-export const deleteCartao = (id: string) => db.cards.delete(id)
-export async function deleteBaralho(id: string) {
-  await db.transaction('rw', db.decks, db.cards, async () => { await db.cards.where('b').equals(id).delete(); await db.decks.delete(id) })
-}
-export const saveAjustes = (a: Ajustes) => db.meta.put({ key: 'fc', value: JSON.stringify(a) })
-export const saveFcHist = (h: Hist) => db.meta.put({ key: 'fchist', value: JSON.stringify(h) })
-/** Troca tudo de uma vez (restaurar backup, desfazer): se falhar, o banco fica como estava. */
-export async function replaceCards(d: DadosCards) {
-  await db.transaction('rw', db.decks, db.cards, db.meta, async () => {
-    await db.cards.clear(); await db.decks.clear()
-    await db.decks.bulkPut(d.baralhos); await db.cards.bulkPut(d.cartoes)
-    await db.meta.put({ key: 'fc', value: JSON.stringify(d.ajustes) }); await db.meta.put({ key: 'fchist', value: JSON.stringify(d.hist) })
-  })
-}
+export const saveBaralho = (b: Baralho) => avisa(db.transaction('rw', db.decks, db.sinc, async () => { await db.decks.put(b); await marcar([chaveBaralho(b.id)]) }))
+export const saveCartao = (c: Cartao) => avisa(db.transaction('rw', db.cards, db.sinc, async () => { await db.cards.put(c); await marcar([chaveCartao(c.id)]) }))
+export const saveCartoes = (cs: Cartao[]) => avisa(db.transaction('rw', db.cards, db.sinc, async () => { await db.cards.bulkPut(cs); await marcar(cs.map((c) => chaveCartao(c.id))) }))
+export const deleteCartao = (id: string) => avisa(db.transaction('rw', db.cards, db.sinc, async () => { await db.cards.delete(id); await marcar([chaveCartao(id)], true) }))
+export const deleteBaralho = (id: string) => avisa(db.transaction('rw', db.decks, db.cards, db.sinc, async () => {
+  const seus = (await db.cards.where('b').equals(id).primaryKeys()) as string[]
+  await db.cards.bulkDelete(seus); await db.decks.delete(id)
+  await marcar([...seus.map(chaveCartao), chaveBaralho(id)], true) // cada exclusão vira lápide: é ela que chega ao outro aparelho
+}))
+const gravarJsonVersionado = (key: string, valor: unknown, chave: string) => avisa(db.transaction('rw', db.meta, db.sinc, async () => { await db.meta.put({ key, value: JSON.stringify(valor) }); await marcar([chave]) }))
+export const saveAjustes = (a: Ajustes) => gravarJsonVersionado('fc', a, CHAVE_AJUSTES)
+export const saveFcHist = (h: Hist) => gravarJsonVersionado('fchist', h, CHAVE_HIST_CARDS)
+/** Troca tudo de uma vez (restaurar backup, desfazer): se falhar, o banco fica como estava. O que sumiu vira lápide; o que ficou é carimbado de novo. */
+export const replaceCards = (d: DadosCards) => avisa(db.transaction('rw', db.decks, db.cards, db.meta, db.sinc, async () => {
+  const antigos = [...((await db.decks.toCollection().primaryKeys()) as string[]).map(chaveBaralho), ...((await db.cards.toCollection().primaryKeys()) as string[]).map(chaveCartao)]
+  await db.cards.clear(); await db.decks.clear()
+  await db.decks.bulkPut(d.baralhos); await db.cards.bulkPut(d.cartoes)
+  await db.meta.put({ key: 'fc', value: JSON.stringify(d.ajustes) }); await db.meta.put({ key: 'fchist', value: JSON.stringify(d.hist) })
+  const novos = [...d.baralhos.map((b) => chaveBaralho(b.id)), ...d.cartoes.map((c) => chaveCartao(c.id)), CHAVE_AJUSTES, CHAVE_HIST_CARDS]
+  const fica = new Set(novos)
+  await marcar(antigos.filter((k) => !fica.has(k)), true); await marcar(novos)
+}))
 
 // ---------- sincronização: registro de eventos (core/sync/eventos.ts) ----------
 // O progresso e o histórico que a tela usa continuam sendo gravados como sempre; JUNTO, na mesma transação, vai o evento. Assim os dois nunca se afastam
 // (se o app fechar no meio, nenhum dos dois é gravado) e o progresso derivado dos eventos é igual ao da tela (conferido ao abrir: services/sync/preparar.ts).
 const novoIdAparelho = () => { const b = new Uint8Array(6); try { crypto.getRandomValues(b) } catch { for (let i = 0; i < b.length; i++) b[i] = Math.floor(Math.random() * 256) } return 'd' + [...b].map((x) => x.toString(16).padStart(2, '0')).join('') }
-let aparelhoCache: string | null = null
 /** O id deste aparelho (criado uma vez e guardado): é o dono do seu registro de eventos. Não muda ao atualizar o app. */
 export async function idDoAparelho(): Promise<string> {
   if (aparelhoCache) return aparelhoCache
@@ -89,28 +117,121 @@ export async function idDoAparelho(): Promise<string> {
   const novo = novoIdAparelho(); await db.meta.put({ key: 'dev', value: novo }); return (aparelhoCache = novo)
 }
 export const lerEventos = async (): Promise<Evento[]> => (await db.eventos.toArray()) as Evento[]
-export const gravarBase = (ev: EvBase) => db.eventos.put(linha(ev))
+export const gravarBase = (ev: EvBase) => avisa(db.eventos.put(linha(ev)))
 export const gravarConferencia = (valor: unknown) => db.meta.put({ key: 'sync:conferencia', value: JSON.stringify(valor) })
 export const lerConferencia = () => lerJson('sync:conferencia')
 /** Uma resposta: progresso da questão + histórico + evento, numa transação só. */
 export const gravarResposta = (id: string, p: Progress, hist: Hist, ev: EvResposta) =>
-  db.transaction('rw', db.prog, db.meta, db.eventos, async () => { await db.prog.put({ id, ...p }); await db.meta.put({ key: 'hist', value: JSON.stringify(hist) }); await db.eventos.put(linha(ev)) })
+  avisa(db.transaction('rw', db.prog, db.meta, db.eventos, async () => { await db.prog.put({ id, ...p }); await db.meta.put({ key: 'hist', value: JSON.stringify(hist) }); await db.eventos.put(linha(ev)) }))
 /** Um simulado entregue: histórico + evento. */
 export const gravarSimulado = (hist: Hist, ev: EvSimulado) =>
-  db.transaction('rw', db.meta, db.eventos, async () => { await db.meta.put({ key: 'hist', value: JSON.stringify(hist) }); await db.eventos.put(linha(ev)) })
+  avisa(db.transaction('rw', db.meta, db.eventos, async () => { await db.meta.put({ key: 'hist', value: JSON.stringify(hist) }); await db.eventos.put(linha(ev)) }))
 /** "Zerar progresso": limpa o que a tela mostra e grava o evento de zerar (nada dos eventos antigos é apagado: é isso que permite desfazer). */
 export const gravarZerar = (ev: EvZerar) =>
-  db.transaction('rw', db.prog, db.meta, db.eventos, async () => { await db.prog.clear(); await db.meta.put({ key: 'hist', value: JSON.stringify({ dias: {}, sims: [] } satisfies Hist) }); await db.eventos.put(linha(ev)) })
+  avisa(db.transaction('rw', db.prog, db.meta, db.eventos, async () => { await db.prog.clear(); await db.meta.put({ key: 'hist', value: JSON.stringify({ dias: {}, sims: [] } satisfies Hist) }); await db.eventos.put(linha(ev)) }))
 /** Desfazer o zerar: apaga o evento e refaz o progresso e o histórico a partir dos eventos (respostas dadas depois do zerar não se perdem). */
 export function desfazerZerar(idDoEvento: string): Promise<{ prog: ProgressMap; hist: Hist }> {
-  return db.transaction('rw', db.prog, db.meta, db.eventos, async () => {
+  return avisa(db.transaction('rw', db.prog, db.meta, db.eventos, async () => {
     await db.eventos.delete(idDoEvento)
     const d = derivar((await db.eventos.toArray()) as Evento[])
     await db.prog.clear(); await db.prog.bulkPut(Object.entries(d.prog).map(([id, p]) => ({ id, ...p })))
     await db.meta.put({ key: 'hist', value: JSON.stringify(d.hist) })
     return d
-  })
+  }))
 }
 /** Restaurar um backup troca o progresso inteiro: os eventos DESTE aparelho são refeitos como um evento-base do que foi restaurado. */
 export const refazerEventosDoAparelho = (dev: string, base: EvBase | null) =>
   db.transaction('rw', db.eventos, async () => { await db.eventos.filter((e) => e.dev === dev).delete(); if (base) await db.eventos.put(linha(base)) })
+
+// ---------- conta Google: o que sobe e o que desce ----------
+// Nada aqui apaga dado do aparelho por conta própria: juntar é sempre uma união (o mais recente de cada item vence) e a exclusão só chega pela lápide
+// que a pessoa mesma criou ao apagar. Os dados ficam nas tabelas de sempre; `sinc` só marca quando e por quem cada item mudou.
+export const syncAtivo = async () => (await db.meta.get('sync:ativo'))?.value === '1'
+export const marcarSyncAtivo = () => db.meta.put({ key: 'sync:ativo', value: '1' })
+
+/** Primeiro login: o que o aparelho já tinha antes da sincronização (sem carimbo) ganha um carimbo com a data do próprio item, para poder subir. */
+export async function semearSinc(): Promise<number> {
+  return db.transaction('rw', db.decks, db.cards, db.meta, db.sinc, async () => {
+    const tem = new Set((await db.sinc.toCollection().primaryKeys()) as string[])
+    const dev = aparelhoCache ?? ''
+    const novos: Sinc[] = []
+    const poe = (id: string, u: number) => { if (!tem.has(id)) novos.push({ id, u: Math.max(1, Math.floor(u) || 1), dev }) }
+    for (const b of await db.decks.toArray()) poe(chaveBaralho(b.id), b.criado)
+    for (const c of await db.cards.toArray()) poe(chaveCartao(c.id), Math.max(c.criado || 0, c.ult || 0))
+    for (const [id, x] of Object.entries(limparMarks(await lerJson('marks')))) poe(chaveMarca(id), x.t)
+    if (await db.meta.get('fc')) poe(CHAVE_AJUSTES, 1)
+    if (await db.meta.get('fchist')) poe(CHAVE_HIST_CARDS, 1)
+    if (novos.length) await db.sinc.bulkPut(novos)
+    return novos.length
+  })
+}
+export const lerSinc = () => db.sinc.toArray()
+
+/** Os itens completos (com valor) dos carimbos pedidos, prontos para enviar. Lápide leva só o carimbo. */
+export async function valoresDe(sincs: readonly Sinc[]): Promise<ItemNuvem[]> {
+  const ids = (tipo: string) => sincs.filter((s) => !s.x && tipoDe(s.id)?.tipo === tipo).map((s) => tipoDe(s.id)!.id)
+  const [decks, cards, marks, fc, fch] = await Promise.all([
+    db.decks.bulkGet(ids('baralho')), db.cards.bulkGet(ids('cartao')), lerJson('marks').then(limparMarks), lerJson('fc'), lerJson('fchist'),
+  ])
+  const valor = new Map<string, unknown>()
+  for (const d of decks) if (d) valor.set(chaveBaralho(d.id), d)
+  for (const c of cards) if (c) valor.set(chaveCartao(c.id), c)
+  for (const [id, m] of Object.entries(marks)) valor.set(chaveMarca(id), m)
+  if (fc) valor.set(CHAVE_AJUSTES, fc)
+  if (fch) valor.set(CHAVE_HIST_CARDS, fch)
+  const saida: ItemNuvem[] = []
+  for (const s of sincs) {
+    if (s.x) saida.push({ key: s.id, u: s.u, dev: s.dev, x: 1 })
+    else if (valor.has(s.id)) saida.push({ key: s.id, u: s.u, dev: s.dev, v: valor.get(s.id) })
+  }
+  return saida
+}
+
+/** Aplica o que veio da nuvem (só o que é mais novo que o local). Devolve o que mudou, para a tela recarregar. */
+export async function aplicarItens(itens: readonly ItemNuvem[]): Promise<{ cartoes: boolean; marcas: boolean }> {
+  const mudou = { cartoes: false, marcas: false }
+  if (!itens.length) return mudou
+  await db.transaction('rw', db.decks, db.cards, db.meta, db.sinc, async () => {
+    const locais = new Map((await db.sinc.bulkGet(itens.map((i) => i.key))).filter(Boolean).map((s) => [s!.id, s!]))
+    const novos = itens.filter((i) => { const l = locais.get(i.key); return !l || maisNovo({ id: i.key, u: i.u, dev: i.dev }, l) })
+    if (!novos.length) return
+    let marks: Marks | null = null
+    for (const i of [...novos].sort((a, b) => (a.key < b.key ? -1 : 1))) { // baralhos (b:) antes dos cartões (c:)
+      const t = tipoDe(i.key)!
+      if (t.tipo === 'baralho') { if (i.x) await db.decks.delete(t.id); else await db.decks.put(i.v as Baralho); mudou.cartoes = true }
+      else if (t.tipo === 'cartao') { if (i.x) await db.cards.delete(t.id); else await db.cards.put(i.v as Cartao); mudou.cartoes = true }
+      else if (t.tipo === 'marca') {
+        marks ??= limparMarks(await lerJson('marks'))
+        if (i.x) delete marks[t.id]; else Object.assign(marks, limparMarks({ [t.id]: i.v }))
+        mudou.marcas = true
+      } else { await db.meta.put({ key: t.tipo === 'ajustes' ? 'fc' : 'fchist', value: JSON.stringify(i.v) }); mudou.cartoes = true }
+    }
+    if (marks) await db.meta.put({ key: 'marks', value: JSON.stringify(marks) })
+    if (mudou.cartoes) { // cartão que chegou de um baralho que não existe (apagado aqui) não fica solto
+      const decks = new Set((await db.decks.toCollection().primaryKeys()) as string[])
+      const soltos = (await db.cards.filter((c) => !decks.has(c.b)).primaryKeys()) as string[]
+      if (soltos.length) await db.cards.bulkDelete(soltos)
+    }
+    await db.sinc.bulkPut(novos.map((i) => ({ id: i.key, u: i.u, dev: i.dev, ...(i.x ? { x: 1 as const } : {}) })))
+  })
+  return mudou
+}
+
+/** Aplica eventos de outros aparelhos (e apaga os que a nuvem apagou): refaz o progresso e o histórico a partir de todos os eventos. Devolve se algo mudou. */
+export async function aplicarEventos(novos: readonly Evento[], removidos: readonly string[]): Promise<boolean> {
+  if (!novos.length && !removidos.length) return false
+  return db.transaction('rw', db.prog, db.meta, db.eventos, async () => {
+    const atuais = new Map((await db.eventos.bulkGet([...novos.map((e) => e.id), ...removidos])).filter(Boolean).map((e) => [e!.id, e!]))
+    const poe = novos.filter((e) => { const a = atuais.get(e.id); return !a || (e.k === 'b' && a.k === 'b' && e.t > a.t) })
+    const tira = removidos.filter((id) => atuais.has(id))
+    if (!poe.length && !tira.length) return false
+    await db.eventos.bulkPut(poe.map(linha)); await db.eventos.bulkDelete(tira)
+    const d = derivar((await db.eventos.toArray()) as Evento[])
+    await db.prog.clear(); await db.prog.bulkPut(Object.entries(d.prog).map(([id, p]) => ({ id, ...p })))
+    await db.meta.put({ key: 'hist', value: JSON.stringify(d.hist) })
+    return true
+  })
+}
+/** A conta (uid) a que este aparelho está ligado: depois da primeira vez, outra conta não entra (misturaria dados de pessoas diferentes). */
+export const lerUidSync = async () => (await db.meta.get('sync:uid'))?.value ?? null
+export const gravarUidSync = (uid: string) => db.meta.put({ key: 'sync:uid', value: uid })

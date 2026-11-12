@@ -142,3 +142,68 @@ describe('banco: migração v2 → v3 só acrescenta', () => {
     expect(await db.lerEventos()).toEqual([])
   })
 })
+
+describe('banco: carimbos da conta Google (tabela sinc, v4)', () => {
+  const baralho = (id: string) => ({ id, nome: 'Direito', criado: t0 })
+  const cartao = (id: string, b = 'b1') => ({ id, b, f: 'f', v: 'v', criado: t0, estado: 'novo' as const, due: 0, ivl: 0, fac: 2.5, reps: 0, lapsos: 0, ult: 0 })
+
+  it('cada gravação carimba o item; dois carimbos seguidos nunca empatam', async () => {
+    await db.idDoAparelho()
+    await db.saveBaralho(baralho('b1')); await db.saveCartao(cartao('c1'))
+    const antes = (await db.lerSinc()).find((s) => s.id === 'c:c1')!
+    await db.saveCartao({ ...cartao('c1'), f: 'editado' })
+    const depois = (await db.lerSinc()).find((s) => s.id === 'c:c1')!
+    expect(depois.u).toBeGreaterThan(antes.u); expect(depois.dev).toBe(await db.idDoAparelho())
+  })
+
+  it('apagar um baralho deixa lápide do baralho e de cada cartão dele (e some do que a tela lê)', async () => {
+    await db.idDoAparelho()
+    await db.saveBaralho(baralho('b1')); await db.saveBaralho(baralho('b2')); await db.saveCartao(cartao('c1')); await db.saveCartao(cartao('c2', 'b2'))
+    await db.deleteBaralho('b1')
+    const lapides = (await db.lerSinc()).filter((s) => s.x).map((s) => s.id).sort()
+    expect(lapides).toEqual(['b:b1', 'c:c1'])
+    const d = await db.loadCards(); expect(d.baralhos.map((b) => b.id)).toEqual(['b2']); expect(d.cartoes.map((c) => c.id)).toEqual(['c2'])
+  })
+
+  it('marcações: só o que mudou é carimbado; remover vira lápide', async () => {
+    await db.idDoAparelho()
+    await db.saveMarks({ q1: { r: true, t: t0 }, q2: { r: true, t: t0 } })
+    const u1 = (await db.lerSinc()).find((s) => s.id === 'm:q1')!.u
+    await db.saveMarks({ q1: { r: true, t: t0 } }) // q2 saiu; q1 igual
+    const s = await db.lerSinc()
+    expect(s.find((x) => x.id === 'm:q1')!.u).toBe(u1)
+    expect(s.find((x) => x.id === 'm:q2')!.x).toBe(1)
+  })
+
+  it('semear: o que existia antes da conta ganha carimbo (com a data do próprio item), uma vez só, sem mexer nos dados', async () => {
+    await db.idDoAparelho()
+    await db.saveBaralho(baralho('b1')); await db.saveCartao({ ...cartao('c1'), ult: t0 + 5 }); await db.saveMarks({ q1: { r: true, t: t0 + 9 } }); await db.saveAjustes({ limite: 7, dia: '', novos: 0 })
+    const cru = new Dexie('treino-bb'); await cru.open(); await cru.table('sinc').clear(); cru.close() // como se os dados fossem de antes da conta: sem carimbo
+    const antes = await db.loadCards(), marksAntes = (await db.loadAll()).marks
+    expect(await db.semearSinc()).toBe(4)
+    const s = Object.fromEntries((await db.lerSinc()).map((x) => [x.id, x.u]))
+    expect(s).toEqual({ 'b:b1': t0, 'c:c1': t0 + 5, 'm:q1': t0 + 9, fc: 1 })
+    expect(await db.semearSinc()).toBe(0) // segunda vez: nada novo
+    expect(await db.loadCards()).toEqual(antes); expect((await db.loadAll()).marks).toEqual(marksAntes)
+  })
+
+  it('aplicar da nuvem: item mais velho que o local é ignorado; lápide mais nova apaga; cartão de baralho apagado não fica solto', async () => {
+    await db.idDoAparelho(); await db.saveBaralho(baralho('b1')); await db.saveCartao(cartao('c1'))
+    const futuro = Date.now() + 60_000
+    await db.aplicarItens([{ key: 'c:c1', u: 1, dev: 'dX', v: { ...cartao('c1'), f: 'VELHO' } }])
+    expect((await db.loadCards()).cartoes[0].f).toBe('f')
+    await db.aplicarItens([{ key: 'b:b1', u: futuro, dev: 'dX', x: 1 }])
+    const d = await db.loadCards(); expect(d.baralhos).toEqual([]); expect(d.cartoes).toEqual([]) // o cartão não fica órfão
+  })
+
+  it('aplicar eventos refaz progresso e histórico e não duplica o que já existe', async () => {
+    const dev = await db.idDoAparelho()
+    const ev = resposta(dev, 'q1', 'A', true, t0)
+    await db.gravarResposta('q1', prog1(true), histCom(1), ev)
+    const outro = resposta('dOutro', 'q1', 'B', false, t0 + 1000)
+    expect(await db.aplicarEventos([ev, outro], [])).toBe(true)
+    expect((await db.loadAll()).prog.q1).toMatchObject({ n: 2, c: 1, ok: false })
+    expect(await db.aplicarEventos([ev, outro], [])).toBe(false) // repetir não muda nada
+    expect((await db.lerEventos()).length).toBe(2)
+  })
+})
