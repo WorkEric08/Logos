@@ -1,6 +1,6 @@
 # Assistente (pseudo-agente) — documentação
 
-Uma **aba própria** (ícone de conversa na barra de navegação, entre Cards e Desempenho) com um **chat** de ações fixas, sem IA. A pessoa toca numa **sugestão** (pílulas no fim da conversa, como as respostas rápidas de um chat) e a fala dela aparece em um balão; o assistente responde em balões e, quando precisa de arquivos ou de um nome, mostra isso **dentro da conversa**. A conversa fica na memória (trocar de aba não a perde; recarregar o app sim).
+Uma **aba própria** (ícone de conversa na barra de navegação, entre Cards e Desempenho) com um **chat** de ações fixas, sem IA. A pessoa toca numa **sugestão** (pílulas no fim da conversa, como as respostas rápidas de um chat) e a fala dela aparece em um balão; o assistente responde em balões e, quando precisa de arquivos ou de um nome, mostra isso **dentro da conversa**. A pessoa também pode **escrever** o pedido numa caixa de mensagem ("importar prova"): o assistente entende palavras-chave, aceita um erro de digitação e pergunta quando o pedido pode ser duas coisas. A conversa fica na memória (trocar de aba não a perde; recarregar o app sim). **Como a troca acontece e o movimento de cada momento: `docs/assistente-conversa.md`.**
 
 O assistente o assistente pede os arquivos, lê tudo **no aparelho** (nada sai de lá), mostra uma **prévia** e só grava o que a pessoa confirmar. A IA é um **extra opcional** (ver "Ajuda de IA").
 
@@ -9,6 +9,8 @@ Onde mora o quê:
 | Parte | Arquivo |
 |---|---|
 | Catálogo das ações (esta documentação nasce dele) | `src/core/assistente.ts` |
+| Entender o que a pessoa escreve | `src/core/conversa.ts` |
+| Ritmo da conversa (digitando, contagem, saída) | `src/core/ritmo.ts`, `src/ui/movimentoChat.tsx` |
 | Estado da conversa e fluxo de cada ação | `src/store/assistente.ts` |
 | Tela (aba Assistente) | `src/ui/Assistente.tsx`, `src/ui/AssistenteIA.tsx` |
 | Espaços de estudo | `src/core/espaco.ts`, `src/store/espacos.ts` |
@@ -62,8 +64,8 @@ Desligada por padrão. Com a **chave da Anthropic da própria pessoa** (guardada
 2. **Campo de texto novo:** registre em `scripts/campos-de-texto.json` e crie o cenário em `scripts/e2e-teclado.mjs` (regra do teclado).
 3. **Formato de prova novo:** ajuste `src/core/importar/prova.ts`/`layout.ts` e **meça** com `scripts/medir-extracao.mjs` (não deve piorar os números acima); acrescente um caso em `src/core/importar/importar.test.ts`.
 
-## Por que não há caixa de digitar
-O chat só tem sugestões e campos dentro da conversa (nome do espaço, da prova, do baralho, chave da IA). Uma caixa de mensagem fixa no pé da tela iria contra a **regra do teclado** do app (nenhum botão pode aparecer acima do teclado). Se um dia quisermos digitar comandos ("importar prova"), dá para somar uma caixa seguindo a mesma regra.
+## Caixa de mensagem e a regra do teclado
+A caixa de mensagem existe e obedece à regra do teclado: fica logo abaixo da última fala (nunca presa no pé da tela). Detalhes em `docs/assistente-conversa.md`.
 
 ## Não verificado
 Aparelho real (Android): o seletor de arquivos e o recorte de imagem rodam no navegador (Chrome, testado); no APK dependem da WebView e do seletor do sistema. A leitura de PDFs muito diferentes das provas da Cesgranrio (outras bancas) não foi medida.

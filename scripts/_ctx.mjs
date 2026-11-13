@@ -12,8 +12,13 @@ export async function novoContexto(navegador, opcoes = {}) {
  */
 export async function irPara(pagina, rotulo) {
   const item = pagina.locator('.nav .rail-item', { hasText: rotulo }).first()
+  // Logo depois de escolher uma aba a barra ainda está sumindo e "visível" mente por um instante (o clique seguinte pegava o item no meio do caminho):
+  // espera a barra (e a tela) assentarem antes de decidir se precisa abri-la.
+  await esperarMovimento(pagina)
   if (!(await item.isVisible())) await pagina.locator('.rail-alca').click()
   await item.click()
+  // a tela que está saindo (animação de saída de 140 ms) só some quando a nova entra: espera isso, para o teste olhar a tela de destino
+  await pagina.waitForFunction(() => !document.querySelector('.page.saindo'), null, { timeout: 3000 }).catch(() => {})
 }
 
 /**

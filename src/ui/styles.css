@@ -851,3 +851,57 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .as-esp{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .as-esp-i{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .as-conf{display:inline-flex;gap:6px}
+
+/* ───────── Movimento do chat (entrada → conversa → saída) ─────────
+   Só transform e opacity. "Reduzir movimento": nada anima nem espera (regra global acima) e os efeitos que repetem (brilho) são desligados aqui. */
+@keyframes as-balao{from{opacity:0;transform:translateY(8px) scale(.97)}}
+@keyframes as-ponto{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-4px);opacity:1}}
+@keyframes as-abre{from{opacity:0;transform:translateY(12px) scale(.985)}}
+@keyframes as-fecha{to{opacity:0;transform:translateY(-6px) scale(.985)}}
+@keyframes as-voa{to{opacity:0;transform:translateX(26px) scale(1.04)}}
+@keyframes as-some{to{opacity:0;transform:scale(.92)}}
+@keyframes as-tremer{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes as-pulsa{0%{box-shadow:0 0 0 0 rgba(240,178,60,.55)}100%{box-shadow:0 0 0 8px rgba(240,178,60,0)}}
+@keyframes as-brilho{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@keyframes as-traco{from{stroke-dashoffset:var(--tam)}to{stroke-dashoffset:0}}
+.as-linha.entra{animation:as-balao .26s var(--ease-out) backwards}
+.as-linha.a.entra{transform-origin:0 100%}
+.as-linha.v.entra{transform-origin:100% 100%}
+.as-linha.entra .as-avatar{animation:fc-marca .3s var(--ease-out) .06s backwards}
+.as-digitando{display:flex;align-items:center;gap:5px;padding:15px 16px}
+.as-digitando i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:as-ponto 1s ease-in-out infinite}
+.as-digitando i:nth-child(2){animation-delay:.15s}
+.as-digitando i:nth-child(3){animation-delay:.3s}
+.as-msg.erro{border-color:var(--err);background:color-mix(in srgb,var(--err) 12%,var(--card));animation:as-tremer .42s var(--ease-out) .28s 1}
+.as-msg.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--card))}
+.as-cena{animation:as-abre .28s var(--ease-out) backwards}
+.as-cena.saindo{animation:as-fecha .17s var(--ease-out) forwards;pointer-events:none}
+.as-pilula{animation:fc-entra .24s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 45ms);transition:background-color .15s,transform .12s}
+.as-sug-lista.saindo{pointer-events:none}
+.as-sug-lista.saindo .as-pilula{animation:as-some .17s var(--ease-out) forwards;animation-delay:0s}
+.as-sug-lista.saindo .as-pilula.escolhida{animation:as-voa .17s var(--ease-out) forwards}
+.as-composer{display:flex;gap:8px;align-items:stretch;padding-left:36px;animation:fc-entra .26s var(--ease-out) backwards}
+.as-composer .campo{flex:1;min-width:0;border-radius:999px;padding:11px 18px}
+.as-composer .btn{border-radius:999px;min-height:48px;padding:0 20px}
+.as-lendo .bar{position:relative;overflow:hidden;margin-top:10px}
+.as-brilho i{position:relative;overflow:hidden;display:block}
+.as-brilho i::after,.as-esqueleto i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:as-brilho 1.2s linear infinite}
+.as-esqueleto{display:grid;gap:8px;margin-top:14px}
+.as-esqueleto i{display:block;position:relative;overflow:hidden;height:46px;border-radius:var(--r);background:var(--card2)}
+.as-esqueleto i:nth-child(2)::after{animation-delay:.2s}
+.as-esqueleto i:nth-child(3)::after{animation-delay:.4s}
+.as-esqueleto i:nth-child(3){width:70%}
+.as-q{transition:opacity .2s,transform .2s}
+.as-q.casc{animation:fc-entra .26s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 30ms)}
+.as-q.off{transform:scale(.992)}
+.as-aviso{animation:as-pulsa .7s ease-out .35s 1}
+.as-letras .chip{transition:background-color .15s,color .15s,border-color .15s,transform .12s}
+.as-letras .chip:active{transform:scale(.92)}
+.as-sug{animation:as-abre .26s var(--ease-out) backwards}
+.as-sucesso{display:flex;align-items:center;gap:12px;margin:2px 0 10px 36px;animation:as-abre .3s var(--ease-out) backwards}
+.as-visto circle{fill:none;stroke:var(--ok);stroke-width:3;stroke-dasharray:145;--tam:145;animation:as-traco .5s var(--ease-out) backwards}
+.as-visto path{fill:none;stroke:var(--ok);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;--tam:40;animation:as-traco .35s var(--ease-out) .35s backwards}
+.as-conta{font:700 30px/1 var(--f-num);margin-right:4px}
+.as-sucesso span{font-size:15px;color:var(--muted)}
+.page.saindo{animation:as-fecha .14s var(--ease-out) forwards;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.as-brilho i::after,.as-esqueleto i::after,.as-digitando i{animation:none}}

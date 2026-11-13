@@ -8,7 +8,7 @@
 // Precisa do app em http://localhost:4173/. Uso: node scripts/e2e-teclado.mjs [url]
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
-import { irPara, novoContexto } from './_ctx.mjs'
+import { esperarMovimento, irPara, novoContexto } from './_ctx.mjs'
 import { cartao, conjuntoPadrao, idBaralho, semearCards } from './_cards-seed.mjs'
 import { PERFIS_TECLADO, regraTeclado } from './_teclado.mjs'
 import { TEXTO_RESUMO, pdfGabarito, pdfProva } from './_pdf-prova.mjs'
@@ -34,6 +34,7 @@ const CENARIOS = [
   { campo: '#cf', rotulo: 'Editor · editar cartão · Frente', ir: async (p) => { await abrirBaralho(p); await p.locator('.fcedit').first().click(); await p.waitForSelector('#cf'); await p.waitForTimeout(350) }, focar: (p) => foco(p, '#cf') },
   { campo: 'anotação', rotulo: 'Treinar · Anotação da questão', ir: async (p) => { await irPara(p, 'Treinar'); await p.click('text=Começar'); await p.waitForSelector('.sheet'); await p.locator('.alt').first().click(); await p.locator('.nota summary').click(); await p.waitForSelector('.nota textarea') }, focar: (p) => foco(p, '.nota textarea') },
   { campo: 'anotação', rotulo: 'Simulado · Anotação da questão', ir: async (p) => { await p.locator('.tile', { hasText: 'Simulado de 70' }).click(); await p.waitForSelector('.sheet'); await p.locator('.nota summary').click(); await p.waitForSelector('.nota textarea') }, focar: (p) => foco(p, '.nota textarea') },
+  { campo: '#as-msg', rotulo: 'Assistente · Caixa de mensagem', ir: async (p) => { await abrirAssistente(p); await p.waitForSelector('#as-msg'); await p.waitForSelector('.as-pilula'); await esperarMovimento(p) }, focar: (p) => foco(p, '#as-msg') },
   { campo: '#as-espaco', rotulo: 'Assistente · Nome do espaço', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-pilula[data-acao="espaco"]').click(); await p.locator('.btn', { hasText: 'Novo espaço' }).click(); await p.waitForSelector('#as-espaco') }, focar: (p) => foco(p, '#as-espaco') },
   { campo: '#as-chave', rotulo: 'Assistente · Chave da IA', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-pilula[data-acao="ia"]').click(); await p.waitForSelector('#as-chave') }, focar: (p) => foco(p, '#as-chave') },
   { campo: '#as-baralho', rotulo: 'Assistente · Nome do baralho (prévia dos cartões)', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-pilula[data-acao="cartoes"]').click(); await p.setInputFiles('#as-f-resumo', { name: 'resumo.md', mimeType: 'text/markdown', buffer: Buffer.from(TEXTO_RESUMO) }); await p.waitForSelector('#as-baralho') }, focar: (p) => foco(p, '#as-baralho') },

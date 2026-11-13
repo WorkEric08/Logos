@@ -9,6 +9,7 @@ import { useAssistente } from '../store/assistente'
 import { useEspacos } from '../store/espacos'
 import { IaPainel } from './AssistenteIA'
 import { Icon, Top } from './bits'
+import { Cena, Pilulas, useContagem, useFalas, useFechar, type ItemPilula } from './movimentoChat'
 
 const LETRAS: Letter[] = ['A', 'B', 'C', 'D', 'E']
 const resumo = (t: string, n = 110) => (t.length <= n ? t : t.slice(0, n - 1).trimEnd() + '…')
@@ -26,18 +27,32 @@ function EscolherArquivo({ rotulo, aceita, nome, onArquivo, id, pri }: { rotulo:
 }
 
 /** Sugestões: pílulas no fim da conversa (como as respostas rápidas de um chat). Tocar numa delas é "dizer" aquilo. */
-function Sugestoes({ extras = [] }: { extras?: { id: string; rotulo: string; run: () => void }[] }) {
+function Sugestoes() {
   const { escolher, ajuda } = useAssistente.getState()
+  const desambiguar = useAssistente((s) => s.desambiguar)
+  const itens: ItemPilula[] = [
+    ...desambiguar.map((id) => ({ id: `d-${id}`, rotulo: ACOES.find((a) => a.id === id)!.sugestao, pri: true, acao: id, run: () => escolher(id) })),
+    ...ACOES.filter((a) => !desambiguar.includes(a.id)).map((a) => ({ id: a.id, rotulo: a.sugestao, acao: a.id, run: () => escolher(a.id) })),
+    { id: 'ajuda', rotulo: 'O que você sabe fazer?', acao: 'ajuda', run: ajuda },
+  ]
+  return <Pilulas itens={itens} />
+}
+
+/** A caixa de mensagem: escrever um pedido ("importar prova") tem o mesmo efeito de tocar na sugestão. Enter envia. Fica logo abaixo da última fala (nunca presa no
+ *  pé da tela), então o teclado do celular só a cobre se a pessoa rolar a conversa: a regra do teclado do app. */
+function Composer() {
+  const enviar = useAssistente((s) => s.enviar)
+  const [txt, setTxt] = useState('')
   return (
-    <div className="as-sug-lista" role="group" aria-label="Sugestões">
-      {extras.map((e) => <button key={e.id} className="as-pilula pri" data-sug={e.id} onClick={e.run}>{e.rotulo}</button>)}
-      {ACOES.map((a) => <button key={a.id} className="as-pilula" data-acao={a.id} onClick={() => escolher(a.id)}>{a.sugestao}</button>)}
-      <button className="as-pilula" data-acao="ajuda" onClick={ajuda}>O que você sabe fazer?</button>
-    </div>
+    <form className="as-composer" onSubmit={(e) => { e.preventDefault(); if (txt.trim()) { enviar(txt); setTxt('') } }}>
+      <input id="as-msg" className="campo" value={txt} maxLength={200} onChange={(e) => setTxt(e.target.value)} autoComplete="off" enterKeyHint="send" aria-label="Mensagem para o assistente" placeholder={'Escreva um pedido, ex.: "importar prova"'} />
+      <button type="submit" className="btn pri" disabled={!txt.trim()}>Enviar</button>
+    </form>
   )
 }
 
 function NovoEspaco() {
+  const fechar = useFechar()
   const { criarEspaco, voltarAoInicio } = useAssistente.getState()
   const ocupado = useAssistente((s) => s.ocupado)
   const [nome, setNome] = useState('')
@@ -46,7 +61,7 @@ function NovoEspaco() {
       <label className="lb" htmlFor="as-espaco">Nome do espaço</label>
       <input id="as-espaco" className="campo" value={nome} maxLength={40} placeholder="Ex.: Direito, Concurso 2026…" onChange={(e) => setNome(e.target.value)} autoComplete="off" />
       <div className="foot sticky">
-        <button className="btn" onClick={voltarAoInicio}>Cancelar</button>
+        <button className="btn" onClick={() => fechar(voltarAoInicio)}>Cancelar</button>
         <button className="btn" disabled={ocupado} onClick={() => void criarEspaco(nome, false)}>Criar vazio</button>
         <button className="btn pri" disabled={ocupado} onClick={() => void criarEspaco(nome, true)}>Com as questões do BB</button>
       </div>
@@ -55,6 +70,7 @@ function NovoEspaco() {
 }
 
 function ArquivosProva() {
+  const fechar = useFechar()
   const { lerProva, voltarAoInicio } = useAssistente.getState()
   const [prova, setProva] = useState<File | null>(null)
   const [gab, setGab] = useState<File | null>(null)
@@ -66,7 +82,7 @@ function ArquivosProva() {
       <EscolherArquivo id="as-f-gab" rotulo="Escolher o PDF do gabarito" aceita="application/pdf,.pdf" nome={gab?.name} onArquivo={setGab} />
       <p className="note">Sem o gabarito, você marca a resposta de cada questão na prévia. Se o PDF tiver mais de um gabarito (cadernos 1, 2…), uso o primeiro.</p>
       <div className="foot sticky">
-        <button className="btn" onClick={voltarAoInicio}>Voltar</button>
+        <button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button>
         <button className="btn pri" disabled={!prova} onClick={() => prova && void lerProva(prova, gab)}>Ler a prova</button>
       </div>
     </div>
@@ -76,14 +92,16 @@ function ArquivosProva() {
 function Lendo() {
   const p = useAssistente((s) => s.progresso)
   return (
-    <div className="card as-painel" role="status" aria-live="polite">
+    <div className="card as-painel as-lendo" role="status" aria-live="polite">
       <p>{p?.texto ?? 'Lendo…'}</p>
-      <div className="bar" aria-hidden="true"><i style={{ width: `${p?.pct ?? 0}%` }} /></div>
+      <div className="bar as-brilho" aria-hidden="true"><i style={{ width: `${Math.max(4, p?.pct ?? 0)}%` }} /></div>
+      <div className="as-esqueleto" aria-hidden="true"><i /><i /><i /></div>
     </div>
   )
 }
 
 function PreviaProva() {
+  const fechar = useFechar()
   const s = useAssistente()
   const p = s.previa!
   const [todas, setTodas] = useState(false)
@@ -104,11 +122,11 @@ function PreviaProva() {
         <p className="note" role="status">{prontas.length} de {lista.length} prontas para entrar{semResposta ? ` · ${semResposta} sem resposta (marque abaixo)` : ''}.</p>
       </div>
       <ul className="as-qs">
-        {visiveis.map((q) => {
+        {visiveis.map((q, idx) => {
           const marcada = p.escolhidas.includes(q.numero)
           const r = respostas[q.numero]
           return (
-            <li key={q.numero} className={`as-q${marcada ? '' : ' off'}`}>
+            <li key={q.numero} className={`as-q${marcada ? '' : ' off'}${idx < 12 ? ' casc' : ''}`} style={{ '--i': idx } as React.CSSProperties}>
               <label className="as-q-top">
                 <input type="checkbox" checked={marcada} onChange={() => s.alternarQuestao(q.numero)} aria-label={`Incluir a questão ${q.numero}`} />
                 <b>Q{q.numero}</b><span className="muted">{q.materia || 'sem matéria'}</span>
@@ -135,39 +153,51 @@ function PreviaProva() {
       </ul>
       {lista.length > 30 && !todas && <button className="btn" onClick={() => setTodas(true)}>Mostrar as {lista.length} questões</button>}
       <div className="foot sticky">
-        <button className="btn" onClick={() => void useAssistente.getState().voltarAoInicio()}>Cancelar</button>
+        <button className="btn" onClick={() => fechar(() => useAssistente.getState().voltarAoInicio())}>Cancelar</button>
         <button className="btn pri" disabled={s.ocupado || !prontas.length} onClick={() => void s.confirmarProva()}>{s.ocupado ? 'Adicionando…' : `Adicionar ${prontas.length}`}</button>
       </div>
     </div>
   )
 }
 
+/** Sucesso: o "visto" se desenha, o número de itens sobe contando e as próximas sugestões entram em cascata. */
 function Pronto({ treinar }: { treinar: boolean }) {
   const { voltarAoInicio, escolher } = useAssistente.getState()
+  const resultado = useAssistente((s) => s.resultado)
+  const n = useContagem(resultado?.n ?? 0)
   const ir = (t: 'treinar' | 'cartoes') => useApp.getState().setTab(t)
+  const itens: ItemPilula[] = [
+    treinar ? { id: 'treinar', rotulo: 'Treinar agora', pri: true, run: () => ir('treinar') } : { id: 'cartoes', rotulo: 'Ver os cartões', pri: true, run: () => ir('cartoes') },
+    ...(treinar ? [{ id: 'outra', rotulo: 'Importar outra prova', run: () => escolher('prova') }] : []),
+    { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio },
+  ]
   return (
-    <div className="as-sug-lista" role="group" aria-label="Sugestões">
-      {treinar
-        ? <button className="as-pilula pri" data-sug="treinar" onClick={() => ir('treinar')}>Treinar agora</button>
-        : <button className="as-pilula pri" data-sug="cartoes" onClick={() => ir('cartoes')}>Ver os cartões</button>}
-      {treinar && <button className="as-pilula" data-sug="outra" onClick={() => escolher('prova')}>Importar outra prova</button>}
-      <button className="as-pilula" data-sug="mais" onClick={voltarAoInicio}>Mais sugestões</button>
-    </div>
+    <>
+      {resultado?.n !== undefined && (
+        <div className="as-sucesso" role="status">
+          <svg className="as-visto" viewBox="0 0 52 52" width="44" height="44" aria-hidden="true"><circle cx="26" cy="26" r="23" /><path d="M15 27l8 8 15-17" /></svg>
+          <div><b className="as-conta" data-testid="conta">{n}</b><span>{treinar ? (resultado.n === 1 ? ' questão adicionada' : ' questões adicionadas') : (resultado.n === 1 ? ' cartão criado' : ' cartões criados')}</span></div>
+        </div>
+      )}
+      <Pilulas itens={itens} />
+    </>
   )
 }
 
 function ArquivoCartoes() {
+  const fechar = useFechar()
   const { lerCartoes, voltarAoInicio } = useAssistente.getState()
   return (
     <div className="card as-painel">
       <EscolherArquivo id="as-f-resumo" rotulo="Escolher o arquivo do resumo" aceita="application/pdf,.pdf,.txt,.md,.markdown,text/plain,text/markdown" onArquivo={(f) => void lerCartoes(f)} pri />
       <p className="note">Funciona melhor com "Termo: definição", "Pergunta? Resposta", "X é …", títulos com parágrafo e trechos em **negrito**.</p>
-      <div className="foot sticky"><button className="btn" onClick={voltarAoInicio}>Voltar</button></div>
+      <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button></div>
     </div>
   )
 }
 
 function PreviaCartoes() {
+  const fechar = useFechar()
   const s = useAssistente()
   const c = s.cartoes!
   const [todos, setTodos] = useState(false)
@@ -181,7 +211,7 @@ function PreviaCartoes() {
       </div>
       <ul className="as-qs">
         {visiveis.map((x, i) => (
-          <li key={i} className={`as-q${c.escolhidos.includes(i) ? '' : ' off'}`}>
+          <li key={i} className={`as-q${c.escolhidos.includes(i) ? '' : ' off'}${i < 12 ? ' casc' : ''}`} style={{ '--i': i } as React.CSSProperties}>
             <label className="as-q-top">
               <input type="checkbox" checked={c.escolhidos.includes(i)} onChange={() => s.alternarCartao(i)} aria-label={`Incluir o cartão ${i + 1}`} />
               <b>{resumo(x.f, 70)}</b>
@@ -192,7 +222,7 @@ function PreviaCartoes() {
       </ul>
       {c.sug.cartoes.length > 40 && !todos && <button className="btn" onClick={() => setTodos(true)}>Mostrar os {c.sug.cartoes.length} cartões</button>}
       <div className="foot sticky">
-        <button className="btn" onClick={() => void s.voltarAoInicio()}>Cancelar</button>
+        <button className="btn" onClick={() => fechar(() => useAssistente.getState().voltarAoInicio())}>Cancelar</button>
         <button className="btn pri" disabled={!c.escolhidos.length} onClick={s.confirmarCartoes}>Criar o baralho</button>
       </div>
     </div>
@@ -200,6 +230,7 @@ function PreviaCartoes() {
 }
 
 function Simulado() {
+  const fechar = useFechar()
   const { iniciarSimulado, voltarAoInicio } = useAssistente.getState()
   const [mat, setMat] = useState<string | null>(null)
   const [n, setN] = useState(20)
@@ -208,7 +239,7 @@ function Simulado() {
     return (
       <div className="card as-painel">
         <p className="note">Prova do edital, com nota e regras.</p>
-        <div className="foot sticky"><button className="btn" onClick={voltarAoInicio}>Voltar</button><button className="btn pri" onClick={() => iniciarSimulado(null, 0)}>Começar o simulado</button></div>
+        <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button><button className="btn pri" onClick={() => iniciarSimulado(null, 0)}>Começar o simulado</button></div>
       </div>
     )
   }
@@ -223,12 +254,13 @@ function Simulado() {
       <div className="chips" role="group" aria-label="Quantidade de questões">
         {[10, 20, 30, 40].map((v) => <button key={v} className="chip" aria-pressed={n === v} onClick={() => setN(v)}>{v}</button>)}
       </div>
-      <div className="foot sticky"><button className="btn" onClick={voltarAoInicio}>Voltar</button><button className="btn pri" disabled={!mat} onClick={() => mat && iniciarSimulado(mat, n)}>Começar</button></div>
+      <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button><button className="btn pri" disabled={!mat} onClick={() => mat && iniciarSimulado(mat, n)}>Começar</button></div>
     </div>
   )
 }
 
 function Espacos() {
+  const fechar = useFechar()
   const { lista, ativo, ativar, apagar } = useEspacos()
   const { voltarAoInicio, novoEspaco } = useAssistente.getState()
   const [apagando, setApagando] = useState<string | null>(null)
@@ -245,21 +277,27 @@ function Espacos() {
         ))}
       </ul>
       <p className="note">Apagar um espaço tira as questões e as imagens dele. O seu progresso fica guardado por questão: importar o mesmo arquivo de novo recupera.</p>
-      <div className="foot sticky"><button className="btn" onClick={voltarAoInicio}>Voltar</button><button className="btn pri" onClick={novoEspaco}>Novo espaço</button></div>
+      <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button><button className="btn pri" onClick={novoEspaco}>Novo espaço</button></div>
     </div>
   )
 }
 
-function Conversa() {
+function Conversa({ iniciais, falas }: { iniciais: number; falas: { visiveis: number; digitando: boolean } }) {
   const msgs = useAssistente((s) => s.mensagens)
   return (
     <div className="as-chat" role="log" aria-live="polite" aria-label="Conversa com o assistente">
-      {msgs.map((x) => (
-        <div key={x.id} className={`as-linha ${x.de}`}>
+      {msgs.slice(0, falas.visiveis).map((x, i) => (
+        <div key={x.id} className={`as-linha ${x.de}${i >= iniciais ? ' entra' : ''}`}>
           {x.de === 'a' && <span className="as-avatar" aria-hidden="true"><Icon n="chat" size={16} /></span>}
-          <p className={`as-msg ${x.de}`}>{x.texto}</p>
+          <p className={`as-msg ${x.de}${x.tipo ? ' ' + x.tipo : ''}`}>{x.texto}</p>
         </div>
       ))}
+      {falas.digitando && (
+        <div className="as-linha a entra as-digitando-linha" aria-hidden="true">
+          <span className="as-avatar"><Icon n="chat" size={16} /></span>
+          <p className="as-msg a as-digitando"><i /><i /><i /></p>
+        </div>
+      )}
     </div>
   )
 }
@@ -267,36 +305,44 @@ function Conversa() {
 /** A aba do Assistente: um chat. O assistente fala em balões; o que ele precisa de você aparece dentro da conversa; as ações vêm como sugestões. */
 export function Assistente() {
   const etapa = useAssistente((s) => s.etapa)
-  const nMsgs = useAssistente((s) => s.mensagens.length)
+  const mensagens = useAssistente((s) => s.mensagens)
   const resultado = useAssistente((s) => s.resultado)
   const espaco = useEspacos((s) => s.lista.find((e) => e.id === s.ativo)?.nome ?? '')
   const tela = useRef<HTMLDivElement>(null)
   useEffect(() => { useAssistente.getState().iniciarConversa() }, [])
-  // a tela mostra a mensagem mais recente do assistente no alto, com o que ele pede logo abaixo (lista longa de prévia começa pelo começo);
+  const iniciais = useRef(useAssistente.getState().vistas).current // as que já estavam mostradas ao entrar na aba não animam de novo
+  const falas = useFalas(mensagens, iniciais, (n) => useAssistente.getState().marcarVistas(n))
+  // a tela mostra a fala mais recente no alto, com o que o assistente pede logo abaixo (lista longa de prévia começa pelo começo);
   // depois do reposicionamento da aba, para não ser desfeito
   useEffect(() => {
     const id = requestAnimationFrame(() => tela.current?.querySelector('.as-chat > .as-linha:last-child')?.scrollIntoView({ block: 'start' }))
     return () => cancelAnimationFrame(id)
-  }, [nMsgs, etapa])
+  }, [falas.visiveis, falas.digitando, etapa])
+  const menu = etapa === 'inicio' || etapa === 'prova-pronta' || etapa === 'cartoes-pronto'
   return (
     <>
       <Top title="Assistente" sub={`Espaço: ${espaco}`} />
       <div className="chat-tela" ref={tela}>
-        <Conversa />
-        <div className="as-corpo">
-          {etapa === 'inicio' && <Sugestoes />}
-          {etapa === 'espaco-novo' && <NovoEspaco />}
-          {etapa === 'prova-arquivos' && <ArquivosProva />}
-          {etapa === 'lendo' && <Lendo />}
-          {etapa === 'prova-previa' && <PreviaProva />}
-          {etapa === 'prova-pronta' && <Pronto treinar />}
-          {etapa === 'cartoes-arquivo' && <ArquivoCartoes />}
-          {etapa === 'cartoes-previa' && <PreviaCartoes />}
-          {etapa === 'cartoes-pronto' && <Pronto treinar={false} />}
-          {etapa === 'simulado' && <Simulado />}
-          {etapa === 'espacos' && <Espacos />}
-          {etapa === 'ia' && <IaPainel />}
-        </div>
+        <Conversa iniciais={iniciais} falas={falas} />
+        {menu && <Composer />}
+        {!falas.falando && (
+          <Cena chave={etapa}>
+            <div className="as-corpo">
+              {etapa === 'inicio' && <Sugestoes />}
+              {etapa === 'espaco-novo' && <NovoEspaco />}
+              {etapa === 'prova-arquivos' && <ArquivosProva />}
+              {etapa === 'lendo' && <Lendo />}
+              {etapa === 'prova-previa' && <PreviaProva />}
+              {etapa === 'prova-pronta' && <Pronto treinar />}
+              {etapa === 'cartoes-arquivo' && <ArquivoCartoes />}
+              {etapa === 'cartoes-previa' && <PreviaCartoes />}
+              {etapa === 'cartoes-pronto' && <Pronto treinar={false} />}
+              {etapa === 'simulado' && <Simulado />}
+              {etapa === 'espacos' && <Espacos />}
+              {etapa === 'ia' && <IaPainel />}
+            </div>
+          </Cena>
+        )}
         {resultado && <p className="sr-only" role="status">{resultado.texto}</p>}
       </div>
     </>

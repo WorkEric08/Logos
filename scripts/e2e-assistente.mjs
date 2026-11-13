@@ -14,7 +14,8 @@ const b = await chromium.launch({ channel: 'chrome' })
 const erros = []
 const prova = await pdfProva(b), gab = await pdfGabarito(b)
 
-const ctx = await novoContexto(b, { viewport: { width: 412, height: 880 }, hasTouch: true, isMobile: true, colorScheme: 'dark' })
+// reducedMotion: a conversa não espera o "digitando…" (o movimento tem o seu próprio teste: e2e-assistente-movimento.mjs)
+const ctx = await novoContexto(b, { viewport: { width: 412, height: 880 }, hasTouch: true, isMobile: true, colorScheme: 'dark', reducedMotion: 'reduce' })
 const p = await ctx.newPage()
 p.on('pageerror', (e) => erros.push(e.message))
 p.on('console', (m) => { if (m.type() === 'error' && !/favicon|net::ERR|Failed to load resource/.test(m.text())) erros.push('console: ' + m.text()) })
@@ -32,8 +33,11 @@ await p.route('https://api.anthropic.com/**', async (route) => {
 })
 
 await p.goto(base); await p.waitForSelector('.folders')
-const abrir = async () => { await irPara(p, 'Assistente'); await p.waitForSelector('.chat-tela') }
-const acao = (id) => p.locator(`.as-pilula[data-acao="${id}"]`).click()
+const abrir = async () => { await irPara(p, 'Assistente'); await p.waitForSelector('.chat-tela'); await p.waitForSelector('.as-pilula, #as-f-prova, #as-f-resumo, .as-esp, #as-espaco, .as-qs, #as-chave', { state: 'attached' }) }
+const nA = () => p.locator('.as-msg.a:not(.as-digitando)').count()
+/** Faz algo e espera o assistente responder (uma fala nova). */
+const falar = async (fn) => { const antes = await nA(); await fn(); await p.waitForFunction((n) => document.querySelectorAll('.as-msg.a:not(.as-digitando)').length > n, antes, { timeout: 10000 }); await p.waitForTimeout(30) }
+const acao = (id) => falar(() => p.locator(`.as-pilula[data-acao="${id}"]`).click())
 const espacoAtivo = () => p.locator('.top small').innerText()
 const msgs = () => p.locator('.as-msg').allInnerTexts()
 
@@ -47,8 +51,21 @@ ok('tocar numa sugestão mostra a fala da pessoa em um balão à direita', (awai
 await acao('resumo')
 ok('"Ver o que já tenho" responde com os números do espaço do BB', (await msgs()).some((t) => /1168 questões/.test(t)), (await msgs()).slice(-1)[0])
 
-// 2. importar com o BB ativo pede um espaço próprio
-await acao('prova')
+// 1b. falar por escrito: a caixa de mensagem entende os mesmos pedidos das sugestões
+const digitar = (t) => falar(async () => { await p.fill('#as-msg', t); await p.press('#as-msg', 'Enter') })
+ok('a caixa de mensagem existe e tem o nome acessível', (await p.locator('#as-msg').getAttribute('aria-label')) === 'Mensagem para o assistente')
+await digitar('bom dia')
+ok('"bom dia" é respondido com um cumprimento', (await msgs()).slice(-1)[0].startsWith('Oi!'))
+await digitar('xyz qwerty')
+ok('o que não entende vira um convite para tentar, sem inventar', /Não entendi/.test((await msgs()).slice(-1)[0]))
+await digitar('quero cartões da prova')
+ok('pedido que pode ser duas coisas: o assistente pergunta qual e destaca as duas opções', /Quer .* ou .*?/.test((await msgs()).slice(-1)[0]) && (await p.locator('.as-pilula.pri').count()) === 2)
+ok('depois de enviar, a caixa esvazia e continua à mão', (await p.inputValue('#as-msg')) === '' && (await p.locator('#as-msg').isVisible()))
+await digitar('ajuda')
+ok('"ajuda" lista o que o assistente faz', /Importar uma prova em PDF/.test((await msgs()).slice(-1)[0]))
+
+// 2. importar com o BB ativo pede um espaço próprio (escrevendo o pedido)
+await digitar('importar prova')
 await p.waitForSelector('#as-espaco')
 ok('com o espaço do BB ativo, importar pede para criar um espaço seu', true)
 await p.fill('#as-espaco', 'Teste e2e')

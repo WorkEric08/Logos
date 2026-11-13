@@ -11,6 +11,7 @@
     "anotação"
   ],
   "src/ui/Assistente.tsx": [
+    "#as-msg",
     "#as-espaco",
     "#as-prova",
     "#as-baralho"

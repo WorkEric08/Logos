@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { MODELOS_IA, gravarChave, gravarModelo, iaLigada, lerChave, lerModelo, mensagemErroIA, testarChave } from '../services/importar/ia'
 import { useAssistente } from '../store/assistente'
+import { useFechar } from './movimentoChat'
 
 /** Ajuda de IA opcional: a chave da própria pessoa, guardada só neste aparelho. Desligada por padrão. */
 export function IaPainel() {
   const { voltarAoInicio } = useAssistente.getState()
+  const fechar = useFechar()
   const [chave, setChave] = useState(lerChave())
   const [modelo, setModelo] = useState(lerModelo())
   const [estado, setEstado] = useState<{ ok: boolean; texto: string } | null>(null)
@@ -23,7 +25,7 @@ export function IaPainel() {
       </select>
       {estado && <p className="note" role="status" style={estado.ok ? undefined : { color: 'var(--err)' }}>{estado.texto}</p>}
       <div className="foot sticky">
-        <button className="btn" onClick={voltarAoInicio}>Voltar</button>
+        <button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button>
         {ligada && <button className="btn warn" onClick={() => { gravarChave(''); setChave(''); setEstado({ ok: true, texto: 'Chave removida deste aparelho.' }); forca((n) => n + 1) }}>Remover a chave</button>}
         <button className="btn" disabled={testando || chave.trim().length < 20} onClick={() => {
           setTestando(true); setEstado(null)

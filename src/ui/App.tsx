@@ -24,6 +24,7 @@ import { reiniciarProvas } from './Provas'
 import { iniciarContaSeJaEntrou } from '../services/sync/conta'
 import { useEspacos } from '../store/espacos'
 import { Assistente } from './Assistente'
+import { reduzMovimento } from './movimentoChat'
 
 const ITENS: ItemRail<Tab>[] = [
   { id: 'inicio', rotulo: 'Início', icone: 'home' }, { id: 'treinar', rotulo: 'Treinar', icone: 'train' }, { id: 'cartoes', rotulo: 'Cards', icone: 'cards' },
@@ -70,7 +71,15 @@ export function App() {
   if (mov.cam.id !== camadaAtual.id) setMov({ cam: camadaAtual, sentido: sentidoDaTroca(mov.cam, camadaAtual) })
   const View = VIEWS[tab]
   // ícone da barra: o do Início também recomeça as provas pela lista de bancos (a menos que um simulado em andamento peça confirmação)
-  const aoSelecionar = (t: Tab) => { const s = useApp.getState().session; if (t === 'inicio' && !(s?.sim && !s.done)) reiniciarProvas(); irPara(t) }
+  // ícone da barra: a tela atual SAI com uma animação curta (140 ms) e só então a nova entra; com "reduzir movimento" a troca é na hora
+  const [saindo, setSaindo] = useState(false)
+  const aoSelecionar = (t: Tab) => {
+    const s = useApp.getState().session
+    const trocar = () => { if (t === 'inicio' && !(s?.sim && !s.done)) reiniciarProvas(); irPara(t); setSaindo(false) }
+    if (reduzMovimento() || saindo || (t === useApp.getState().tab && !s)) { trocar(); return }
+    setSaindo(true)
+    setTimeout(trocar, 110)
+  }
   const splash = abertura ? <Splash ready={ready} onFinish={() => setAbertura(false)} /> : null
   // A abertura fica sempre na mesma posição da árvore (2º filho): não remonta quando o app termina de carregar.
   const miolo = !ready ? <div className="boot" aria-busy="true" /> : (
@@ -78,7 +87,7 @@ export function App() {
     <div className="shell" data-recolhida={recolhida ? '1' : undefined} data-lado={aba.lado}>
       <NavigationRail itens={itens} ativo={session ? null : tab} nomeAtual={ITENS.find((i) => i.id === tab)?.rotulo ?? ''} recolhida={recolhida} onSelecionar={aoSelecionar} onAlternar={alternarRail} lado={aba.lado} posicao={aba.pos} onMover={aba.mover} onReordenar={(id, para) => moverItem(itens.map((i) => i.id), id, para)} icones={aba.icones} />
       <main className="scroll-y" ref={main} inert={celular && !recolhida}>
-        <div key={`${mov.cam.id}-${versao}`} className={`page${!session && tab === 'inicio' ? ' ini' : ''}${!session && tab !== 'inicio' ? ' xl' : ''}${mov.sentido ? ` fc-tela ${mov.sentido}` : ''}`}>{session ? (session.done && !session.review ? <Resultado /> : <Questao />) : <View key={reinicio} />}</div>
+        <div key={`${mov.cam.id}-${versao}`} className={`page${saindo ? ' saindo' : ''}${!session && tab === 'inicio' ? ' ini' : ''}${!session && tab !== 'inicio' ? ' xl' : ''}${mov.sentido ? ` fc-tela ${mov.sentido}` : ''}`}>{session ? (session.done && !session.review ? <Resultado /> : <Questao />) : <View key={reinicio} />}</div>
       </main>
       {session && !(session.done && !session.review) && <PainelAlca />}{/* só na tela da questão (o painel dela é o único redimensionável) */}
       <div className="slot" ref={setSlot} />

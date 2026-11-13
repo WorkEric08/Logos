@@ -13,8 +13,10 @@ describe('movimento do app (CSS)', () => {
   it('a área de rolagem corta o eixo x: a tela que desliza (translateX) não gera rolagem lateral no meio da animação', () => {
     expect(css).toMatch(/\.scroll-y\{[^}]*overflow-x:hidden/)
   })
-  it('nada anima para sempre (só entradas e saídas): nenhuma animação "infinite"', () => {
-    expect(css).not.toMatch(/animation[^;}]*infinite/)
+  it('nada anima para sempre (só entradas e saídas); as únicas que repetem são indicadores de "algo está acontecendo" (digitando… e lendo), e somem com "reduzir movimento"', () => {
+    const infinitas = [...css.matchAll(/animation:([^;}]*infinite[^;}]*)/g)].map((m) => m[1])
+    for (const a of infinitas) expect(a, a).toMatch(/as-ponto|as-brilho/)
+    expect(css).toContain('@media (prefers-reduced-motion:reduce){.as-brilho i::after,.as-esqueleto i::after,.as-digitando i{animation:none}}')
   })
   it('as telas deslizam com os mesmos nomes dos Cards (avanca/recua/troca) e a cascata cobre os grupos principais', () => {
     for (const k of ['fc-avanca', 'fc-recua', 'fc-troca', 'fc-entra', 'fc-pop', 'fc-barra-y', 'fc-anel']) expect(css, k).toContain(`@keyframes ${k}`)
