@@ -14,10 +14,19 @@ import { prepararSincronizacao } from '../services/sync/preparar'
 import { baseDe, resposta, simulado, zerar } from '../core/sync/eventos'
 import { apagarEventoNaNuvem } from '../services/sync/ponte'
 
-export const BANK = bank.q as unknown as Question[]
-export const BASES = bank.bases as Record<string, string>
-export const BY_ID = Object.fromEntries(BANK.map((q) => [q.id, q])) as Record<string, Question>
-export const TF = themeFrequency(BANK)
+// As questões que o app mostra são as do ESPAÇO ATIVO. São "let" de propósito: trocar de espaço reatribui (definirBanco) e quem importa vê o valor novo.
+// Começam com o Banco do Brasil, o espaço embutido.
+export const BB_BANK = bank.q as unknown as Question[]
+export const BB_BASES = bank.bases as Record<string, string>
+export let BANK = BB_BANK
+export let BASES = BB_BASES
+export let BY_ID = Object.fromEntries(BANK.map((q) => [q.id, q])) as Record<string, Question>
+export let TF = themeFrequency(BANK)
+export function definirBanco(questoes: Question[], bases: Record<string, string>) {
+  BANK = questoes; BASES = bases
+  BY_ID = Object.fromEntries(questoes.map((q) => [q.id, q])) as Record<string, Question>
+  TF = themeFrequency(questoes)
+}
 export const ID_MAP = idMap as unknown as MapaIds
 
 export type Tab = 'inicio' | 'treinar' | 'cartoes' | 'desempenho' | 'mais'
@@ -33,6 +42,8 @@ export interface ToastMsg { id: number; text: string; action?: { label: string; 
 
 interface State {
   ready: boolean; prog: ProgressMap; tema: string; hist: Hist; marks: Marks
+  /** Sobe a cada troca de espaço de estudo: as telas recomeçam lendo as questões e as matérias do espaço novo. */
+  versao: number
   tab: Tab; filters: Filters; session: Session | null; toast: ToastMsg | null; saida: Saida | null
   /** Sobe a cada toque num ícone da barra: a tela daquele ícone recomeça do início (sub-telas fechadas, rolagem no topo). */
   reinicio: number
@@ -44,6 +55,8 @@ interface State {
   startByWeight: () => void
   startSimulado: () => void
   startErrors: () => void
+  /** Começa uma sessão com estas questões (ex.: simulado de uma matéria montado pelo assistente). */
+  startCustom: (ids: string[], sim: boolean) => void
   leave: () => void
   /** Tocar num ícone da barra: vai para a aba e a mostra desde o início (mesmo já estando nela). Simulado em andamento pergunta antes. */
   irPara: (t: Tab) => void
@@ -95,7 +108,7 @@ export const useApp = create<State>((set, get) => {
     try { aparelho = await prepararSincronizacao(prog, hist) } catch (e) { aparelho = ''; console.warn('[sync] não preparou a sincronização; o app segue sem ela', e) }
   }
   return {
-    ready: false, prog: {}, tema: 'auto', hist: HIST_VAZIO, marks: {}, tab: 'inicio', filters: DEFAULT_FILTERS, session: null, toast: null, saida: null, reinicio: 0,
+    ready: false, versao: 0, prog: {}, tema: 'auto', hist: HIST_VAZIO, marks: {}, tab: 'inicio', filters: DEFAULT_FILTERS, session: null, toast: null, saida: null, reinicio: 0,
     load: async () => {
       const { prog, tema, hist = HIST_VAZIO, marks = {} } = await loadAll()
       // Banco novo: os ids antigos (ex.: 2018-6) passam para os novos. Antes de gravar, guarda uma cópia do progresso antigo.
@@ -143,6 +156,7 @@ export const useApp = create<State>((set, get) => {
         pick(BANK.filter((q) => q.m === m), n, TF, prog).sort((a, b) => a.y - b.y || a.n - b.n).map((q) => q.id))
       begin(ids, true)
     },
+    startCustom: (ids, sim) => begin(ids, sim),
     startErrors: () => begin(shuffle(BANK.filter((q) => get().prog[q.id]?.ok === false)).slice(0, 20).map((q) => q.id)),
     leave: () => set({ session: null, tab: 'inicio', saida: null }),
     irPara: (t) => {

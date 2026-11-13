@@ -1,10 +1,17 @@
 import Dexie, { type Table } from 'dexie'
-import type { Progress, ProgressMap } from '../core/types'
+import type { Progress, ProgressMap, Question, Subject } from '../core/types'
+import type { Banco, RegrasSimulado } from '../core/espaco'
 import { limparHist, limparMarks, type Hist, type Marks } from '../core/historico'
 import { limparCards, type Ajustes, type Baralho, type Cartao, type DadosCards } from '../core/cards'
 import { chaveBaralho, chaveCartao, chaveMarca, CHAVE_AJUSTES, CHAVE_HIST_CARDS, maisNovo, tipoDe, type ItemNuvem, type Sinc } from '../core/sync/nuvem'
 import { derivar, tempoDe, type EvBase, type EvResposta, type EvSimulado, type EvZerar, type Evento } from '../core/sync/eventos'
 
+/** Espaço de estudo criado pela pessoa (as questões ficam na tabela `questoes`, ligadas por `e`). */
+export interface EspacoRow { id: string; nome: string; criado: number; fontes: Record<string, string>; bases: Record<string, string>; materias: Subject[]; extras: Subject[]; bancos: Banco[]; simulado: RegrasSimulado | null
+  /** Começa com as questões do Banco do Brasil embutidas no app (e as suas próprias somam). */
+  usaBB?: boolean }
+type QuestaoRow = Question & { e: string }
+interface ImagemRow { id: string; e: string; blob: Blob }
 interface Row extends Progress { id: string }
 interface Meta { key: string; value: string }
 /** Evento de sincronização como fica no banco: o `t` (quando aconteceu) vai na linha para o índice [dev+t] (o simulado guarda o seu em `sim.t`). */
@@ -19,6 +26,9 @@ class TreinoDb extends Dexie {
   cards!: Table<Cartao, string>
   eventos!: Table<Linha, string>
   sinc!: Table<Sinc, string>
+  espacos!: Table<EspacoRow, string>
+  questoes!: Table<QuestaoRow, string>
+  imagens!: Table<ImagemRow, string>
   constructor() {
     super('treino-bb')
     this.version(1).stores({ prog: 'id', meta: 'key' })
@@ -29,6 +39,9 @@ class TreinoDb extends Dexie {
     // v4 (conta Google): só ACRESCENTA a tabela `sinc` (quando e por qual aparelho cada cartão, baralho, marcação e ajuste mudou, e as lápides de exclusão).
     // Os dados continuam nas tabelas de sempre; `sinc` só diz o que precisa subir ou descer.
     this.version(4).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]', sinc: 'id' })
+    // v5 (espaços de estudo): só ACRESCENTA as tabelas dos espaços criados pela pessoa (o do Banco do Brasil vem embutido no app e não mora aqui),
+    // das questões importadas (índice por espaço) e das imagens recortadas dos PDFs.
+    this.version(5).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]', sinc: 'id', espacos: 'id', questoes: 'id, e', imagens: 'id, e' })
   }
 }
 const db = new TreinoDb()
@@ -235,3 +248,26 @@ export async function aplicarEventos(novos: readonly Evento[], removidos: readon
 /** A conta (uid) a que este aparelho está ligado: depois da primeira vez, outra conta não entra (misturaria dados de pessoas diferentes). */
 export const lerUidSync = async () => (await db.meta.get('sync:uid'))?.value ?? null
 export const gravarUidSync = (uid: string) => db.meta.put({ key: 'sync:uid', value: uid })
+
+// ---------- espaços de estudo (importados pela pessoa) ----------
+export const lerEspacoAtivoId = async () => (await db.meta.get('espaco:ativo'))?.value ?? null
+export const gravarEspacoAtivoId = (id: string) => db.meta.put({ key: 'espaco:ativo', value: id })
+/** Lista os espaços criados pela pessoa, com a quantidade de questões de cada um. */
+export async function listarEspacos(): Promise<(EspacoRow & { n: number })[]> {
+  const linhas = await db.espacos.toArray()
+  return Promise.all(linhas.map(async (r) => ({ ...r, n: await db.questoes.where('e').equals(r.id).count() })))
+}
+export async function lerEspaco(id: string): Promise<{ row: EspacoRow; questoes: Question[] } | null> {
+  const row = await db.espacos.get(id)
+  if (!row) return null
+  const q = await db.questoes.where('e').equals(id).toArray()
+  return { row, questoes: q.map(({ e, ...resto }) => { void e; return resto as Question }) }
+}
+/** Grava o espaço e as questões dele numa transação só (se falhar, nada fica pela metade). */
+export const salvarEspaco = (row: EspacoRow, questoes: Question[]) =>
+  db.transaction('rw', db.espacos, db.questoes, async () => { await db.espacos.put(row); await db.questoes.bulkPut(questoes.map((q) => ({ ...q, e: row.id }))) })
+/** Apaga o espaço, as questões e as imagens dele. O progresso das questões fica (ids por conteúdo: voltar a importar o mesmo arquivo recupera). */
+export const apagarEspaco = (id: string) =>
+  db.transaction('rw', db.espacos, db.questoes, db.imagens, async () => { await db.questoes.where('e').equals(id).delete(); await db.imagens.where('e').equals(id).delete(); await db.espacos.delete(id) })
+export const gravarImagem = (id: string, e: string, blob: Blob) => db.imagens.put({ id, e, blob })
+export const lerImagem = async (id: string): Promise<Blob | null> => (await db.imagens.get(id))?.blob ?? null

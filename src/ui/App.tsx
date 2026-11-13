@@ -22,6 +22,8 @@ import { ConfirmarSaida } from './ConfirmarSaida'
 import { PainelAlca } from './PainelAlca'
 import { reiniciarProvas } from './Provas'
 import { iniciarContaSeJaEntrou } from '../services/sync/conta'
+import { useEspacos } from '../store/espacos'
+import { Assistente } from './Assistente'
 
 const ITENS: ItemRail<Tab>[] = [
   { id: 'inicio', rotulo: 'Início', icone: 'home' }, { id: 'treinar', rotulo: 'Treinar', icone: 'train' }, { id: 'cartoes', rotulo: 'Cards', icone: 'cards' },
@@ -30,7 +32,7 @@ const ITENS: ItemRail<Tab>[] = [
 const VIEWS = { inicio: Inicio, treinar: Treinar, cartoes: Cartoes, desempenho: Desempenho, mais: Mais }
 
 export function App() {
-  const { ready, tab, session, saida, reinicio, load, irPara, sair } = useApp()
+  const { ready, tab, session, saida, reinicio, versao, load, irPara, sair } = useApp()
   const main = useRef<HTMLElement>(null)
   const [recolhida, alternarRail] = useRailRecolhida()
   const celular = useCelular()
@@ -40,7 +42,10 @@ export function App() {
   const [slot, setSlot] = useState<HTMLElement | null>(null)
   // abertura animada de 2 s; a única chave de teste é localStorage.treino_skip_splash = '1'
   const [abertura, setAbertura] = useState(() => { try { return localStorage.getItem('treino_skip_splash') !== '1' } catch { return true } })
-  useEffect(() => { void load(); void useCards.getState().load(); askPersist(); iniciarContaSeJaEntrou() }, [load])
+  useEffect(() => {
+    // primeiro o espaço de estudo ativo (as questões e matérias que as telas leem), depois o progresso
+    void useEspacos.getState().iniciar().then(() => load()); void useCards.getState().load(); askPersist(); iniciarContaSeJaEntrou()
+  }, [load])
   useEffect(() => (ehNativo() ? bindNativeBack : bindBack)({
     goHome: () => { if (useApp.getState().tab === 'inicio') return false; useApp.getState().setTab('inicio'); return true },
     askExit: () => useApp.getState().showToast(AVISOS.voltarParaSair),
@@ -73,11 +78,12 @@ export function App() {
     <div className="shell" data-recolhida={recolhida ? '1' : undefined} data-lado={aba.lado}>
       <NavigationRail itens={itens} ativo={session ? null : tab} nomeAtual={ITENS.find((i) => i.id === tab)?.rotulo ?? ''} recolhida={recolhida} onSelecionar={aoSelecionar} onAlternar={alternarRail} lado={aba.lado} posicao={aba.pos} onMover={aba.mover} onReordenar={(id, para) => moverItem(itens.map((i) => i.id), id, para)} icones={aba.icones} />
       <main className="scroll-y" ref={main} inert={celular && !recolhida}>
-        <div key={mov.cam.id} className={`page${!session && tab === 'inicio' ? ' ini' : ''}${!session && tab !== 'inicio' ? ' xl' : ''}${mov.sentido ? ` fc-tela ${mov.sentido}` : ''}`}>{session ? (session.done && !session.review ? <Resultado /> : <Questao />) : <View key={reinicio} />}</div>
+        <div key={`${mov.cam.id}-${versao}`} className={`page${!session && tab === 'inicio' ? ' ini' : ''}${!session && tab !== 'inicio' ? ' xl' : ''}${mov.sentido ? ` fc-tela ${mov.sentido}` : ''}`}>{session ? (session.done && !session.review ? <Resultado /> : <Questao />) : <View key={reinicio} />}</div>
       </main>
       {session && !(session.done && !session.review) && <PainelAlca />}{/* só na tela da questão (o painel dela é o único redimensionável) */}
       <div className="slot" ref={setSlot} />
       <Toast />
+      <Assistente />
       {saida && <ConfirmarSaida />}
     </div>
     </SlotCtx>

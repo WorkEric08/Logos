@@ -15,7 +15,7 @@ const FOTO = () => {
     const k = `${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]}#${n++}`
     f[k] = [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height), getComputedStyle(e).display === 'none' ? 'none' : '']
   }
-  const rolagem = document.querySelector('.scroll-y')
+  const rolagem = (document.querySelector('.assist .scroll-y') ?? document.querySelector('.scroll-y'))
   return { f, rolou: Math.round(rolagem?.scrollTop ?? 0), janela: Math.round(scrollY), vv: Math.round(visualViewport?.offsetTop ?? 0), alt: innerHeight, marca: document.documentElement.className }
 }
 
@@ -100,7 +100,7 @@ const mudaramDe = () => {
 /** Simula o teclado aberto no campo que `focar` foca e confere a regra. Devolve { violacoes: [...], detalhes }. */
 export async function regraTeclado(p, { kb, focar, h }) {
   const violacoes = []
-  const rolo = () => p.evaluate(() => { const s = document.querySelector('.scroll-y'); return { st: Math.round(s.scrollTop), max: Math.round(s.scrollHeight - s.clientHeight) } })
+  const rolo = () => p.evaluate(() => { const s = (document.querySelector('.assist .scroll-y') ?? document.querySelector('.scroll-y')); return { st: Math.round(s.scrollTop), max: Math.round(s.scrollHeight - s.clientHeight) } })
   await p.waitForTimeout(900) // deixa assentar as animações de entrada da tela e o recolher da barra de navegação
   await p.evaluate(`(${fotografarBotoes.toString()})()`)
   const sem = await rolo()
@@ -120,13 +120,13 @@ export async function regraTeclado(p, { kb, focar, h }) {
     const preciso = Math.max(0, campo.b - (h - kb) + 8)
     if (preciso > com.max + 1) violacoes.push(`o campo não dá para alcançar rolando (precisa ${Math.round(preciso)} px, a página só rola ${com.max})`)
     else {
-      await p.evaluate((y) => { document.querySelector('.scroll-y').scrollTop = y }, com.st + preciso); await p.waitForTimeout(150)
+      await p.evaluate((y) => { (document.querySelector('.assist .scroll-y') ?? document.querySelector('.scroll-y')).scrollTop = y }, com.st + preciso); await p.waitForTimeout(150)
       const c2 = await p.evaluate(() => { const r = document.activeElement.getBoundingClientRect(); return { t: r.top, b: r.bottom } })
       if (c2.b > h - kb + 1 || c2.t < -1) violacoes.push(`depois de rolar o campo não ficou todo acima do teclado (${Math.round(c2.t)}–${Math.round(c2.b)}, teclado a partir de ${h - kb})`)
     }
   }
   // fechou o teclado: tudo volta ao lugar
-  await p.evaluate((y) => { document.querySelector('.scroll-y').scrollTop = y; document.documentElement.style.setProperty('--teclado', '0px') }, sem.st); await p.waitForTimeout(300) // volta à rolagem de antes
+  await p.evaluate((y) => { (document.querySelector('.assist .scroll-y') ?? document.querySelector('.scroll-y')).scrollTop = y; document.documentElement.style.setProperty('--teclado', '0px') }, sem.st); await p.waitForTimeout(300) // volta à rolagem de antes
   const voltaram = await p.evaluate(`(${mudaramDe.toString()})()`)
   for (const m of voltaram) violacoes.push(`com o teclado fechado o botão “${m.botao}” não voltou ao lugar (${m.antes} → ${m.depois})`)
   return { violacoes, botoes: await p.evaluate(() => window.__botoes.size) }

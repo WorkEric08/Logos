@@ -14,9 +14,6 @@ import { useBackLayer } from './useBackLayer'
 const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`
 const pct = (a: number, b: number) => (b ? Math.round((100 * a) / b) : 0)
 
-const PROVAS = descreverProvas(SOURCES)
-const POR_PROVA: Record<string, Question[]> = {}
-for (const q of BANK) (POR_PROVA[q.s] ??= []).push(q)
 
 interface Nav { banco: string | null; cargo: Cargo | null }
 const INICIO: Nav = { banco: null, cargo: null }
@@ -37,9 +34,12 @@ export function Provas({ aoAbrir }: { aoAbrir: (s: string) => void }) {
   // o voltar sobe um nível por vez (cada nível é uma camada leve; o voltar remove a de cima da pilha, por isso uma por nível)
   useBackLayer(nav.banco !== null && nav.cargo === null, () => ir({ banco: null }), true)
   useBackLayer(nav.cargo !== null, () => ir({ cargo: null }), true)
+  const versao = useApp((s) => s.versao) // troca de espaço de estudo: as provas e as questões são outras
+  const PROVAS = useMemo(() => descreverProvas(SOURCES), [versao])
+  const POR_PROVA = useMemo(() => { const m: Record<string, Question[]> = {}; for (const q of BANK) (m[q.s] ??= []).push(q); return m }, [versao])
   const todas = useMemo<ProvaComDados[]>(
     () => PROVAS.map((p) => { const l = POR_PROVA[p.s] ?? []; return { ...p, n: l.length, vistas: totals(l, prog).seen } }),
-    [prog],
+    [prog, PROVAS, POR_PROVA],
   )
   // descer de nível (banco → cargo → provas) entra pela direita, subir pela esquerda; a 1ª pintura e voltar à tela não animam
   const nivel = nav.banco ? (nav.cargo ? 2 : 1) : 0

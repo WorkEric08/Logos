@@ -1,5 +1,21 @@
 {
   "_leia": "Todo campo de texto (input/textarea) do app, por arquivo. Campo novo = acrescentar aqui E um cenário em scripts/e2e-teclado.mjs (regra do teclado: nenhum botão acima do teclado). src/teclado-campos.test.ts confere a contagem.",
-  "src/ui/Cards.tsx": ["#nb", "#rn", "#bq", "#cf", "#cv"],
-  "src/ui/Question.tsx": ["anotação"]
+  "src/ui/Cards.tsx": [
+    "#nb",
+    "#rn",
+    "#bq",
+    "#cf",
+    "#cv"
+  ],
+  "src/ui/Question.tsx": [
+    "anotação"
+  ],
+  "src/ui/Assistente.tsx": [
+    "#as-espaco",
+    "#as-prova",
+    "#as-baralho"
+  ],
+  "src/ui/AssistenteIA.tsx": [
+    "#as-chave"
+  ]
 }

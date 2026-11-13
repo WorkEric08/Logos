@@ -7,13 +7,17 @@ export const CARGOS: Record<Cargo, string> = { ac: 'Agente Comercial', ti: 'TI' 
 export const ORDENS: Record<OrdemProvas, string> = { novas: 'Mais novas', antigas: 'Mais antigas', 'menos-vistas': 'Menos vistas' }
 
 /** Bancos na ordem em que aparecem. Um banco que não estiver aqui entra no fim, com o nome em maiúsculas. */
-export const BANCOS: { id: string; nome: string }[] = [
+export const BANCOS_BB: { id: string; nome: string }[] = [
   { id: 'bb', nome: 'Banco do Brasil' },
   { id: 'caixa', nome: 'Caixa' },
   { id: 'bnb', nome: 'BNB' },
   { id: 'bancodaamazonia', nome: 'Banco da Amazônia' },
   { id: 'banese', nome: 'Banese' },
 ]
+
+/** Os bancos do espaço ativo (começa com os do BB; store/espacos.ts troca ao mudar de espaço). */
+export let BANCOS: { id: string; nome: string }[] = BANCOS_BB
+export const definirBancos = (b: { id: string; nome: string }[]) => { BANCOS = b }
 
 export interface InfoProva {
   /** Chave da prova (a mesma de SOURCES e de Question.s). */

@@ -11,6 +11,7 @@ import { join } from 'node:path'
 import { irPara, novoContexto } from './_ctx.mjs'
 import { cartao, conjuntoPadrao, idBaralho, semearCards } from './_cards-seed.mjs'
 import { PERFIS_TECLADO, regraTeclado } from './_teclado.mjs'
+import { TEXTO_RESUMO, pdfGabarito, pdfProva } from './_pdf-prova.mjs'
 
 const { chromium } = createRequire(join(process.cwd(), 'package.json'))('playwright')
 const base = process.argv[2] ?? 'http://localhost:4173/'
@@ -18,6 +19,8 @@ const out = []
 const ok = (n, c, x = '') => out.push(`${c ? 'OK      ' : 'FALHOU  '} ${n}${x ? ' — ' + x : ''}`)
 const b = await chromium.launch({ channel: 'chrome' })
 const erros = []
+const PROVA = await pdfProva(b), GAB = await pdfGabarito(b)
+const abrirAssistente = async (p) => { await irPara(p, 'Início'); await p.locator('.tile', { hasText: 'Assistente' }).click(); await p.waitForSelector('.assist') }
 const foco = (p, sel) => () => p.locator(sel).evaluate((e) => e.focus({ preventScroll: true }))
 
 // Cada cenário leva o app até a tela do campo e devolve a função que o foca. `semDados`: banco de cartões vazio.
@@ -31,6 +34,10 @@ const CENARIOS = [
   { campo: '#cf', rotulo: 'Editor · editar cartão · Frente', ir: async (p) => { await abrirBaralho(p); await p.locator('.fcedit').first().click(); await p.waitForSelector('#cf'); await p.waitForTimeout(350) }, focar: (p) => foco(p, '#cf') },
   { campo: 'anotação', rotulo: 'Treinar · Anotação da questão', ir: async (p) => { await irPara(p, 'Treinar'); await p.click('text=Começar'); await p.waitForSelector('.sheet'); await p.locator('.alt').first().click(); await p.locator('.nota summary').click(); await p.waitForSelector('.nota textarea') }, focar: (p) => foco(p, '.nota textarea') },
   { campo: 'anotação', rotulo: 'Simulado · Anotação da questão', ir: async (p) => { await p.locator('.tile', { hasText: 'Simulado de 70' }).click(); await p.waitForSelector('.sheet'); await p.locator('.nota summary').click(); await p.waitForSelector('.nota textarea') }, focar: (p) => foco(p, '.nota textarea') },
+  { campo: '#as-espaco', rotulo: 'Assistente · Nome do espaço', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-acao-btn[data-acao="espaco"]').click(); await p.locator('.btn', { hasText: 'Novo espaço' }).click(); await p.waitForSelector('#as-espaco') }, focar: (p) => foco(p, '#as-espaco') },
+  { campo: '#as-chave', rotulo: 'Assistente · Chave da IA', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-acao-btn[data-acao="ia"]').click(); await p.waitForSelector('#as-chave') }, focar: (p) => foco(p, '#as-chave') },
+  { campo: '#as-baralho', rotulo: 'Assistente · Nome do baralho (prévia dos cartões)', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-acao-btn[data-acao="cartoes"]').click(); await p.setInputFiles('#as-f-resumo', { name: 'resumo.md', mimeType: 'text/markdown', buffer: Buffer.from(TEXTO_RESUMO) }); await p.waitForSelector('#as-baralho') }, focar: (p) => foco(p, '#as-baralho') },
+  { campo: '#as-prova', rotulo: 'Assistente · Nome da prova (prévia da prova)', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-acao-btn[data-acao="prova"]').click(); await p.fill('#as-espaco', 'Teclado'); await p.locator('.btn', { hasText: 'Criar vazio' }).click(); await p.setInputFiles('#as-f-prova', { name: 'prova.pdf', mimeType: 'application/pdf', buffer: PROVA }); await p.setInputFiles('#as-f-gab', { name: 'gab.pdf', mimeType: 'application/pdf', buffer: GAB }); await p.locator('.btn.pri', { hasText: 'Ler a prova' }).click(); await p.waitForSelector('#as-prova', { timeout: 60000 }) }, focar: (p) => foco(p, '#as-prova') },
 ]
 async function abrirBaralho(p) { await irPara(p, 'Cards'); await p.waitForSelector('.deck'); await p.locator('.deck', { hasText: 'Siglas do Sistema' }).locator('.deck-abrir').evaluate((e) => e.click()); await p.waitForSelector('.fcacoes') }
 

@@ -3,7 +3,8 @@ import { sentidoDaQuestao } from '../core/movimento'
 import { createPortal } from 'react-dom'
 import { ALL_SUBJECTS, SOURCES, SUBJECT } from '../core/subjects'
 import { AVISOS } from '../core/avisos'
-import { scoreSimulado } from '../core/scoring'
+import { REGRAS, scoreSimulado } from '../core/scoring'
+import { useUrlImagem } from './useUrlImagem'
 import { formatarDuracao } from '../core/cronometro'
 import { BASES, BY_ID, useApp } from '../store/app'
 import { useCards } from '../store/cards'
@@ -35,12 +36,14 @@ function Ampliador({ src, titulo, onFechar }: { src: string; titulo: string; onF
 
 /** Imagem original da questão; toque abre em tamanho real (no navegador, outra aba; no APK, a tela cheia acima). */
 function ImagemQuestao({ q }: { q: Question }) {
-  const src = `q/${q.img}`
+  const url = useUrlImagem(q.img!)
+  const src = url ?? ''
   const [falhou, setFalhou] = useState(false)
   const [ampliada, setAmpliada] = useState(false)
   useEffect(() => setFalhou(false), [src])
+  if (url === null) return <div className="warnbox" role="status">Abrindo a imagem da questão…</div> // recorte guardado no aparelho (questão importada)
   // Sem rede e sem a imagem guardada (ainda não vista): mensagem clara em vez de imagem quebrada.
-  if (falhou) {
+  if (falhou || url === '') {
     return (
       <div className="warnbox" role="status">
         Não consegui carregar a imagem desta questão. Sem internet, ela só abre se já tiver sido vista antes neste aparelho: conecte-se uma vez para guardá-la.
@@ -200,7 +203,15 @@ export function Resultado() {
       <div className="split">
         <div className="col">
           <Top title={s.sim ? 'Resultado do simulado' : 'Resultado'} sub={`${ok} de ${L.length} certas`} />
-          {s.sim && L.length === 70 && (
+          {s.sim && !REGRAS && L.length > 0 && (
+            <div className="scorecard">
+              <span className="lb">Seu resultado</span>
+              <div className="score">{ok}<span className="muted big"> / {L.length} certas</span></div>
+              {s.dur !== undefined && <p className="tempo">Tempo gasto: <b>{formatarDuracao(s.dur)}</b></p>}
+              <p className="note">{r.approved ? 'Metade ou mais certa.' : 'Menos da metade certa.'} Este espaço não tem regras de edital: a nota é só a contagem de acertos.</p>
+            </div>
+          )}
+          {s.sim && REGRAS && L.length === REGRAS.plano.reduce((a, [, n]) => a + n, 0) && (
             <div className="scorecard">
               <span className="lb">Sua nota</span>
               <div className="score">{f1(r.points)}<span className="muted big"> / 100 pontos</span></div>
