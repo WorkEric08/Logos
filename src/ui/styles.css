@@ -815,23 +815,21 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 /* "reduzir movimento" do aparelho: nada desliza, cresce ou espera: o atraso das cascatas também some (senão os itens ficariam invisíveis até o atraso acabar) */
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-delay:0s!important}}
 
-/* ───────── Assistente (chat com ações fixas): tela cheia sobre o app ───────── */
-.assist{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;background:var(--bg);color:var(--ink)}
-.assist-barra{flex:none;display:flex;align-items:center;gap:12px;padding:calc(var(--sat,0px) + 8px) 14px 8px;border-bottom:1px solid var(--line)}
-.assist-barra h2{margin:0;flex:1;font:600 18px/1.2 var(--f-ui)}
-.assist-esp{max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
-.assist-corpo{padding-top:12px}
-.assist-col{max-width:760px;margin:0 auto;padding:0 16px}
-.as-chat{display:flex;flex-direction:column}
-.as-msg{margin:0 0 8px;padding:10px 12px;border-radius:10px;max-width:92%;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
-.as-msg.a{background:var(--card);border:1px solid var(--line);align-self:flex-start}
-.as-msg.v{background:var(--accent);color:var(--accent-ink);align-self:flex-end}
-.as-acoes{display:grid;gap:10px;margin:12px 0}
-.as-acao-btn{display:flex;flex-direction:column;gap:4px;width:100%;min-height:56px;padding:14px;text-align:left;border:1px solid var(--line-strong);background:var(--card);border-radius:var(--r);color:var(--ink)}
-.as-acao-btn b{font-size:16px}
-.as-acao-btn span{font-size:13.5px;color:var(--muted);line-height:1.4}
-.as-det summary{min-height:36px;display:flex;align-items:center;font-size:13px;color:var(--muted);cursor:pointer}
-.as-det p{margin:6px 0;font-size:13.5px;line-height:1.5}
+/* ───────── Assistente: um chat (aba própria). Balões, sugestões em pílulas e, dentro da conversa, o que o assistente pede ───────── */
+.chat-tela{display:flex;flex-direction:column;gap:14px;max-width:760px;padding-bottom:8px}
+.as-chat{display:flex;flex-direction:column;gap:10px}
+.as-linha{display:flex;align-items:flex-end;gap:8px}
+.as-linha.v{justify-content:flex-end}
+.as-avatar{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink)}
+.as-msg{margin:0;padding:10px 14px;border-radius:18px;max-width:min(86%,560px);font-size:15px;line-height:1.45;overflow-wrap:anywhere;white-space:pre-line}
+.as-msg.a{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+.as-msg.v{background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:6px}
+.as-corpo{display:flex;flex-direction:column;gap:12px}
+.as-sug-lista{display:flex;flex-wrap:wrap;gap:8px;padding-left:36px}
+.as-pilula{min-height:44px;padding:8px 16px;border-radius:999px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);font:500 14.5px/1.2 var(--f-ui);text-align:left}
+.as-pilula.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.as-pilula:active{transform:scale(.98)}
+@media (hover:hover){.as-pilula:not(.pri):hover{background:var(--hi)}.as-pilula.pri:hover{opacity:.88}}
 .as-painel{margin:12px 0}
 .as-painel .lb{display:block;font:500 11.5px/1.3 var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
 .as-painel .lb:first-child{margin-top:0}

@@ -58,7 +58,7 @@ const centro = (p, sel) => p.locator(sel).first().evaluate((e) => { const r = e.
   ok('aberta: o conteúdo ganha desfoque (camada acima dele e abaixo da barra) e fica inacessível', camada.veu.vis === 'visible' && camada.veu.op === '1' && /blur\(/.test(camada.veu.blur) && camada.noBarra && camada.noVeu && camada.mainInert && camada.exp === 'true', JSON.stringify(camada.veu))
   const rotulos = await p.locator('.rail-item .rail-lb').allInnerTexts()
   const btns = await p.locator('.rail-item').evaluateAll((es) => es.map((e) => { const i = e.querySelector('.rail-ico').getBoundingClientRect(), r = e.getBoundingClientRect(); return { ico: [Math.round(i.width), Math.round(i.height)], w: Math.round(r.width), h: Math.round(r.height) } }))
-  ok('5 destinos (Início, Treinar, Cards, Desempenho, Mais) com botões quadrados de 52 px e alvo ≥ 44 px', rotulos.join() === 'Início,Treinar,Cards,Desempenho,Mais' && btns.every((x) => x.ico[0] === 52 && x.ico[1] === 52 && x.w >= 44 && x.h >= 44), rotulos.join())
+  ok('6 destinos (Início, Treinar, Cards, Assistente, Desempenho, Mais) com botões quadrados de 52 px e alvo ≥ 44 px', rotulos.join() === 'Início,Treinar,Cards,Assistente,Desempenho,Mais' && btns.every((x) => x.ico[0] === 52 && x.ico[1] === 52 && x.w >= 44 && x.h >= 44), rotulos.join())
   const cortes = await p.locator('.rail-lb').evaluateAll((es) => es.map((e) => { const r = e.getBoundingClientRect(), n = e.closest('.nav').getBoundingClientRect(); return e.scrollWidth <= e.clientWidth + 1 && r.left >= n.left - 0.5 && r.right <= n.right + 0.5 }))
   ok('nenhum rótulo cortado (inclui "Desempenho")', cortes.every(Boolean))
   const cor = await p.evaluate(() => { const e = document.querySelector('.rail-item[aria-current="page"] .rail-ico'); return { bg: getComputedStyle(e).backgroundColor, ponto: getComputedStyle(e.closest('.rail-item'), '::after').content, atual: e.closest('.rail-item').innerText.trim() } })
@@ -183,7 +183,7 @@ const centro = (p, sel) => p.locator(sel).first().evaluate((e) => { const r = e.
   const ty = (i) => p.locator('.rail-item').nth(i).evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).m42)
   const toque = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] })
   const abre = async () => { await p.click('.rail-alca'); await espera(p) }
-  const PADRAO = 'inicio,treinar,cartoes,desempenho,mais'
+  const PADRAO = 'inicio,treinar,cartoes,assistente,desempenho,mais'
   await abre()
   ok('ordem padrão dos ícones', (await ordem()) === PADRAO && (await guardada()) === null, await ordem())
   const r0 = await rect(p, '.rail-item >> nth=0'), r1 = await rect(p, '.rail-item >> nth=1'), passo = r1.y - r0.y
@@ -198,10 +198,10 @@ const centro = (p, sel) => p.locator(sel).first().evaluate((e) => { const r = e.
   ok('enquanto passa por cima, o ícone segue o dedo e os dois ícones cruzados sobem um lugar', Math.abs(dy - 2.2 * passo) < 3 && Math.abs(t1 + passo) < 2 && Math.abs(t2 + passo) < 2 && Math.abs(t3) < 1, JSON.stringify({ passo, dy, t1, t2, t3 }))
   ok('durante o arrasto a ordem do DOM ainda não mudou', (await ordem()) === PADRAO)
   await toque('touchEnd'); await p.waitForTimeout(500)
-  ok('ao soltar o ícone fica no lugar escolhido (3ª posição)', (await ordem()) === 'treinar,cartoes,inicio,desempenho,mais', await ordem())
+  ok('ao soltar o ícone fica no lugar escolhido (3ª posição)', (await ordem()) === 'treinar,cartoes,inicio,assistente,desempenho,mais', await ordem())
   const sobra = await p.evaluate(() => [...document.querySelectorAll('.rail-item')].map((e) => e.style.transform).filter(Boolean))
   ok('…sem transformações sobrando e sem trocar de tela nem fechar a barra', sobra.length === 0 && (await aberta(p)) && (await p.locator('h1').innerText()) === 'Início', JSON.stringify(sobra))
-  ok('a ordem fica guardada', (await guardada()) === '["treinar","cartoes","inicio","desempenho","mais"]', await guardada())
+  ok('a ordem fica guardada', (await guardada()) === '["treinar","cartoes","inicio","assistente","desempenho","mais"]', await guardada())
 
   // um toque rápido continua escolhendo a tela; arrastar depressa para o lado continua fechando
   await p.click('.rail-item >> text=Cards'); await espera(p)
@@ -211,35 +211,35 @@ const centro = (p, sel) => p.locator(sel).first().evaluate((e) => { const r = e.
   await toque('touchStart', cc.x, cc.y)
   for (let i = 1; i <= 6; i++) await toque('touchMove', cc.x - 14 * i, cc.y)
   await toque('touchEnd'); await espera(p)
-  ok('arrastar depressa para o lado a partir de um ícone fecha a barra e não reordena', (await emRepouso(p)) && (await ordem()) === 'treinar,cartoes,inicio,desempenho,mais')
+  ok('arrastar depressa para o lado a partir de um ícone fecha a barra e não reordena', (await emRepouso(p)) && (await ordem()) === 'treinar,cartoes,inicio,assistente,desempenho,mais')
 
   // arrastar o último para o topo
   await abre()
-  const cu = await centro(p, '.rail-item >> nth=4')
+  const cu = await centro(p, '.rail-item >> nth=5')
   await toque('touchStart', cu.x, cu.y); await p.waitForTimeout(520)
   for (let i = 1; i <= 8; i++) await toque('touchMove', cu.x, cu.y - (9 * passo * i) / 8) // além do topo: não sai da lista
   await p.waitForTimeout(300)
-  ok('o ícone arrastado não sai da lista (para no topo)', Math.abs((await ty(4)) + 4 * passo) < 2, String(await ty(4)))
+  ok('o ícone arrastado não sai da lista (para no topo)', Math.abs((await ty(5)) + 5 * passo) < 2, String(await ty(5)))
   await toque('touchEnd'); await p.waitForTimeout(500)
-  ok('último ícone levado ao topo', (await ordem()) === 'mais,treinar,cartoes,inicio,desempenho', await ordem())
+  ok('último ícone levado ao topo', (await ordem()) === 'mais,treinar,cartoes,inicio,assistente,desempenho', await ordem())
 
   // largura e teclado
   const w = await p.locator('.nav.rail').evaluate((e) => e.getBoundingClientRect().width)
   ok('a barra aberta tem 76 px (antes 64)', Math.abs(w - 76) <= 1, String(w))
   await p.locator('.rail-item >> nth=0').focus(); await p.keyboard.press('Alt+ArrowDown'); await p.waitForTimeout(100)
-  ok('teclado: Alt+↓ no ícone o desce um lugar e o foco continua nele', (await ordem()) === 'treinar,mais,cartoes,inicio,desempenho' && (await p.evaluate(() => document.activeElement?.dataset.id)) === 'mais', await ordem())
-  ok('o leitor de tela é avisado da nova posição', /Mais movido para a posição 2 de 5/.test(await p.locator('[role=status]').innerText()))
+  ok('teclado: Alt+↓ no ícone o desce um lugar e o foco continua nele', (await ordem()) === 'treinar,mais,cartoes,inicio,assistente,desempenho' && (await p.evaluate(() => document.activeElement?.dataset.id)) === 'mais', await ordem())
+  ok('o leitor de tela é avisado da nova posição', /Mais movido para a posição 2 de 6/.test(await p.locator('[role=status]').innerText()))
   await p.keyboard.press('Escape'); await espera(p)
 
   // lembra depois de recarregar
   await abrir(p); await abre()
-  ok('depois de recarregar a ordem continua a escolhida', (await ordem()) === 'treinar,mais,cartoes,inicio,desempenho', await ordem())
+  ok('depois de recarregar a ordem continua a escolhida', (await ordem()) === 'treinar,mais,cartoes,inicio,assistente,desempenho', await ordem())
   // Esc durante o arrasto cancela
   const ce = await centro(p, '.rail-item >> nth=3')
   await toque('touchStart', ce.x, ce.y); await p.waitForTimeout(520)
   for (let i = 1; i <= 4; i++) await toque('touchMove', ce.x, ce.y - passo * i / 2)
   await p.keyboard.press('Escape'); await toque('touchEnd'); await p.waitForTimeout(400)
-  ok('Esc no meio do arrasto cancela: a ordem não muda', (await ordem()) === 'treinar,mais,cartoes,inicio,desempenho' && (await p.locator('.rail-item[data-arrastando]').count()) === 0, await ordem())
+  ok('Esc no meio do arrasto cancela: a ordem não muda', (await ordem()) === 'treinar,mais,cartoes,inicio,assistente,desempenho' && (await p.locator('.rail-item[data-arrastando]').count()) === 0, await ordem())
   await p.keyboard.press('Escape'); await espera(p)
   await irPara(p, 'Mais')
   ok('Mais: não existe mais a seção "Ordem dos ícones da barra" nem a de backup', (await p.locator('h3', { hasText: 'Ordem dos ícones' }).count()) === 0 && (await p.locator('h3', { hasText: 'Backup' }).count()) === 0 && (await p.locator('h3', { hasText: 'Aba da barra de navegação' }).count()) === 1)
@@ -259,11 +259,11 @@ const centro = (p, sel) => p.locator(sel).first().evaluate((e) => { const r = e.
   await irPara(p, 'Mais'); await p.click('[aria-label="Onde ficam os ícones na barra"] >> text=Embaixo'); await abre(); const fBaixo = await folgas()
   ok('"Embaixo": os ícones ficam colados no pé da barra', fBaixo.baixo < 40 && fBaixo.cima > 200 && (await iconesGuardado()) === 'baixo', JSON.stringify(fBaixo))
   // arrastar um ícone continua funcionando com os ícones embaixo
-  const ib = await rect(p, '.rail-item >> nth=4'), ib3 = await rect(p, '.rail-item >> nth=3'), passoB = ib.y - ib3.y, cb = await centro(p, '.rail-item >> nth=4')
+  const ib = await rect(p, '.rail-item >> nth=5'), ib3 = await rect(p, '.rail-item >> nth=4'), passoB = ib.y - ib3.y, cb = await centro(p, '.rail-item >> nth=5')
   await toque('touchStart', cb.x, cb.y); await p.waitForTimeout(520)
   for (let i = 1; i <= 8; i++) await toque('touchMove', cb.x, cb.y - (1.2 * passoB * i) / 8)
   await toque('touchEnd'); await p.waitForTimeout(500)
-  ok('com os ícones embaixo, segurar e arrastar ainda reordena', (await ordem()) === 'inicio,treinar,cartoes,mais,desempenho', await ordem())
+  ok('com os ícones embaixo, segurar e arrastar ainda reordena', (await ordem()) === 'inicio,treinar,cartoes,assistente,mais,desempenho', await ordem())
   await abrir(p); await abre()
   ok('depois de recarregar, os ícones seguem embaixo', (await folgas()).baixo < 40)
   await irPara(p, 'Mais'); await p.click('.card >> text=Voltar ao padrão'); await abre(); const fPad = await folgas()

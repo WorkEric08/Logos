@@ -1,7 +1,7 @@
 import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
-export type IconName = 'home' | 'train' | 'chart' | 'sliders' | 'check' | 'x' | 'doc' | 'back' | 'clock' | 'repeat' | 'flag' | 'note' | 'cards' | 'trash' | 'plus' | 'forward' | 'trash' | 'plus' | 'forward'
+export type IconName = 'home' | 'train' | 'chart' | 'sliders' | 'check' | 'x' | 'doc' | 'back' | 'clock' | 'repeat' | 'flag' | 'note' | 'cards' | 'trash' | 'plus' | 'forward' | 'chat'
 
 const PATHS: Record<IconName, string> = {
   home: 'M3.5 11 12 3.8 20.5 11M5.5 9.5V20h5v-5.5h3V20h5V9.5',
@@ -19,6 +19,7 @@ const PATHS: Record<IconName, string> = {
   trash: 'M4 7h16M9.5 7V4.5h5V7M6.5 7l.9 12.5h9.2L17.5 7M10 11v5M14 11v5',
   plus: 'M12 5v14M5 12h14',
   forward: 'M9 5l7 7-7 7',
+  chat: 'M5.5 4.5h13A1.5 1.5 0 0 1 20 6v9a1.5 1.5 0 0 1-1.5 1.5H11L7 20v-3.5H5.5A1.5 1.5 0 0 1 4 15V6a1.5 1.5 0 0 1 1.5-1.5zM8 9h8M8 12h5',
   repeat: 'M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4',
 }
 

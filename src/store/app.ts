@@ -29,7 +29,7 @@ export function definirBanco(questoes: Question[], bases: Record<string, string>
 }
 export const ID_MAP = idMap as unknown as MapaIds
 
-export type Tab = 'inicio' | 'treinar' | 'cartoes' | 'desempenho' | 'mais'
+export type Tab = 'inicio' | 'treinar' | 'cartoes' | 'assistente' | 'desempenho' | 'mais'
 export interface Session {
   ids: string[]; i: number; ans: Record<string, Letter>
   sim: boolean; done: boolean; review: boolean; counted: boolean

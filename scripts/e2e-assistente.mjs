@@ -32,13 +32,18 @@ await p.route('https://api.anthropic.com/**', async (route) => {
 })
 
 await p.goto(base); await p.waitForSelector('.folders')
-const abrir = async () => { await irPara(p, 'Início'); await p.locator('.tile', { hasText: 'Assistente' }).click(); await p.waitForSelector('.assist') }
-const acao = (id) => p.locator(`.as-acao-btn[data-acao="${id}"]`).click()
+const abrir = async () => { await irPara(p, 'Assistente'); await p.waitForSelector('.chat-tela') }
+const acao = (id) => p.locator(`.as-pilula[data-acao="${id}"]`).click()
+const espacoAtivo = () => p.locator('.top small').innerText()
 const msgs = () => p.locator('.as-msg').allInnerTexts()
 
 // 1. abre, mostra as ações documentadas
 await abrir()
-ok('o assistente abre sobre o app e lista as 6 ações, cada uma com "o que preciso e o que não consigo"', (await p.locator('.as-acao-btn').count()) === 6 && (await p.locator('.as-det').count()) === 6)
+ok('o assistente é uma aba própria (ícone na barra), sem card no Início', (await p.locator('.tile', { hasText: 'Assistente' }).count()) === 0 && (await p.locator('.chat-tela').count()) === 1)
+ok('abre como um chat: balão de boas-vindas do assistente e 7 sugestões em pílulas', (await p.locator('.as-linha.a .as-msg').count()) >= 1 && (await p.locator('.as-pilula').count()) === 7, `${await p.locator('.as-pilula').count()} pílulas`)
+await acao('ajuda')
+ok('"O que você sabe fazer?" responde em balão listando as ações', (await msgs()).some((t) => /Importar uma prova em PDF/.test(t) && /Criar cartões/.test(t)))
+ok('tocar numa sugestão mostra a fala da pessoa em um balão à direita', (await p.locator('.as-linha.v .as-msg').count()) >= 1)
 await acao('resumo')
 ok('"Ver o que já tenho" responde com os números do espaço do BB', (await msgs()).some((t) => /1168 questões/.test(t)), (await msgs()).slice(-1)[0])
 
@@ -49,7 +54,7 @@ ok('com o espaço do BB ativo, importar pede para criar um espaço seu', true)
 await p.fill('#as-espaco', 'Teste e2e')
 await p.locator('.btn', { hasText: 'Criar vazio' }).click()
 await p.waitForSelector('#as-f-prova', { state: 'attached' })
-ok('espaço criado e o assistente segue para escolher os PDFs', (await p.locator('.assist-esp').innerText()) === 'Teste e2e')
+ok('espaço criado e o assistente segue para escolher os PDFs', (await espacoAtivo()).includes('Teste e2e'))
 
 // 3. ler a prova
 await p.setInputFiles('#as-f-prova', { name: 'BB_2021_Escriturario_prova.pdf', mimeType: 'application/pdf', buffer: prova })
@@ -70,14 +75,14 @@ ok('todas as 8 prontas para entrar', /8 de 8 prontas/.test(prontas), prontas)
 
 // 4. IA opcional (API simulada): ligar, testar e reler a questão 5
 ok('sem chave, o botão "Reler com IA" não aparece', (await p.locator('.btn', { hasText: 'Reler com IA' }).count()) === 0)
-await p.locator('.assist-barra .btn', { hasText: 'Menu' }).click()
+await p.locator('.foot .btn', { hasText: 'Cancelar' }).click()
 await acao('ia')
 await p.fill('#as-chave', 'sk-ant-api03-chave-de-teste-0123456789')
 await p.locator('.btn', { hasText: 'Testar e salvar' }).click()
 await p.waitForSelector('text=Chave válida e salva')
 ok('a chave é testada (sem gastar) e guardada só neste aparelho', (await p.evaluate(() => localStorage.getItem('logos_ia_chave'))) === 'sk-ant-api03-chave-de-teste-0123456789')
-// o menu/voltar perdeu a prévia (fechar o fluxo): importa de novo para testar a IA
-await p.locator('.assist-barra .btn', { hasText: 'Menu' }).click()
+// cancelar a prévia perdeu a leitura: importa de novo para testar a IA
+await p.locator('.foot .btn', { hasText: 'Voltar' }).click()
 await acao('prova')
 await p.setInputFiles('#as-f-prova', { name: 'BB_2021_Escriturario_prova.pdf', mimeType: 'application/pdf', buffer: prova })
 await p.setInputFiles('#as-f-gab', { name: 'BB_2021_Escriturario_gabarito.pdf', mimeType: 'application/pdf', buffer: gab })
@@ -92,11 +97,11 @@ ok('aceitar a sugestão marca a questão como revisada por IA', (await p.locator
 
 // 5. adicionar
 await p.locator('.foot .btn.pri', { hasText: /^Adicionar/ }).click()
-await p.waitForSelector('.btn.pri:has-text("Treinar agora")', { timeout: 60000 })
+await p.waitForSelector('.as-pilula[data-sug="treinar"]', { timeout: 60000 })
 const ms = await msgs()
 ok('as 8 questões entraram no espaço', ms.some((t) => /8 questões entraram/.test(t)), ms.slice(-1)[0])
-await p.locator('.btn.pri', { hasText: 'Treinar agora' }).click()
-await p.waitForSelector('.assist', { state: 'detached' })
+await p.locator('.as-pilula[data-sug="treinar"]').click()
+await p.waitForSelector('.chat-tela', { state: 'detached' })
 await esperarMovimento(p)
 
 // 6. o app mostra só o espaço novo
@@ -117,36 +122,34 @@ await p.evaluate(() => history.back()).catch(() => {})
 
 // 7. reabrir o app: o espaço ativo continua; trocar para o BB e voltar
 await p.goto(base); await p.waitForSelector('.folders')
-await irPara(p, 'Mais')
-const espaco = await p.locator('[data-testid=espaco-ativo]').innerText()
+await abrir()
+const espaco = await espacoAtivo()
 ok('depois de recarregar, o espaço ativo continua o mesmo', /Teste e2e/.test(espaco), espaco)
-await p.locator('.btn', { hasText: 'Abrir o assistente' }).click()
 await acao('espaco')
 await p.waitForSelector('.as-esp')
 await p.locator('.as-esp .chip', { hasText: 'Banco do Brasil' }).click()
 await p.waitForTimeout(300)
-ok('trocar para o Banco do Brasil restaura as 1168 questões', (await p.locator('.assist-esp').innerText()).includes('Banco do Brasil'))
-await p.locator('.assist-barra .btn', { hasText: /Menu|Fechar/ }).click()
-await p.locator('.assist-barra .btn', { hasText: 'Fechar' }).click().catch(() => {})
-await p.waitForSelector('.assist', { state: 'detached' })
+ok('trocar para o Banco do Brasil mostra o espaço no topo do chat', (await espacoAtivo()).includes('Banco do Brasil'))
 await irPara(p, 'Início'); await p.waitForSelector('.folders')
 ok('Início do BB: 1168 questões', /de 1168 questões vistas/.test(await p.locator('.stats').innerText()))
 
 // 8. importar de novo no espaço de teste não duplica
-await abrir(); await acao('espaco'); await p.waitForSelector('.as-esp')
+await abrir()
+if (!(await p.locator('.as-pilula[data-acao="espaco"]').count())) await p.locator('.foot .btn', { hasText: 'Voltar' }).click() // a conversa ficou onde estava (lista de espaços)
+await acao('espaco'); await p.waitForSelector('.as-esp')
 await p.locator('.as-esp .chip', { hasText: 'Teste e2e' }).click()
-await p.locator('.assist-barra .btn', { hasText: 'Menu' }).click()
+await p.locator('.foot .btn', { hasText: 'Voltar' }).click()
 await acao('prova')
 await p.setInputFiles('#as-f-prova', { name: 'BB_2021_Escriturario_prova.pdf', mimeType: 'application/pdf', buffer: prova })
 await p.setInputFiles('#as-f-gab', { name: 'BB_2021_Escriturario_gabarito.pdf', mimeType: 'application/pdf', buffer: gab })
 await p.locator('.btn.pri', { hasText: 'Ler a prova' }).click()
 await p.waitForSelector('.as-qs', { timeout: 60000 })
 await p.locator('.foot .btn.pri', { hasText: /^Adicionar/ }).click()
-await p.waitForSelector('.btn.pri:has-text("Treinar agora")', { timeout: 60000 })
+await p.waitForSelector('.as-pilula[data-sug="treinar"]', { timeout: 60000 })
 ok('importar o mesmo arquivo de novo não duplica (8 já estavam)', (await msgs()).some((t) => /8 já estavam/.test(t)), (await msgs()).slice(-1)[0])
 
 // 9. cartões do resumo
-await p.locator('.btn', { hasText: 'Mais opções' }).click()
+await p.locator('.as-pilula[data-sug="mais"]').click()
 await acao('cartoes')
 await p.setInputFiles('#as-f-resumo', { name: 'resumo juros.md', mimeType: 'text/markdown', buffer: Buffer.from(TEXTO_RESUMO) })
 await p.waitForSelector('.as-qs', { timeout: 30000 })
@@ -154,8 +157,8 @@ const cartoes = await p.locator('.as-q').count()
 ok('o resumo gera cartões (definições, pergunta/resposta, lacuna, título)', cartoes >= 5, `${cartoes} cartões`)
 ok('o nome do baralho vem do arquivo', (await p.inputValue('#as-baralho')) === 'resumo juros')
 await p.locator('.foot .btn.pri', { hasText: 'Criar o baralho' }).click()
-await p.waitForSelector('.btn.pri:has-text("Ver os cartões")')
-await p.locator('.btn.pri', { hasText: 'Ver os cartões' }).click()
+await p.waitForSelector('.as-pilula[data-sug="cartoes"]')
+await p.locator('.as-pilula[data-sug="cartoes"]').click()
 await p.waitForSelector('.deck')
 ok('o baralho aparece na aba Cards', (await p.locator('.deck', { hasText: 'resumo juros' }).count()) === 1)
 

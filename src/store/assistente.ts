@@ -1,10 +1,10 @@
 // O chat com ações fixas (core/assistente.ts): estado da conversa e o fluxo de cada ação. Sem IA: quem lê os arquivos são as regras de core/importar.
-// A conversa fica só na memória (fechar o assistente a esquece); o que importa de verdade vai para o espaço de estudo e para os baralhos.
+// A conversa fica só na memória (recarregar o app a esquece; trocar de aba não); o que importa de verdade vai para o espaço de estudo e para os baralhos.
 import { create } from 'zustand'
 import { sugerirCartoes, type Sugestoes } from '../core/importar/cartoes'
 import { montarQuestoes, type MetaProva } from '../core/importar/montar'
 import type { QuestaoLida } from '../core/importar/prova'
-import { acaoPorId, type IdAcao } from '../core/assistente'
+import { ACOES, acaoPorId, type IdAcao } from '../core/assistente'
 import { aplicarSugestao, type Sugestao } from '../core/importar/ia'
 import { REGRAS } from '../core/scoring'
 import { ALL_SUBJECTS, SOURCE_KEYS } from '../core/subjects'
@@ -31,7 +31,6 @@ export interface Previa {
 export interface PreviaCartoes { sug: Sugestoes; escolhidos: number[]; nome: string; arquivo: string; avisos: string[] }
 
 interface State {
-  aberto: boolean
   etapa: Etapa
   mensagens: Msg[]
   ocupado: boolean
@@ -44,8 +43,10 @@ interface State {
   /** Sugestões da IA (opcional) ainda não aceitas, por número de questão; e a questão que está sendo relida. */
   sugestoes: Record<number, Sugestao>
   relendo: number | null
-  abrir: () => void
-  fechar: () => void
+  /** Primeira vez na aba: o assistente se apresenta. */
+  iniciarConversa: () => void
+  /** "O que você sabe fazer?": a lista das ações, em balão. */
+  ajuda: () => void
   voltarAoInicio: () => void
   escolher: (id: IdAcao) => void
   criarEspaco: (nome: string, usaBB: boolean) => Promise<void>
@@ -86,16 +87,19 @@ export const useAssistente = create<State>((set, get) => {
   }
 
   return {
-    aberto: false, etapa: 'inicio', mensagens: [], ocupado: false, progresso: null, depois: null, previa: null, cartoes: null, resultado: null, sugestoes: {}, relendo: null,
-    abrir: () => {
-      if (!get().mensagens.length) set({ mensagens: [m('a', 'Oi! Eu monto o seu espaço de estudo a partir dos seus arquivos. Escolha o que quer fazer; tudo é lido aqui no seu aparelho.')] })
-      set({ aberto: true })
+    etapa: 'inicio', mensagens: [], ocupado: false, progresso: null, depois: null, previa: null, cartoes: null, resultado: null, sugestoes: {}, relendo: null,
+    iniciarConversa: () => {
+      if (get().mensagens.length) return
+      set({ mensagens: [m('a', 'Oi! Eu sou o assistente do Logos. Monto o seu espaço de estudo a partir dos seus arquivos: provas em PDF, gabaritos e resumos. Tudo é lido aqui no seu aparelho. Por onde quer começar?')] })
     },
-    fechar: () => { set({ aberto: false }); inicio() },
+    ajuda: () => {
+      voce('O que você sabe fazer?')
+      diz(['Eu sei fazer isto, tudo aqui no seu aparelho:', ...ACOES.map((a) => `• ${a.rotulo}: ${a.resumo}`), 'Toque numa sugestão abaixo para começar.'].join('\n'))
+    },
     voltarAoInicio: () => inicio(),
     escolher: (id) => {
       const a = acaoPorId(id)
-      voce(a.rotulo)
+      voce(a.sugestao)
       if (id === 'resumo') {
         const n = BANK.length, mats = ALL_SUBJECTS.filter((x) => BANK.some((q) => q.m === x.n)).length, provas = SOURCE_KEYS.length
         diz(`O espaço "${useEspacos.getState().lista.find((x) => x.id === useEspacos.getState().ativo)?.nome ?? ''}" tem ${plural(n, 'questão', 'questões')}, ${plural(mats, 'matéria', 'matérias')} e ${plural(provas, 'prova', 'provas')}.`)
@@ -226,7 +230,7 @@ export const useAssistente = create<State>((set, get) => {
     },
     iniciarSimulado: (materia, n) => {
       const { prog, startSimulado, startCustom } = useApp.getState()
-      set({ aberto: false }); inicio()
+      inicio()
       if (materia === null) { startSimulado(); return }
       const pool = BANK.filter((q) => q.m === materia)
       startCustom(pick(pool, Math.min(n, pool.length), TF, prog).map((q) => q.id), true)

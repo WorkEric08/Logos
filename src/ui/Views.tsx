@@ -9,8 +9,6 @@ import { useCards } from '../store/cards'
 import { useAba } from '../store/aba'
 import { useOrdemRail } from '../store/ordemRail'
 import { useConta } from '../services/sync/conta'
-import { useAssistente } from '../store/assistente'
-import { useEspacos } from '../store/espacos'
 import { ICONES, descreverAba, type Icones } from '../core/aba'
 
 import { BANK, TF, useApp } from '../store/app'
@@ -56,7 +54,6 @@ export function Inicio() {
             <button className="tile" onClick={startByWeight}><Icon n="train" /><b>Treino rápido</b><span>10 questões, mais das matérias que mais caem</span></button>
             <button className="tile" onClick={() => setTab('cartoes')}><Icon n="cards" /><b>Cards de hoje</b><span>{CC.total === 0 ? 'Crie seu primeiro baralho' : CC.hoje ? `${CC.hoje} para estudar` : 'Tudo em dia hoje'}</span></button>
             <button className="tile" onClick={startSimulado}><Icon n="clock" /><b>Simulado de {SIMULADO_PLAN.reduce((a, [, n]) => a + n, 0)}</b><span>{REGRAS ? 'Prova completa, com nota e regras do edital' : 'Questões de todas as matérias, na proporção do espaço'}</span></button>
-            <button className="tile" onClick={useAssistente.getState().abrir}><Icon n="note" /><b>Assistente</b><span>Monte seu espaço: importe provas e resumos em PDF</span></button>
             <button className="tile" onClick={startErrors} disabled={!T.wrong}><Icon n="repeat" /><b>Rever erros ({T.wrong})</b><span>{T.wrong ? 'Só o que você errou por último' : 'Nenhum erro ainda'}</span></button>
           </div>
           <Provas aoAbrir={abrirProva} />
@@ -90,7 +87,6 @@ export function Inicio() {
               <button className="act" onClick={startSimulado}><span className="actic"><Icon n="clock" size={18} /></span>Simulado</button>
               <button className="act" onClick={startErrors} disabled={!T.wrong}><span className="actic"><Icon n="repeat" size={18} /></span>Erros</button>
               <button className="act" onClick={() => setTab('cartoes')}><span className="actic"><Icon n="cards" size={18} /></span>Cards</button>
-              <button className="act" onClick={useAssistente.getState().abrir}><span className="actic"><Icon n="note" size={18} /></span>Assistente</button>
             </div>
             <Hr />
           </div>
@@ -329,7 +325,6 @@ export function Mais() {
   const tema = useApp((s) => s.tema)
   const { setTema, resetAll } = useApp.getState()
   const [ask, setAsk] = useState(false)
-  const espacoNome = useEspacos((s) => s.lista.find((e) => e.id === s.ativo)?.nome ?? '')
   return (
     <>
       <div className="split edge tr">
@@ -337,11 +332,6 @@ export function Mais() {
           <Top title="Mais" sub="conta, aparência, barra de navegação e sobre o banco" />
           <div className="mgrid">
             <Conta />
-            <div className="card"><h3>Assistente de estudo</h3>
-              <p className="note">Importe provas e resumos em PDF e crie seus próprios espaços de estudo. É lido aqui no aparelho, sem IA (a IA é opcional).</p>
-              <p className="note" data-testid="espaco-ativo">Espaço ativo: <b>{espacoNome}</b></p>
-              <div className="row" style={{ marginTop: 10 }}><button className="btn pri" onClick={useAssistente.getState().abrir}>Abrir o assistente</button></div>
-            </div>
             <div className="card"><h3>Aparência</h3>
               <div className="seg" role="group" aria-label="Tema">
                 {[['auto', 'Do aparelho'], ['light', 'Claro'], ['dark', 'Escuro']].map(([v, l]) =>

@@ -74,7 +74,7 @@ export const useEspacos = create<State>((set, get) => {
     aplicarEspaco(e)
     set({ ativo: e.id })
     // as telas recomeçam: filtros, sessão e aba do espaço anterior não valem no novo
-    useApp.setState((s) => ({ versao: s.versao + 1, filters: DEFAULT_FILTERS, session: null, saida: null, tab: 'inicio' }))
+    useApp.setState((s) => ({ versao: s.versao + 1, filters: DEFAULT_FILTERS, session: null, saida: null, tab: s.tab === 'assistente' ? s.tab : 'inicio' })) // quem troca de espaço pelo chat continua no chat
   }
   return {
     lista: [{ id: ID_ESPACO_BB, nome: espacoBB().nome, n: BB_BANK.length, embutido: true }], ativo: ID_ESPACO_BB, pronto: false,

@@ -27,9 +27,9 @@ import { Assistente } from './Assistente'
 
 const ITENS: ItemRail<Tab>[] = [
   { id: 'inicio', rotulo: 'Início', icone: 'home' }, { id: 'treinar', rotulo: 'Treinar', icone: 'train' }, { id: 'cartoes', rotulo: 'Cards', icone: 'cards' },
-  { id: 'desempenho', rotulo: 'Desempenho', icone: 'chart' }, { id: 'mais', rotulo: 'Mais', icone: 'sliders' },
+  { id: 'assistente', rotulo: 'Assistente', icone: 'chat' }, { id: 'desempenho', rotulo: 'Desempenho', icone: 'chart' }, { id: 'mais', rotulo: 'Mais', icone: 'sliders' },
 ]
-const VIEWS = { inicio: Inicio, treinar: Treinar, cartoes: Cartoes, desempenho: Desempenho, mais: Mais }
+const VIEWS = { inicio: Inicio, treinar: Treinar, cartoes: Cartoes, assistente: Assistente, desempenho: Desempenho, mais: Mais }
 
 export function App() {
   const { ready, tab, session, saida, reinicio, versao, load, irPara, sair } = useApp()
@@ -83,7 +83,6 @@ export function App() {
       {session && !(session.done && !session.review) && <PainelAlca />}{/* só na tela da questão (o painel dela é o único redimensionável) */}
       <div className="slot" ref={setSlot} />
       <Toast />
-      <Assistente />
       {saida && <ConfirmarSaida />}
     </div>
     </SlotCtx>

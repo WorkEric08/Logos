@@ -24,7 +24,7 @@ const toast = () => p.locator('.toast').innerText().catch(() => '')
 const FRENTES = [['SELIC', 'Taxa básica de juros'], ['CDI', 'Certificado de Depósito Interbancário'], ['IPCA', 'Índice oficial de inflação'], ['PIX', 'Pagamentos instantâneos'], ['COPOM', 'Comitê de Política Monetária'], ['FGC', 'Fundo Garantidor de Créditos'], ['CMN', 'Conselho Monetário Nacional']]
 
 await abrir(); await irCards()
-ok('ícone e aba "Cards" na barra lateral (5 abas, todas com ícone)', (await p.locator('.rail-item').count()) === 5 && (await p.locator('.rail-item svg').count()) === 5)
+ok('ícone e aba "Cards" na barra lateral (6 abas, todas com ícone)', (await p.locator('.rail-item').count()) === 6 && (await p.locator('.rail-item svg').count()) === 6)
 ok('estado vazio: explica o que fazer e oferece criar o 1º baralho', (await p.locator('.fcvazio').innerText()).includes('Nenhum baralho ainda') && (await p.getByRole('button', { name: 'Criar o primeiro baralho' }).count()) === 1)
 ok('sem baralho, "Estudar agora" fica desativado', await p.locator('.side-in button.btn.pri').isDisabled())
 // botão desativado é SÓLIDO em todo o app (sem opacidade nem fundo transparente): no celular, em Cards e no Início
@@ -158,7 +158,7 @@ ok('depois de recarregar tudo segue no lugar', (await p.locator('.deck').count()
 await p.setViewportSize({ width: 390, height: 844 })
 await abrir(); await irCards()
 const sobra = await p.evaluate(() => ({ lat: document.querySelector('.scroll-y').scrollWidth - document.querySelector('.scroll-y').clientWidth, jan: document.documentElement.scrollHeight - innerHeight }))
-ok('celular: 5 abas cabem, sem rolagem lateral nem da janela', (await p.locator('.rail-item').count()) === 5 && sobra.lat <= 0 && sobra.jan <= 0, JSON.stringify(sobra))
+ok('celular: 6 abas cabem, sem rolagem lateral nem da janela', (await p.locator('.rail-item').count()) === 6 && sobra.lat <= 0 && sobra.jan <= 0, JSON.stringify(sobra))
 await p.locator('.deck', { hasText: 'Siglas e órgãos' }).locator('.btn.pri').click(); await p.waitForSelector('.fcface')
 await p.click('text=Mostrar resposta')
 const pe = await p.evaluate(() => { const f = document.querySelector('.fcnotas').getBoundingClientRect(); return Math.round(innerHeight - f.bottom) })

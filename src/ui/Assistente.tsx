@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { ACOES } from '../core/assistente'
 import { REGRAS } from '../core/scoring'
 import { ALL_SUBJECTS } from '../core/subjects'
@@ -9,8 +8,7 @@ import { iaLigada } from '../services/importar/ia'
 import { useAssistente } from '../store/assistente'
 import { useEspacos } from '../store/espacos'
 import { IaPainel } from './AssistenteIA'
-import { Icon } from './bits'
-import { useBackLayer } from './useBackLayer'
+import { Icon, Top } from './bits'
 
 const LETRAS: Letter[] = ['A', 'B', 'C', 'D', 'E']
 const resumo = (t: string, n = 110) => (t.length <= n ? t : t.slice(0, n - 1).trimEnd() + '…')
@@ -27,21 +25,14 @@ function EscolherArquivo({ rotulo, aceita, nome, onArquivo, id, pri }: { rotulo:
   )
 }
 
-function Inicio() {
-  const { escolher } = useAssistente.getState()
+/** Sugestões: pílulas no fim da conversa (como as respostas rápidas de um chat). Tocar numa delas é "dizer" aquilo. */
+function Sugestoes({ extras = [] }: { extras?: { id: string; rotulo: string; run: () => void }[] }) {
+  const { escolher, ajuda } = useAssistente.getState()
   return (
-    <div className="as-acoes" role="list">
-      {ACOES.map((a) => (
-        <div className="as-acao" role="listitem" key={a.id}>
-          <button className="as-acao-btn" onClick={() => escolher(a.id)} data-acao={a.id}>
-            <b>{a.rotulo}</b><span>{a.resumo}</span>
-          </button>
-          <details className="as-det">
-            <summary>O que preciso e o que não consigo</summary>
-            <p><b>Preciso de:</b> {a.precisa}</p><p><b>Gero:</b> {a.gera}</p><p><b>Limites:</b> {a.limites}</p>
-          </details>
-        </div>
-      ))}
+    <div className="as-sug-lista" role="group" aria-label="Sugestões">
+      {extras.map((e) => <button key={e.id} className="as-pilula pri" data-sug={e.id} onClick={e.run}>{e.rotulo}</button>)}
+      {ACOES.map((a) => <button key={a.id} className="as-pilula" data-acao={a.id} onClick={() => escolher(a.id)}>{a.sugestao}</button>)}
+      <button className="as-pilula" data-acao="ajuda" onClick={ajuda}>O que você sabe fazer?</button>
     </div>
   )
 }
@@ -152,14 +143,15 @@ function PreviaProva() {
 }
 
 function Pronto({ treinar }: { treinar: boolean }) {
-  const { voltarAoInicio, escolher, fechar } = useAssistente.getState()
+  const { voltarAoInicio, escolher } = useAssistente.getState()
+  const ir = (t: 'treinar' | 'cartoes') => useApp.getState().setTab(t)
   return (
-    <div className="card as-painel">
-      <div className="foot sticky">
-        <button className="btn" onClick={voltarAoInicio}>Mais opções</button>
-        {treinar ? <button className="btn" onClick={() => escolher('prova')}>Importar outra</button> : null}
-        <button className="btn pri" onClick={() => { fechar(); useApp.getState().setTab(treinar ? 'treinar' : 'cartoes') }}>{treinar ? 'Treinar agora' : 'Ver os cartões'}</button>
-      </div>
+    <div className="as-sug-lista" role="group" aria-label="Sugestões">
+      {treinar
+        ? <button className="as-pilula pri" data-sug="treinar" onClick={() => ir('treinar')}>Treinar agora</button>
+        : <button className="as-pilula pri" data-sug="cartoes" onClick={() => ir('cartoes')}>Ver os cartões</button>}
+      {treinar && <button className="as-pilula" data-sug="outra" onClick={() => escolher('prova')}>Importar outra prova</button>}
+      <button className="as-pilula" data-sug="mais" onClick={voltarAoInicio}>Mais sugestões</button>
     </div>
   )
 }
@@ -260,55 +252,54 @@ function Espacos() {
 
 function Conversa() {
   const msgs = useAssistente((s) => s.mensagens)
-  const fim = useRef<HTMLDivElement>(null)
-  useEffect(() => { fim.current?.scrollIntoView({ block: 'nearest' }) }, [msgs.length])
   return (
-    <div className="as-chat" role="log" aria-live="polite">
-      {msgs.map((x) => <p key={x.id} className={`as-msg ${x.de}`}>{x.texto}</p>)}
-      <div ref={fim} />
+    <div className="as-chat" role="log" aria-live="polite" aria-label="Conversa com o assistente">
+      {msgs.map((x) => (
+        <div key={x.id} className={`as-linha ${x.de}`}>
+          {x.de === 'a' && <span className="as-avatar" aria-hidden="true"><Icon n="chat" size={16} /></span>}
+          <p className={`as-msg ${x.de}`}>{x.texto}</p>
+        </div>
+      ))}
     </div>
   )
 }
 
+/** A aba do Assistente: um chat. O assistente fala em balões; o que ele precisa de você aparece dentro da conversa; as ações vêm como sugestões. */
 export function Assistente() {
-  const aberto = useAssistente((s) => s.aberto)
   const etapa = useAssistente((s) => s.etapa)
-  const s = useAssistente.getState()
-  const resultado = useAssistente((x) => x.resultado)
-  const espaco = useEspacos((x) => x.lista.find((e) => e.id === x.ativo)?.nome ?? '')
-  const topo = useRef<HTMLDivElement>(null)
-  // voltar: dentro de um fluxo volta ao menu do assistente; no menu, fecha o assistente
-  useBackLayer(aberto, () => { const e = useAssistente.getState().etapa; if (e === 'inicio') s.fechar(); else s.voltarAoInicio() })
-  useEffect(() => { if (aberto) topo.current?.scrollIntoView({ block: 'nearest' }) }, [aberto, etapa])
-  if (!aberto) return null
-  return createPortal(
-    <div className="assist" role="dialog" aria-modal="true" aria-label="Assistente">
-      <div className="assist-barra">
-        <button className="btn small-btn" onClick={() => (etapa === 'inicio' ? s.fechar() : s.voltarAoInicio())}><Icon n="back" size={18} />{etapa === 'inicio' ? 'Fechar' : 'Menu'}</button>
-        <h2>Assistente</h2>
-        <span className="assist-esp muted" title={espaco}>{espaco}</span>
-      </div>
-      <div className="scroll-y assist-corpo">
-        <div className="assist-col">
-        <div ref={topo} />
+  const nMsgs = useAssistente((s) => s.mensagens.length)
+  const resultado = useAssistente((s) => s.resultado)
+  const espaco = useEspacos((s) => s.lista.find((e) => e.id === s.ativo)?.nome ?? '')
+  const tela = useRef<HTMLDivElement>(null)
+  useEffect(() => { useAssistente.getState().iniciarConversa() }, [])
+  // a tela mostra a mensagem mais recente do assistente no alto, com o que ele pede logo abaixo (lista longa de prévia começa pelo começo);
+  // depois do reposicionamento da aba, para não ser desfeito
+  useEffect(() => {
+    const id = requestAnimationFrame(() => tela.current?.querySelector('.as-chat > .as-linha:last-child')?.scrollIntoView({ block: 'start' }))
+    return () => cancelAnimationFrame(id)
+  }, [nMsgs, etapa])
+  return (
+    <>
+      <Top title="Assistente" sub={`Espaço: ${espaco}`} />
+      <div className="chat-tela" ref={tela}>
         <Conversa />
-        {etapa === 'inicio' && <Inicio />}
-        {etapa === 'espaco-novo' && <NovoEspaco />}
-        {etapa === 'prova-arquivos' && <ArquivosProva />}
-        {etapa === 'lendo' && <Lendo />}
-        {etapa === 'prova-previa' && <PreviaProva />}
-        {etapa === 'prova-pronta' && <Pronto treinar />}
-        {etapa === 'cartoes-arquivo' && <ArquivoCartoes />}
-        {etapa === 'cartoes-previa' && <PreviaCartoes />}
-        {etapa === 'cartoes-pronto' && <Pronto treinar={false} />}
-        {etapa === 'simulado' && <Simulado />}
-        {etapa === 'espacos' && <Espacos />}
-        {etapa === 'ia' && <IaPainel />}
-        {resultado && <p className="sr-only" role="status">{resultado.texto}</p>}
+        <div className="as-corpo">
+          {etapa === 'inicio' && <Sugestoes />}
+          {etapa === 'espaco-novo' && <NovoEspaco />}
+          {etapa === 'prova-arquivos' && <ArquivosProva />}
+          {etapa === 'lendo' && <Lendo />}
+          {etapa === 'prova-previa' && <PreviaProva />}
+          {etapa === 'prova-pronta' && <Pronto treinar />}
+          {etapa === 'cartoes-arquivo' && <ArquivoCartoes />}
+          {etapa === 'cartoes-previa' && <PreviaCartoes />}
+          {etapa === 'cartoes-pronto' && <Pronto treinar={false} />}
+          {etapa === 'simulado' && <Simulado />}
+          {etapa === 'espacos' && <Espacos />}
+          {etapa === 'ia' && <IaPainel />}
         </div>
+        {resultado && <p className="sr-only" role="status">{resultado.texto}</p>}
       </div>
-    </div>,
-    document.body,
+    </>
   )
 }
 
