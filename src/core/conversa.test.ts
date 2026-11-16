@@ -37,3 +37,14 @@ describe('entender o que a pessoa digitou', () => {
 
   it('"simulado" ganha de "prova" (prova simulada é simulado)', () => { expect(acao('fazer uma prova simulada')).toBe('simulado') })
 })
+
+describe('entender: perguntar ao material e materiais (F1)', () => {
+  it.each([['o que é Copom?', 'copom'], ['o que significa inflação', 'inflacao'], ['onde fala de poupança?', 'poupanca'], ['explique juros compostos', 'juros compostos'], ['procure consignado', 'consignado'], ['me fale sobre a Selic', 'a selic']])('"%s" → perguntar "%s"', (texto, consulta) => {
+    expect(entender(texto)).toEqual({ tipo: 'perguntar', consulta })
+  })
+  it.each([['meus materiais', 'materiais'], ['guardar uma apostila', 'materiais'], ['adicionar material', 'materiais'], ['minhas anotações', 'materiais']])('"%s" → %s', (texto, id) => { expect(acao(texto)).toBe(id) })
+  it('não rouba o que já funcionava: "o que eu já tenho?", "o que você sabe fazer?" e "importar prova"', () => {
+    expect(acao('o que eu já tenho?')).toBe('resumo'); expect(entender('o que você sabe fazer?').tipo).toBe('ajuda'); expect(acao('importar prova')).toBe('prova'); expect(acao('criar cartões')).toBe('cartoes')
+  })
+  it('"o que é" só vale como frase inteira (não dentro de "o que eu…")', () => { expect(entender('o que eu faço agora').tipo).not.toBe('perguntar') })
+})

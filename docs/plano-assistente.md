@@ -1,5 +1,7 @@
 # Plano — próximos passos do Assistente
 
+> **Continuação (2026-11-15):** o plano do agente sem LLM, offline-first, está em `docs/plano-agente-offline.md` e passa a ser o guia das próximas fases.
+
 > **Feito em 2026-11-13:** Parte A (animações do assistente, da entrada à saída, e a saída das telas na troca de aba), caixa de mensagem com comandos escritos (B2, sem o histórico) e o desenho da conversa (`docs/assistente-conversa.md`). **Decididos pelo dono:** nenhuma banca nova (só Cesgranrio), sem OCR por enquanto, sem plano Blaze (portanto sem sincronizar imagens), e ele mesmo testa no celular com mais uma pessoa. O resto deste plano continua valendo como lista do que falta.
 
 Estado de partida (2026-11-13): aba Assistente em formato de chat; leitor de PDF sem IA (99,2 % das questões, 95,4 % das alternativas iguais nas 20 provas Cesgranrio); espaços de estudo; cartões por padrões; "Reler com IA" opcional; tudo só no aparelho. Nada deste plano foi feito ainda.

@@ -82,10 +82,14 @@ export const fontesDasQuestoes = (qs: readonly Question[], fontes: Record<string
 export function idPorConteudo(q: { enunciado: string; alternativas: Partial<Record<string, string>>; origem?: string; numero?: number }): string {
   const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '')
   const texto = `${norm(q.enunciado)}|${['A', 'B', 'C', 'D', 'E'].map((l) => norm(q.alternativas[l] ?? '')).join('|')}`
-  // dois hashes de 32 bits diferentes (FNV-1a e djb2) juntos: ~52 bits, colisão só de propósito
+  return 'u' + hashTexto(texto)
+}
+
+/** Dois hashes de 32 bits diferentes (FNV-1a e djb2) juntos: ~52 bits, colisão só de propósito. Estável: o mesmo texto dá sempre o mesmo resultado. */
+export function hashTexto(texto: string): string {
   let a = 0x811c9dc5, b = 5381
   for (let i = 0; i < texto.length; i++) { const c = texto.charCodeAt(i); a = Math.imul(a ^ c, 0x01000193) >>> 0; b = (Math.imul(b, 33) + c) >>> 0 }
-  return `u${a.toString(36)}${b.toString(36)}`
+  return a.toString(36) + b.toString(36)
 }
 
 /** Junta questões novas às do espaço sem repetir (mesmo id = mesma questão: a nova substitui a velha, mantendo o resto). */

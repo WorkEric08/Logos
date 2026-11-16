@@ -24,6 +24,7 @@ const etapas = [
   ['flashcards: baralhos, cartões, estudo, backup e celular', 'node scripts/e2e-cards.mjs'],
   ['Assistente: importar prova em PDF + gabarito, espaços, cartões, IA opcional (API simulada), comandos escritos', 'node scripts/e2e-assistente.mjs'],
   ['Assistente: movimento da entrada à saída (digitando, pílulas, painéis, erro, sucesso, troca de aba)', 'node scripts/e2e-assistente-movimento.mjs'],
+  ['Assistente: diálogo (pedidos com detalhes, perguntas do que falta, sugestões ao digitar, desfazer, histórico, limpar)', 'node scripts/e2e-assistente-dialogo.mjs'],
   ['REGRA DO TECLADO: nenhum botão acima do teclado, em todos os campos (4 celulares)', 'node scripts/e2e-teclado.mjs'],
   ['Cards: editor (cartão salvo 1,5 s, rolar com teclado, sequências)', 'node scripts/e2e-cards-editor.mjs'],
   ['botão voltar: cada voltar sobe um nível (Cards, provas, simulado, barra)', 'node scripts/e2e-voltar.mjs'],

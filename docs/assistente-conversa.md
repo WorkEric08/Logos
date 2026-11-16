@@ -19,7 +19,7 @@ O desenho da conversa do assistente (aba **Assistente**). O catálogo das açõe
 | Assistente | Balão à esquerda, com avatar (ícone de conversa). Erro: balão avermelhado que treme uma vez. Sucesso: balão verde-claro |
 | Pessoa | Balão à direita, cor de destaque |
 | Sugestões | Pílulas no fim da conversa; as "principais" (por exemplo, as duas opções de uma dúvida) vêm destacadas |
-| Caixa de mensagem | Campo + "Enviar" logo abaixo da última fala (Enter envia). Só aparece nos estados de menu (início e depois de concluir uma tarefa) |
+| Caixa de mensagem | Campo + "Enviar" logo abaixo da última fala (Enter envia). Aparece nos estados de menu (início e depois de concluir uma tarefa) e enquanto o assistente espera uma resposta. As sugestões abaixo dela se filtram enquanto a pessoa digita |
 | O que o assistente pede | Painel dentro da conversa (escolher arquivos, nome do espaço, prévia…), com "Voltar/Cancelar" |
 
 ## O que a pessoa pode escrever (e como é entendido)
@@ -30,17 +30,22 @@ O desenho da conversa do assistente (aba **Assistente**). O catálogo das açõe
 |---|---|
 | Importar prova | "importar prova", "quero importar uma prova em pdf", "adicionar o gabarito" |
 | Criar cartões | "criar cartões", "flashcards do meu resumo", "transformar apostila em cartão" |
-| Simulado | "montar um simulado", "quero um simulado", "prova simulada" |
-| Espaços | "meus espaços", "trocar de espaço", "criar um novo espaço" |
-| O que tenho | "o que eu já tenho?", "quantas questões tenho", "status" |
+| Simulado | "montar um simulado", "quero um simulado", "prova simulada"; com detalhes: "simulado de matemática com 20 questões", "simulado da prova do bb 2021" |
+| Treinar | "quero treinar", "treinar 15 de matemática", "treinar a prova do bb 2021", "fazer questões de informática" |
+| Desfazer | "desfazer", "volta atrás", "foi sem querer" |
+| Limpar a conversa | "limpar conversa", "apagar conversa", "recomeçar" |
+| Espaços | "meus espaços", "trocar de espaço", "criar um novo espaço"; com nome: "trocar para direito penal", "criar espaço Direito Civil" |
+| O que tenho | "o que eu já tenho?", "quantas questões tenho", "status"; com detalhe: "quantas questões de matemática eu tenho?" |
 | IA | "ligar a IA", "colocar a minha chave", "usar o claude" |
+| Perguntar ao material | "o que é Copom?", "onde fala de inflação", "explique juros compostos", "procure consignado" (vira busca nos materiais, questões e cartões) |
+| Materiais | "meus materiais", "guardar uma apostila", "adicionar material" |
 | Ajuda | "ajuda", "o que você sabe fazer?", "como funciona", "menu" |
 | Cancelar | "cancelar", "voltar", "deixa pra lá" |
 | Cumprimento / agradecimento | "oi", "bom dia", "obrigado", "valeu" |
 | Dúvida entre duas ações | "quero cartões da prova" → "Quer criar cartões de um resumo ou importar uma prova em PDF?" |
-| Não entendeu | qualquer outra coisa → convite com exemplos |
+| Não entendeu | texto que não é comando: se for o nome de algo que a pessoa guardou, responde com o que achou (como a busca de uma paleta de comandos); senão, convite com exemplos |
 
-Cobertura: `src/core/conversa.test.ts` (40 casos) e `src/store/assistente.test.ts`; de ponta a ponta em `scripts/e2e-assistente.mjs`.
+Cobertura: `src/core/conversa.test.ts` (52 casos), `src/core/dialogo/corpus.test.ts` (87 frases com detalhes) e `src/store/assistente.test.ts`; de ponta a ponta em `scripts/e2e-assistente.mjs` e `scripts/e2e-assistente-dialogo.mjs`.
 
 ## Ritmo e movimento
 
@@ -65,11 +70,24 @@ Só `transform` e `opacity`. Testado em `scripts/e2e-assistente-movimento.mjs` (
 
 A caixa **não fica presa no pé da tela** (isso a deixaria atrás do teclado). Ela vem logo abaixo da última fala, e a tela mostra a fala mais recente no alto: assim o campo fica acima do teclado sem nada se mexer. A regra do app (nenhum botão aparece acima do teclado; a página não rola ao abrir o teclado) está coberta no cenário `#as-msg` de `scripts/e2e-teclado.mjs`, nos 4 celulares.
 
+## Respostas com achados (F1)
+A resposta de uma pergunta é um balão do assistente **com os achados dentro**: até 3 cartões com o tipo (Material, Questão, Cartão), a fonte e o trecho com a palavra em destaque; entram em cascata (70 ms entre eles). Detalhes e números da busca em `docs/assistente.md`.
+
+## Perguntas do que falta (F2)
+Um pedido incompleto vira uma conversa curta: o assistente **pergunta só o que falta** e mostra as respostas possíveis como pílulas (mais "Cancelar"); a pessoa toca **ou escreve** a resposta ("vinte questões", "o do edital", "português"). Ex.: "Montar um simulado" → "Qual simulado? O do edital (com nota e regras) ou de uma matéria?" → [Simulado do edital, Todas, Vendas, Informática…] → "Quantas questões?" → [10, 20, 30, 40] → "Pronto: simulado de 20 questões de Matemática. Boa prova!" e a prova começa. Resposta que não faz sentido repete a pergunta (sem perder o que já foi dito); outro pedido no meio troca de assunto.
+
+## Sugestões enquanto se digita (F2)
+A partir de 2 letras a lista de pílulas se filtra pelo que foi escrito (a mais parecida primeiro); texto que não é comando vira "Procurar “…” no meu material". Apagar o texto devolve a lista normal.
+
+## Histórico, desfazer e limpar (F2)
+- A conversa **fica guardada no aparelho** (as últimas 300 falas) e volta de uma vez ao reabrir o app; só se apaga com "Limpar a conversa" (pede confirmação; não toca em materiais, questões nem cartões).
+- "Desfazer: …" desfaz **a última coisa** feita pelo assistente (criar espaço, guardar/apagar material, criar cartões). Importar prova não se desfaz.
+
 ## Estados da conversa
 
-`etapa` em `store/assistente.ts`: `inicio` (menu), `espaco-novo`, `prova-arquivos`, `lendo`, `prova-previa`, `prova-pronta`, `cartoes-arquivo`, `cartoes-previa`, `cartoes-pronto`, `simulado`, `espacos`, `ia`. A caixa de mensagem existe em `inicio` e nos `*-pronta`; nos demais o painel tem os seus próprios botões (e "Voltar/Cancelar").
+`etapa` em `store/assistente.ts`: `inicio` (menu), `espaco-novo`, `prova-arquivos`, `lendo`, `prova-previa`, `prova-pronta`, `cartoes-arquivo`, `cartoes-previa`, `cartoes-pronto`, `pergunta` (o assistente espera a resposta de um pedido), `limpar` (confirmação), `espacos`, `materiais`, `material-arquivo`, `material-pronto`, `ia`. A caixa de mensagem existe em `inicio`, `pergunta` e nos `*-pronta`; nos demais o painel tem os seus próprios botões (e "Voltar/Cancelar").
 
 ## Próximos passos da conversa (não feitos)
 - Entender frases com mais de um pedido ("importar a prova e depois criar cartões").
-- Histórico guardado entre aberturas do app (hoje só na memória).
-- Comandos com argumento ("simulado de matemática com 20 questões").
+- Desfazer em mais de um passo e desfazer importação de prova.
+- Lembrar de "o que a pessoa estudou hoje/na semana" (as entidades `hoje`/`semana` já são lidas; o painel do dia é a F6).

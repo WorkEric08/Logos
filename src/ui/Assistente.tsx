@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { ACOES } from '../core/assistente'
-import { REGRAS } from '../core/scoring'
-import { ALL_SUBJECTS } from '../core/subjects'
+import { sugerirDigitando } from '../core/dialogo/digitando'
 import type { Letter } from '../core/types'
-import { BANK, useApp } from '../store/app'
+import type { TrechoDestacado } from '../core/busca/trecho'
+import type { Achado } from '../services/busca/consultar'
+import { useApp } from '../store/app'
 import { iaLigada } from '../services/importar/ia'
 import { useAssistente } from '../store/assistente'
 import { useEspacos } from '../store/espacos'
@@ -26,26 +27,69 @@ function EscolherArquivo({ rotulo, aceita, nome, onArquivo, id, pri }: { rotulo:
   )
 }
 
-/** Sugestões: pílulas no fim da conversa (como as respostas rápidas de um chat). Tocar numa delas é "dizer" aquilo. */
+/** O "Desfazer" (só aparece quando há algo a desfazer) e o "Limpar conversa" (quando a conversa já está longa). */
+const LIMPAR_A_PARTIR_DE = 12
+function pilulasExtras(): ItemPilula[] {
+  const st = useAssistente.getState()
+  return [
+    ...(st.desfazivel ? [{ id: 'desfazer', rotulo: 'Desfazer: ' + st.desfazivel, run: st.desfazer }] : []),
+    ...(st.mensagens.length >= LIMPAR_A_PARTIR_DE ? [{ id: 'limpar', rotulo: 'Limpar a conversa', run: st.pedirLimpar }] : []),
+  ]
+}
+
+/** Sugestões: pílulas no fim da conversa (como as respostas rápidas de um chat). Tocar numa delas é "dizer" aquilo. Enquanto a pessoa digita, a lista se filtra
+ *  (como a paleta de comandos): quem escreve "simu" vê "Montar um simulado"; texto que não é comando oferece "Procurar … no meu material". */
 function Sugestoes() {
-  const { escolher, ajuda } = useAssistente.getState()
+  const { escolher, ajuda, procurar } = useAssistente.getState()
   const desambiguar = useAssistente((s) => s.desambiguar)
+  const rascunho = useAssistente((s) => s.rascunho)
+  useAssistente((s) => s.desfazivel); useAssistente((s) => s.mensagens.length >= LIMPAR_A_PARTIR_DE)
+  const digitando = sugerirDigitando(rascunho, ACOES)
+  if (digitando.length) {
+    return <Pilulas rotuloGrupo="Sugestões para o que você escreveu" itens={digitando.map((d, i) => d.tipo === 'acao'
+      ? { id: 'dg-' + d.id, rotulo: d.rotulo, pri: i === 0, acao: d.id, run: () => escolher(d.id as never) }
+      : { id: 'dg-busca', rotulo: d.rotulo, run: () => procurar(rascunho.trim()) })} />
+  }
   const itens: ItemPilula[] = [
     ...desambiguar.map((id) => ({ id: `d-${id}`, rotulo: ACOES.find((a) => a.id === id)!.sugestao, pri: true, acao: id, run: () => escolher(id) })),
     ...ACOES.filter((a) => !desambiguar.includes(a.id)).map((a) => ({ id: a.id, rotulo: a.sugestao, acao: a.id, run: () => escolher(a.id) })),
     { id: 'ajuda', rotulo: 'O que você sabe fazer?', acao: 'ajuda', run: ajuda },
+    ...pilulasExtras(),
   ]
   return <Pilulas itens={itens} />
+}
+
+/** A pergunta do assistente para completar um pedido ("De qual matéria?"): as opções são sugestões; escrever a resposta também vale. */
+function Pergunta() {
+  const pendente = useAssistente((s) => s.pendente)
+  const { responder, cancelarPergunta } = useAssistente.getState()
+  if (!pendente) return null
+  const itens: ItemPilula[] = [
+    ...pendente.opcoes.map((o, i) => ({ id: 'op-' + String(o.valor), rotulo: o.rotulo, pri: i === 0 && pendente.slot === 'materia' && o.valor === 'edital', run: () => responder(o) })),
+    { id: 'cancelar', rotulo: 'Cancelar', run: cancelarPergunta },
+  ]
+  return <Pilulas itens={itens} rotuloGrupo="Opções" />
+}
+
+/** "Limpar a conversa": confirma antes (apaga só o histórico daqui). */
+function Limpar() {
+  const { limparConversa, voltarAoInicio } = useAssistente.getState()
+  const itens: ItemPilula[] = [
+    { id: 'apagar-conversa', rotulo: 'Apagar a conversa', pri: true, run: () => void limparConversa() },
+    { id: 'manter', rotulo: 'Manter', run: voltarAoInicio },
+  ]
+  return <Pilulas itens={itens} rotuloGrupo="Confirmar" />
 }
 
 /** A caixa de mensagem: escrever um pedido ("importar prova") tem o mesmo efeito de tocar na sugestão. Enter envia. Fica logo abaixo da última fala (nunca presa no
  *  pé da tela), então o teclado do celular só a cobre se a pessoa rolar a conversa: a regra do teclado do app. */
 function Composer() {
-  const enviar = useAssistente((s) => s.enviar)
-  const [txt, setTxt] = useState('')
+  const { enviar, digitar } = useAssistente.getState()
+  const txt = useAssistente((s) => s.rascunho)
+  const pergunta = useAssistente((s) => s.etapa === 'pergunta')
   return (
-    <form className="as-composer" onSubmit={(e) => { e.preventDefault(); if (txt.trim()) { enviar(txt); setTxt('') } }}>
-      <input id="as-msg" className="campo" value={txt} maxLength={200} onChange={(e) => setTxt(e.target.value)} autoComplete="off" enterKeyHint="send" aria-label="Mensagem para o assistente" placeholder={'Escreva um pedido, ex.: "importar prova"'} />
+    <form className="as-composer" onSubmit={(e) => { e.preventDefault(); if (txt.trim()) enviar(txt) }}>
+      <input id="as-msg" className="campo" value={txt} maxLength={200} onChange={(e) => digitar(e.target.value)} autoComplete="off" enterKeyHint="send" aria-label="Mensagem para o assistente" placeholder={pergunta ? 'Escreva a resposta ou toque numa opção' : 'Escreva um pedido, ex.: "simulado de matemática"'} />
       <button type="submit" className="btn pri" disabled={!txt.trim()}>Enviar</button>
     </form>
   )
@@ -170,7 +214,9 @@ function Pronto({ treinar }: { treinar: boolean }) {
     treinar ? { id: 'treinar', rotulo: 'Treinar agora', pri: true, run: () => ir('treinar') } : { id: 'cartoes', rotulo: 'Ver os cartões', pri: true, run: () => ir('cartoes') },
     ...(treinar ? [{ id: 'outra', rotulo: 'Importar outra prova', run: () => escolher('prova') }] : []),
     { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio },
+    ...pilulasExtras().filter((x) => x.id === 'desfazer'),
   ]
+  useAssistente((st) => st.desfazivel)
   return (
     <>
       {resultado?.n !== undefined && (
@@ -182,6 +228,84 @@ function Pronto({ treinar }: { treinar: boolean }) {
       <Pilulas itens={itens} />
     </>
   )
+}
+
+/** Um trecho com as palavras da pergunta em destaque (<mark>), com reticências quando foi cortado. */
+function TextoMarcado({ t }: { t: TrechoDestacado }) {
+  const partes: React.ReactNode[] = []
+  let pos = 0
+  t.destaques.forEach((d, i) => {
+    if (d.inicio > pos) partes.push(t.texto.slice(pos, d.inicio))
+    partes.push(<mark key={i}>{t.texto.slice(d.inicio, d.fim)}</mark>)
+    pos = d.fim
+  })
+  if (pos < t.texto.length) partes.push(t.texto.slice(pos))
+  return <>{t.cortouInicio ? '… ' : ''}{partes}{t.cortouFim ? ' …' : ''}</>
+}
+
+const ROTULO_TIPO = { material: 'Material', questao: 'Questão', cartao: 'Cartão' } as const
+/** Os achados de uma pergunta: cada um com o tipo, a fonte e o trecho com a palavra em destaque. */
+function Achados({ achados }: { achados: Achado[] }) {
+  return (
+    <ul className="as-achados">
+      {achados.map((a, i) => (
+        <li key={i} className="as-achado" style={{ '--i': i } as React.CSSProperties}>
+          <span className="as-achado-fonte"><b>{ROTULO_TIPO[a.tipo]}</b> · {a.fonte}{a.parcial ? ' · parte da pergunta' : ''}</span>
+          <p><TextoMarcado t={a.trecho} /></p>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** "Meus materiais": o que está guardado neste espaço, com apagar em dois toques e o botão de guardar um novo. */
+function Materiais() {
+  const fechar = useFechar()
+  const { materiais } = useAssistente()
+  const [apagando, setApagando] = useState<string | null>(null)
+  const { voltarAoInicio, apagarMaterial } = useAssistente.getState()
+  const data = (t: number) => new Date(t).toLocaleDateString('pt-BR')
+  return (
+    <div className="card as-painel">
+      {materiais.length > 0 && (
+        <ul className="as-esp">
+          {materiais.map((m) => (
+            <li key={m.id} className="as-esp-i as-mat">
+              <span className="as-mat-info"><b>{m.nome}</b><small>{m.trechos} trechos · {Math.round(m.caracteres / 1000)} mil letras · {data(m.criado)}</small></span>
+              {apagando === m.id
+                ? <span className="as-conf"><button className="btn warn small-btn" onClick={() => { setApagando(null); void apagarMaterial(m.id) }}>Apagar mesmo</button><button className="btn small-btn" onClick={() => setApagando(null)}>Não</button></span>
+                : <button className="btn small-btn" aria-label={`Apagar o material ${m.nome}`} onClick={() => setApagando(m.id)}><Icon n="trash" size={16} /></button>}
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="note">Aceita PDF com texto, TXT e MD. O que você guardar fica só neste aparelho e a busca funciona sem internet. Apagar um material não apaga suas questões nem cartões.</p>
+      <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button><button className="btn pri" onClick={() => useAssistente.setState({ etapa: 'material-arquivo' })}>Guardar um material</button></div>
+    </div>
+  )
+}
+
+function ArquivoMaterial() {
+  const fechar = useFechar()
+  const { guardarMaterial, voltarAoInicio } = useAssistente.getState()
+  return (
+    <div className="card as-painel">
+      <EscolherArquivo id="as-f-material" rotulo="Escolher o arquivo do material" aceita="application/pdf,.pdf,.txt,.md,.markdown,text/plain,text/markdown" onArquivo={(f) => void guardarMaterial(f)} pri />
+      <p className="note">Resumos, apostilas, anotações. Depois é só perguntar, por exemplo: "o que é Copom?".</p>
+      <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button></div>
+    </div>
+  )
+}
+
+/** Depois de guardar um material: o próximo passo natural é perguntar. */
+function ProntoMaterial() {
+  const { voltarAoInicio, escolher } = useAssistente.getState()
+  const itens: ItemPilula[] = [
+    { id: 'perguntar', rotulo: 'Perguntar ao meu material', pri: true, run: () => escolher('perguntar') },
+    { id: 'guardar-outro', rotulo: 'Guardar outro material', run: () => useAssistente.setState({ etapa: 'material-arquivo' }) },
+    { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio },
+  ]
+  return <Pilulas itens={itens} />
 }
 
 function ArquivoCartoes() {
@@ -229,36 +353,6 @@ function PreviaCartoes() {
   )
 }
 
-function Simulado() {
-  const fechar = useFechar()
-  const { iniciarSimulado, voltarAoInicio } = useAssistente.getState()
-  const [mat, setMat] = useState<string | null>(null)
-  const [n, setN] = useState(20)
-  const mats = ALL_SUBJECTS.filter((m) => BANK.some((q) => q.m === m.n))
-  if (REGRAS) {
-    return (
-      <div className="card as-painel">
-        <p className="note">Prova do edital, com nota e regras.</p>
-        <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button><button className="btn pri" onClick={() => iniciarSimulado(null, 0)}>Começar o simulado</button></div>
-      </div>
-    )
-  }
-  return (
-    <div className="card as-painel">
-      <div className="lb">Matéria</div>
-      <div className="chips" role="group" aria-label="Matéria do simulado">
-        {mats.map((m) => <button key={m.n} className="chip" aria-pressed={mat === m.n} onClick={() => setMat(m.n)}>{m.s}</button>)}
-        {!mats.length && <p className="note">Este espaço ainda não tem questões. Importe uma prova primeiro.</p>}
-      </div>
-      <div className="lb">Quantidade</div>
-      <div className="chips" role="group" aria-label="Quantidade de questões">
-        {[10, 20, 30, 40].map((v) => <button key={v} className="chip" aria-pressed={n === v} onClick={() => setN(v)}>{v}</button>)}
-      </div>
-      <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button><button className="btn pri" disabled={!mat} onClick={() => mat && iniciarSimulado(mat, n)}>Começar</button></div>
-    </div>
-  )
-}
-
 function Espacos() {
   const fechar = useFechar()
   const { lista, ativo, ativar, apagar } = useEspacos()
@@ -289,7 +383,10 @@ function Conversa({ iniciais, falas }: { iniciais: number; falas: { visiveis: nu
       {msgs.slice(0, falas.visiveis).map((x, i) => (
         <div key={x.id} className={`as-linha ${x.de}${i >= iniciais ? ' entra' : ''}`}>
           {x.de === 'a' && <span className="as-avatar" aria-hidden="true"><Icon n="chat" size={16} /></span>}
-          <p className={`as-msg ${x.de}${x.tipo ? ' ' + x.tipo : ''}`}>{x.texto}</p>
+          <div className="as-balao">
+            <p className={`as-msg ${x.de}${x.tipo ? ' ' + x.tipo : ''}`}>{x.texto}</p>
+            {x.achados && x.achados.length > 0 && <Achados achados={x.achados} />}
+          </div>
         </div>
       ))}
       {falas.digitando && (
@@ -304,12 +401,21 @@ function Conversa({ iniciais, falas }: { iniciais: number; falas: { visiveis: nu
 
 /** A aba do Assistente: um chat. O assistente fala em balões; o que ele precisa de você aparece dentro da conversa; as ações vêm como sugestões. */
 export function Assistente() {
+  const pronta = useAssistente((s) => s.carregada)
+  const epoca = useAssistente((s) => s.epoca)
+  const espaco0 = useEspacos((s) => s.lista.find((e) => e.id === s.ativo)?.nome ?? '')
+  useEffect(() => { void useAssistente.getState().iniciarConversa() }, [])
+  // espera o histórico guardado chegar do aparelho: assim o que já foi dito aparece de uma vez, sem refazer a conversa
+  if (!pronta) return <Top title="Assistente" sub={`Espaço: ${espaco0}`} />
+  return <Chat key={epoca} />
+}
+
+function Chat() {
   const etapa = useAssistente((s) => s.etapa)
   const mensagens = useAssistente((s) => s.mensagens)
   const resultado = useAssistente((s) => s.resultado)
   const espaco = useEspacos((s) => s.lista.find((e) => e.id === s.ativo)?.nome ?? '')
   const tela = useRef<HTMLDivElement>(null)
-  useEffect(() => { useAssistente.getState().iniciarConversa() }, [])
   const iniciais = useRef(useAssistente.getState().vistas).current // as que já estavam mostradas ao entrar na aba não animam de novo
   const falas = useFalas(mensagens, iniciais, (n) => useAssistente.getState().marcarVistas(n))
   // a tela mostra a fala mais recente no alto, com o que o assistente pede logo abaixo (lista longa de prévia começa pelo começo);
@@ -318,7 +424,7 @@ export function Assistente() {
     const id = requestAnimationFrame(() => tela.current?.querySelector('.as-chat > .as-linha:last-child')?.scrollIntoView({ block: 'start' }))
     return () => cancelAnimationFrame(id)
   }, [falas.visiveis, falas.digitando, etapa])
-  const menu = etapa === 'inicio' || etapa === 'prova-pronta' || etapa === 'cartoes-pronto'
+  const menu = etapa === 'inicio' || etapa === 'pergunta' || etapa === 'prova-pronta' || etapa === 'cartoes-pronto' || etapa === 'material-pronto'
   return (
     <>
       <Top title="Assistente" sub={`Espaço: ${espaco}`} />
@@ -337,8 +443,12 @@ export function Assistente() {
               {etapa === 'cartoes-arquivo' && <ArquivoCartoes />}
               {etapa === 'cartoes-previa' && <PreviaCartoes />}
               {etapa === 'cartoes-pronto' && <Pronto treinar={false} />}
-              {etapa === 'simulado' && <Simulado />}
+              {etapa === 'pergunta' && <Pergunta />}
+              {etapa === 'limpar' && <Limpar />}
               {etapa === 'espacos' && <Espacos />}
+              {etapa === 'materiais' && <Materiais />}
+              {etapa === 'material-arquivo' && <ArquivoMaterial />}
+              {etapa === 'material-pronto' && <ProntoMaterial />}
               {etapa === 'ia' && <IaPainel />}
             </div>
           </Cena>

@@ -2,10 +2,14 @@
 // pontua palavras-chave de cada ação. Se uma ação ganha com folga, é ela; se duas empatam, o assistente PERGUNTA qual; se nenhuma pontua, diz que não entendeu
 // e oferece as sugestões. Puro: sem DOM nem estado (o fluxo está em store/assistente.ts). O desenho da conversa está em docs/assistente-conversa.md.
 import type { IdAcao } from './assistente'
+import { extrairConsulta } from './busca/consulta'
 
 export type Intencao =
   | { tipo: 'acao'; id: IdAcao }
+  | { tipo: 'perguntar'; consulta: string }
   | { tipo: 'ajuda' }
+  | { tipo: 'desfazer' }
+  | { tipo: 'limpar' }
   | { tipo: 'cancelar' }
   | { tipo: 'oi' }
   | { tipo: 'obrigado' }
@@ -13,12 +17,17 @@ export type Intencao =
   | { tipo: 'nao-entendi' }
   | { tipo: 'vazio' }
 
-type Alvo = IdAcao | 'ajuda' | 'cancelar' | 'oi' | 'obrigado'
+export type Alvo = IdAcao | 'ajuda' | 'cancelar' | 'oi' | 'obrigado' | 'desfazer' | 'limpar'
 
 /** Termos (já sem acento, minúsculos) e o peso de cada um. Termo com mais de uma palavra só vale se todas aparecem. */
 const TERMOS: Record<Alvo, [string, number][]> = {
   prova: [['importar', 3], ['importa', 3], ['prova', 3], ['provas', 3], ['pdf', 2], ['gabarito', 2], ['gabaritos', 2], ['questoes', 1], ['questao', 1], ['enviar', 1], ['adicionar', 1], ['subir', 1], ['carregar', 1], ['concurso', 1], ['ler prova', 3]],
-  cartoes: [['cartao', 3], ['cartoes', 3], ['flashcard', 3], ['flashcards', 3], ['resumo', 2], ['apostila', 2], ['memorizar', 2], ['decorar', 2], ['baralho', 2], ['criar cartoes', 3]],
+  cartoes: [['cartao', 4], ['cartoes', 4], ['flashcard', 4], ['flashcards', 4], ['resumo', 2], ['apostila', 2], ['memorizar', 2], ['decorar', 2], ['baralho', 2], ['criar cartoes', 3]],
+  treinar: [['treinar', 4], ['treino', 3], ['praticar', 3], ['exercitar', 3], ['resolver', 2], ['estudar', 2], ['quero treinar', 5], ['fazer questoes', 4], ['resolver questoes', 4]],
+  desfazer: [['desfazer', 5], ['desfaz', 4], ['volta atras', 4], ['foi sem querer', 5], ['ops', 3], ['errei', 2], ['desistir disso', 3]],
+  limpar: [['limpar conversa', 7], ['apagar conversa', 7], ['limpar', 3], ['recomecar', 3], ['comecar de novo', 4], ['zerar conversa', 6]],
+  perguntar: [['o que e', 4], ['o que significa', 4], ['o que quer dizer', 4], ['o que sao', 4], ['onde fala', 4], ['onde esta', 3], ['onde tem', 3], ['onde cai', 3], ['procure', 3], ['procurar', 3], ['busque', 3], ['buscar', 3], ['pesquisar', 3], ['pesquise', 3], ['achar', 2], ['encontrar', 3], ['explique', 3], ['explica', 2], ['defina', 3], ['definicao', 3], ['significado', 3], ['conceito', 3], ['perguntar', 3], ['pergunta', 2], ['quero saber', 3], ['me fale sobre', 3]],
+  materiais: [['material', 3], ['apostila', 2.5], ['anotacoes', 3], ['biblioteca', 3], ['meus materiais', 5], ['adicionar material', 5], ['guardar material', 5], ['guardar', 2]],
   simulado: [['simulado', 5], ['simulados', 5], ['simular', 3], ['cronometrado', 2], ['prova simulada', 8], ['treino cronometrado', 3]],
   espaco: [['espaco', 4], ['espacos', 4], ['trocar', 2], ['mudar', 2], ['novo', 1], ['criar', 1], ['apagar', 1], ['ativar', 1], ['meus espacos', 3]],
   resumo: [['tenho', 3], ['quantas', 3], ['quantos', 3], ['status', 2], ['numeros', 2], ['total', 1], ['o que eu ja tenho', 4], ['resumo do espaco', 4]],
@@ -54,12 +63,15 @@ function pontuar(palavras: string[], texto: string, termos: [string, number][]):
   const pesos: number[] = []
   for (const [termo, peso] of termos) {
     const partes = termo.split(' ')
-    const achou = partes.length === 1 ? palavras.some((p) => casa(p, termo)) : texto.includes(termo) || partes.every((parte) => palavras.some((p) => casa(p, parte)))
+    const achou = partes.length === 1 ? palavras.some((p) => casa(p, termo)) : ` ${texto} `.includes(` ${termo} `) || partes.every((parte) => palavras.some((p) => casa(p, parte)))
     if (achou) pesos.push(peso)
   }
   pesos.sort((a, b) => b - a)
   return pesos.reduce((t, p, i) => t + p * (i === 0 ? 1 : i === 1 ? 0.5 : 0.25), 0)
 }
+
+/** As palavras-chave (sem acento) de um alvo: o filtro de sugestões enquanto se digita usa isto. */
+export const termosDaAcao = (a: Alvo): string[] => (TERMOS[a] ?? []).map(([t]) => t)
 
 /** Nota de cada alvo para o texto, da maior para a menor (só quem pontuou). */
 export function pontuacoes(bruto: string): [string, number][] {
@@ -75,8 +87,10 @@ export function entender(bruto: string): Intencao {
   const [melhor, nota] = notas[0]
   const segundo = notas[1]
   // empate de verdade entre duas AÇÕES (cumprimento e agradecimento não entram na disputa): pergunta qual
-  const ehAcao = (a: Alvo): a is IdAcao => !['ajuda', 'cancelar', 'oi', 'obrigado'].includes(a)
+  const ehAcao = (a: Alvo): a is IdAcao => !['ajuda', 'cancelar', 'oi', 'obrigado', 'desfazer', 'limpar'].includes(a)
   if (segundo && segundo[1] >= 2 && segundo[1] >= nota * 0.6 && ehAcao(melhor) && ehAcao(segundo[0])) return { tipo: 'ambigua', opcoes: [melhor, segundo[0]] }
+  if (melhor === 'desfazer' || melhor === 'limpar') return { tipo: melhor }
+  if (melhor === 'perguntar') return { tipo: 'perguntar', consulta: extrairConsulta(bruto) }
   if (melhor === 'ajuda' || melhor === 'cancelar' || melhor === 'oi' || melhor === 'obrigado') return { tipo: melhor }
   return { tipo: 'acao', id: melhor }
 }

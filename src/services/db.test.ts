@@ -207,3 +207,44 @@ describe('banco: carimbos da conta Google (tabela sinc, v4)', () => {
     expect((await db.lerEventos()).length).toBe(2)
   })
 })
+
+describe('banco: materiais de estudo (v6)', () => {
+  const prep = async (e: string, nome: string, par: string[]) => { const { prepararMaterial } = await import('../core/material'); const r = prepararMaterial(e, nome, 'texto', par); if (!r.ok) throw new Error(r.erro); return r }
+
+  it('guarda o material e os trechos juntos e lista por espaço (mais novo primeiro)', async () => {
+    const a = await prep('e1', 'Resumo A', ['um', 'dois', 'tres']), b = await prep('e1', 'Resumo B', ['quatro']), c = await prep('e2', 'Outro', ['cinco'])
+    expect(await db.salvarMaterial({ ...a.material, criado: 1 }, a.trechos)).toBe(true); await db.salvarMaterial({ ...b.material, criado: 2 }, b.trechos); await db.salvarMaterial(c.material, c.trechos)
+    expect((await db.listarMateriais('e1')).map((m) => m.nome)).toEqual(['Resumo B', 'Resumo A'])
+    expect((await db.lerTrechos('e1')).map((t) => t.t).sort()).toEqual(['dois', 'quatro', 'tres', 'um']); expect(await db.lerTrechos('e2')).toHaveLength(1)
+  })
+  it('guardar o mesmo material de novo (mesmo conteúdo, mesmo espaço) não duplica e avisa', async () => {
+    const a = await prep('e1', 'Resumo', ['um', 'dois'])
+    expect(await db.salvarMaterial(a.material, a.trechos)).toBe(true); expect(await db.salvarMaterial(a.material, a.trechos)).toBe(false)
+    expect(await db.listarMateriais('e1')).toHaveLength(1); expect(await db.lerTrechos('e1')).toHaveLength(2)
+  })
+  it('apagar um material leva os trechos dele e só os dele', async () => {
+    const a = await prep('e1', 'A', ['um', 'dois']), b = await prep('e1', 'B', ['tres'])
+    await db.salvarMaterial(a.material, a.trechos); await db.salvarMaterial(b.material, b.trechos)
+    await db.apagarMaterial(a.material.id)
+    expect((await db.listarMateriais('e1')).map((m) => m.nome)).toEqual(['B']); expect((await db.lerTrechos('e1')).map((t) => t.t)).toEqual(['tres'])
+  })
+  it('apagar o espaço leva os materiais e os trechos dele (cascata) e não toca nos de outro espaço', async () => {
+    const a = await prep('e1', 'A', ['um']), c = await prep('e2', 'C', ['dois'])
+    await db.salvarMaterial(a.material, a.trechos); await db.salvarMaterial(c.material, c.trechos)
+    await db.apagarEspaco('e1')
+    expect(await db.listarMateriais('e1')).toEqual([]); expect(await db.lerTrechos('e1')).toEqual([]); expect(await db.listarMateriais('e2')).toHaveLength(1)
+  })
+  it('a versão dos materiais sobe a cada mudança (o índice de busca usa isso para saber que ficou velho)', async () => {
+    const v0 = db.versaoMateriais(); const a = await prep('e1', 'A', ['um'])
+    await db.salvarMaterial(a.material, a.trechos); const v1 = db.versaoMateriais(); await db.apagarMaterial(a.material.id)
+    expect(v1).toBeGreaterThan(v0); expect(db.versaoMateriais()).toBeGreaterThan(v1)
+  })
+  it('migração: um banco v5 (sem materiais) abre na v6 sem perder o progresso', async () => {
+    await Dexie.delete('treino-bb')
+    const velho = new Dexie('treino-bb')
+    velho.version(5).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]', sinc: 'id', espacos: 'id', questoes: 'id, e', imagens: 'id, e' })
+    await velho.open(); await velho.table('prog').put({ id: 'q1', n: 2, c: 1, ok: true }); velho.close()
+    await abrir()
+    expect((await db.loadAll()).prog.q1).toMatchObject({ n: 2, c: 1 }); expect(await db.listarMateriais('e1')).toEqual([])
+  })
+})

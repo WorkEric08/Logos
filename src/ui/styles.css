@@ -905,3 +905,15 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .as-sucesso span{font-size:15px;color:var(--muted)}
 .page.saindo{animation:as-fecha .14s var(--ease-out) forwards;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.as-brilho i::after,.as-esqueleto i::after,.as-digitando i{animation:none}}
+
+/* ───────── Achados da busca ("perguntar ao meu material") ───────── */
+.as-balao{display:flex;flex-direction:column;gap:8px;max-width:min(92%,640px);min-width:0}
+.as-linha.a .as-balao .as-msg{max-width:100%}
+.as-achados{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.as-achado{border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:10px 12px;animation:fc-entra .26s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 70ms)}
+.as-achado-fonte{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;overflow-wrap:anywhere}
+.as-achado p{margin:0;font-size:14.5px;line-height:1.5;overflow-wrap:anywhere}
+.as-achado mark{background:var(--accent-soft,#f7e3b7);color:var(--ink);border-radius:3px;padding:0 2px}
+.as-mat{justify-content:space-between}
+.as-mat-info{display:grid;gap:2px;min-width:0;flex:1}
+.as-mat-info small{color:var(--muted);font-size:12.5px}

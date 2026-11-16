@@ -1,10 +1,14 @@
 import Dexie, { type Table } from 'dexie'
 import type { Progress, ProgressMap, Question, Subject } from '../core/types'
 import type { Banco, RegrasSimulado } from '../core/espaco'
+import type { Material, Trecho } from '../core/material'
 import { limparHist, limparMarks, type Hist, type Marks } from '../core/historico'
 import { limparCards, type Ajustes, type Baralho, type Cartao, type DadosCards } from '../core/cards'
 import { chaveBaralho, chaveCartao, chaveMarca, CHAVE_AJUSTES, CHAVE_HIST_CARDS, maisNovo, tipoDe, type ItemNuvem, type Sinc } from '../core/sync/nuvem'
 import { derivar, tempoDe, type EvBase, type EvResposta, type EvSimulado, type EvZerar, type Evento } from '../core/sync/eventos'
+
+/** Uma fala da conversa do assistente como fica guardada (para o histórico voltar na próxima abertura do app). */
+export interface MensagemSalva { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok'; achados?: unknown[] }
 
 /** Espaço de estudo criado pela pessoa (as questões ficam na tabela `questoes`, ligadas por `e`). */
 export interface EspacoRow { id: string; nome: string; criado: number; fontes: Record<string, string>; bases: Record<string, string>; materias: Subject[]; extras: Subject[]; bancos: Banco[]; simulado: RegrasSimulado | null
@@ -29,6 +33,9 @@ class TreinoDb extends Dexie {
   espacos!: Table<EspacoRow, string>
   questoes!: Table<QuestaoRow, string>
   imagens!: Table<ImagemRow, string>
+  materiais!: Table<Material, string>
+  trechos!: Table<Trecho, string>
+  conversa!: Table<MensagemSalva, number>
   constructor() {
     super('treino-bb')
     this.version(1).stores({ prog: 'id', meta: 'key' })
@@ -42,6 +49,10 @@ class TreinoDb extends Dexie {
     // v5 (espaços de estudo): só ACRESCENTA as tabelas dos espaços criados pela pessoa (o do Banco do Brasil vem embutido no app e não mora aqui),
     // das questões importadas (índice por espaço) e das imagens recortadas dos PDFs.
     this.version(5).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]', sinc: 'id', espacos: 'id', questoes: 'id, e', imagens: 'id, e' })
+    // v6 (biblioteca de materiais): só ACRESCENTA `materiais` (um por arquivo entregue) e `trechos` (o texto em pedaços buscáveis, ligados por `m`; `e` = espaço).
+    this.version(6).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]', sinc: 'id', espacos: 'id', questoes: 'id, e', imagens: 'id, e', materiais: 'id, e', trechos: 'id, m, e' })
+    // v7 (histórico da conversa): só ACRESCENTA `conversa` (as falas do assistente, em ordem de id). Nada do que já existe é tocado.
+    this.version(7).stores({ prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]', sinc: 'id', espacos: 'id', questoes: 'id, e', imagens: 'id, e', materiais: 'id, e', trechos: 'id, m, e', conversa: 'id' })
   }
 }
 const db = new TreinoDb()
@@ -268,6 +279,41 @@ export const salvarEspaco = (row: EspacoRow, questoes: Question[]) =>
   db.transaction('rw', db.espacos, db.questoes, async () => { await db.espacos.put(row); await db.questoes.bulkPut(questoes.map((q) => ({ ...q, e: row.id }))) })
 /** Apaga o espaço, as questões e as imagens dele. O progresso das questões fica (ids por conteúdo: voltar a importar o mesmo arquivo recupera). */
 export const apagarEspaco = (id: string) =>
-  db.transaction('rw', db.espacos, db.questoes, db.imagens, async () => { await db.questoes.where('e').equals(id).delete(); await db.imagens.where('e').equals(id).delete(); await db.espacos.delete(id) })
+  db.transaction('rw', db.espacos, db.questoes, db.imagens, db.materiais, db.trechos, async () => {
+    await db.questoes.where('e').equals(id).delete(); await db.imagens.where('e').equals(id).delete()
+    await db.trechos.where('e').equals(id).delete(); await db.materiais.where('e').equals(id).delete()
+    await db.espacos.delete(id); versaoMat++
+  })
 export const gravarImagem = (id: string, e: string, blob: Blob) => db.imagens.put({ id, e, blob })
 export const lerImagem = async (id: string): Promise<Blob | null> => (await db.imagens.get(id))?.blob ?? null
+
+// ---------- materiais de estudo (core/material.ts) ----------
+/** Sobe a cada material guardado/apagado: o índice de busca em memória usa isto para saber que ficou velho. */
+let versaoMat = 0
+export const versaoMateriais = () => versaoMat
+/** Guarda o material e os trechos numa transação só (ou nada). Devolve false se esse mesmo material (mesmo conteúdo) já estava guardado neste espaço. */
+export const salvarMaterial = (m: Material, trechos: Trecho[]): Promise<boolean> =>
+  db.transaction('rw', db.materiais, db.trechos, async () => {
+    if (await db.materiais.get(m.id)) return false
+    await db.materiais.put(m); await db.trechos.bulkPut(trechos); versaoMat++
+    return true
+  })
+export const listarMateriais = async (e: string): Promise<Material[]> => (await db.materiais.where('e').equals(e).toArray()).sort((a, b) => b.criado - a.criado)
+export const lerTrechos = (e: string): Promise<Trecho[]> => db.trechos.where('e').equals(e).toArray()
+/** Apaga o material e todos os trechos dele. */
+export const apagarMaterial = (id: string) =>
+  db.transaction('rw', db.materiais, db.trechos, async () => { await db.trechos.where('m').equals(id).delete(); await db.materiais.delete(id); versaoMat++ })
+
+// ---------- histórico da conversa do assistente ----------
+/** Quantas falas ficam guardadas: as mais antigas saem sozinhas (a conversa é um apoio, não um arquivo). */
+export const LIMITE_CONVERSA = 300
+export const lerConversa = async (): Promise<MensagemSalva[]> => (await db.conversa.orderBy('id').toArray()).slice(-LIMITE_CONVERSA)
+export const gravarConversa = (novas: MensagemSalva[]) =>
+  db.transaction('rw', db.conversa, async () => {
+    await db.conversa.bulkPut(novas)
+    const n = await db.conversa.count()
+    if (n > LIMITE_CONVERSA) await db.conversa.orderBy('id').limit(n - LIMITE_CONVERSA).delete()
+  })
+export const limparConversaSalva = () => db.conversa.clear()
+/** Os trechos de UM material (para desfazer a exclusão dele). */
+export const trechosDoMaterial = (id: string): Promise<Trecho[]> => db.trechos.where('m').equals(id).toArray()

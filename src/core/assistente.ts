@@ -1,7 +1,7 @@
 // O "pseudo-agente": um chat com AÇÕES FIXAS (sem IA). Cada ação está descrita aqui, uma vez, e a tela, a ajuda e a documentação (docs/assistente.md)
 // leem daqui. Acrescentar uma ação = acrescentar aqui, no fluxo (store/assistente.ts) e na tela (ui/Assistente.tsx); o teste confere que a documentação a cita.
 
-export type IdAcao = 'prova' | 'cartoes' | 'simulado' | 'espaco' | 'resumo' | 'ia'
+export type IdAcao = 'prova' | 'cartoes' | 'simulado' | 'treinar' | 'perguntar' | 'materiais' | 'espaco' | 'resumo' | 'ia'
 
 export interface Acao {
   id: IdAcao
@@ -39,6 +39,27 @@ export const ACOES: Acao[] = [
     precisa: 'Nada: usa as questões do espaço. Espaço com regras de edital faz o simulado do edital; os outros deixam escolher a matéria e a quantidade.',
     gera: 'Uma prova com cartão-resposta e nota (acertos, e pontos quando há regras do edital).',
     limites: 'Só sorteia entre as questões que já estão no espaço.',
+  },
+  {
+    id: 'treinar', rotulo: 'Treinar questões', sugestao: 'Treinar questões',
+    resumo: 'Começa um treino com questões do espaço, da matéria ou da prova que você pedir, na quantidade que quiser.',
+    precisa: 'Nada, ou o que quiser dizer: "treinar 15 de matemática", "treinar a prova do BB 2021", "treinar português". O que faltar eu pergunto.',
+    gera: 'Uma sessão de treino (com correção na hora) sorteada pelo peso da matéria e pelo que você mais erra.',
+    limites: 'Só sorteia entre as questões que já estão no espaço. Sem dizer a quantidade, são 10.',
+  },
+  {
+    id: 'perguntar', rotulo: 'Perguntar ao meu material', sugestao: 'Perguntar ao meu material',
+    resumo: 'Procura nos seus materiais, questões e cartões e mostra o trecho certo, com a palavra em destaque e a fonte.',
+    precisa: 'Uma pergunta ou palavra, por exemplo: "o que é Copom?", "onde fala de inflação", "juros compostos".',
+    gera: 'Até 3 trechos com a palavra destacada e de onde vieram (qual material, qual questão ou cartão).',
+    limites: 'Procura por palavras (aceita plural, sem acento e um erro de digitação), não por significado: se o material diz "taxa básica" e você pergunta "juro oficial", pode não achar. Só acha o que está no espaço ativo.',
+  },
+  {
+    id: 'materiais', rotulo: 'Meus materiais de estudo', sugestao: 'Meus materiais',
+    resumo: 'Guarda resumos, apostilas e anotações no seu espaço, para o assistente consultar; mostra e apaga o que já guardou.',
+    precisa: 'Um arquivo de texto: PDF com texto, .txt ou .md.',
+    gera: 'O material guardado no aparelho em trechos pesquisáveis. Criar cartões de um resumo também o guarda aqui.',
+    limites: 'PDF escaneado (só imagem) não é lido (não há OCR). Cada material aceita até 4 milhões de letras e 20 mil trechos. Fica só neste aparelho (ainda não sincroniza pela conta).',
   },
   {
     id: 'espaco', rotulo: 'Escolher ou criar um espaço de estudo', sugestao: 'Meus espaços de estudo',
