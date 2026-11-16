@@ -8,7 +8,7 @@ import { chaveBaralho, chaveCartao, chaveMarca, CHAVE_AJUSTES, CHAVE_HIST_CARDS,
 import { derivar, tempoDe, type EvBase, type EvResposta, type EvSimulado, type EvZerar, type Evento } from '../core/sync/eventos'
 
 /** Uma fala da conversa do assistente como fica guardada (para o histórico voltar na próxima abertura do app). */
-export interface MensagemSalva { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok'; achados?: unknown[] }
+export interface MensagemSalva { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok' | 'painel'; achados?: unknown[] }
 
 /** Espaço de estudo criado pela pessoa (as questões ficam na tabela `questoes`, ligadas por `e`). */
 export interface EspacoRow { id: string; nome: string; criado: number; fontes: Record<string, string>; bases: Record<string, string>; materias: Subject[]; extras: Subject[]; bancos: Banco[]; simulado: RegrasSimulado | null

@@ -29,9 +29,13 @@ O desenho da conversa do assistente (aba **Assistente**). O catálogo das açõe
 | Intenção | Exemplos |
 |---|---|
 | Importar prova | "importar prova", "quero importar uma prova em pdf", "adicionar o gabarito" |
-| Criar cartões | "criar cartões", "flashcards do meu resumo", "transformar apostila em cartão" |
+| Criar cartões | "criar cartões", "flashcards do meu resumo", "transformar apostila em cartão" (o resumo pode trazer a sua marcação: `Pergunta::Resposta`, `Termo:::Definição`, `==lacuna==`) |
 | Simulado | "montar um simulado", "quero um simulado", "prova simulada"; com detalhes: "simulado de matemática com 20 questões", "simulado da prova do bb 2021" |
-| Treinar | "quero treinar", "treinar 15 de matemática", "treinar a prova do bb 2021", "fazer questões de informática" |
+| Treinar | "quero treinar", "treinar 15 de matemática", "treinar a prova do bb 2021", "fazer questões de informática", "treinar meus erros" |
+| Caderno de erros | "caderno de erros", "meus erros" (painel com resumo); "rever erros de português", "simulado de 30 com o que mais erro" (direto) |
+| Simulado da semana | "simulado da semana", "o simulado da semana com 20 questões" |
+| Gerar questões | "gerar questões do meu material", "criar questões do resumo", "transformar o material em questões" |
+| Painel e plano de estudo | "painel do dia", "como estou", "o que estudei hoje", "tenho 30 minutos", "meia hora", "plano de estudo"; também treinar "questões novas" |
 | Desfazer | "desfazer", "volta atrás", "foi sem querer" |
 | Limpar a conversa | "limpar conversa", "apagar conversa", "recomeçar" |
 | Espaços | "meus espaços", "trocar de espaço", "criar um novo espaço"; com nome: "trocar para direito penal", "criar espaço Direito Civil" |
@@ -83,9 +87,12 @@ A partir de 2 letras a lista de pílulas se filtra pelo que foi escrito (a mais 
 - A conversa **fica guardada no aparelho** (as últimas 300 falas) e volta de uma vez ao reabrir o app; só se apaga com "Limpar a conversa" (pede confirmação; não toca em materiais, questões nem cartões).
 - "Desfazer: …" desfaz **a última coisa** feita pelo assistente (criar espaço, guardar/apagar material, criar cartões). Importar prova não se desfaz.
 
+## O assistente chega com o painel do dia (F6)
+Ao abrir a aba o assistente **fala primeiro**: "Bom dia! Aqui está o seu dia:" (o que já estudou, sequência, o que espera, onde mais erra) com a **sugestão principal** em destaque à frente das pílulas. No máximo uma vez a cada 3 horas. Dizer "tenho 30 minutos" (ou tocar em "Painel do dia e plano de estudo") monta o plano.
+
 ## Estados da conversa
 
-`etapa` em `store/assistente.ts`: `inicio` (menu), `espaco-novo`, `prova-arquivos`, `lendo`, `prova-previa`, `prova-pronta`, `cartoes-arquivo`, `cartoes-previa`, `cartoes-pronto`, `pergunta` (o assistente espera a resposta de um pedido), `limpar` (confirmação), `espacos`, `materiais`, `material-arquivo`, `material-pronto`, `ia`. A caixa de mensagem existe em `inicio`, `pergunta` e nos `*-pronta`; nos demais o painel tem os seus próprios botões (e "Voltar/Cancelar").
+`etapa` em `store/assistente.ts`: `inicio` (menu), `espaco-novo`, `prova-arquivos`, `lendo`, `prova-previa`, `prova-pronta`, `cartoes-arquivo`, `cartoes-previa`, `cartoes-pronto`, `pergunta` (o assistente espera a resposta de um pedido), `caderno` (resumo do caderno de erros e as saídas), `plano` (o plano de estudo e as saídas), `questoes-material` (qual material), `questoes-previa` (as questões geradas, antes de entrar), `limpar` (confirmação), `espacos`, `materiais`, `material-arquivo`, `material-pronto`, `ia`. A caixa de mensagem existe em `inicio`, `pergunta` e nos `*-pronta`; nos demais o painel tem os seus próprios botões (e "Voltar/Cancelar").
 
 ## Próximos passos da conversa (não feitos)
 - Entender frases com mais de um pedido ("importar a prova e depois criar cartões").

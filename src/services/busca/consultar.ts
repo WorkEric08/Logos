@@ -39,3 +39,13 @@ export async function consultar(texto: string, limite = 3): Promise<Resposta> {
   }))
   return { consulta, achados, documentos: indice.tamanho }
 }
+
+/** O trecho do MATERIAL da pessoa (nunca questão nem cartão) que fala do assunto da questão, ou null: serve para explicar o gabarito num cartão. Só resposta completa (não "parte da pergunta"). */
+export async function trechoParaQuestao(q: { a?: string; t: string }): Promise<{ fonte: string; texto: string } | null> {
+  const assunto = (q.a || q.t || '').trim()
+  if (assunto.length < 3) return null
+  if (!(await listarMateriais(useEspacos.getState().ativo)).length) return null // sem material guardado: nada a procurar (e não monta o índice à toa)
+  const r = await consultar(assunto, 5)
+  const a = r.achados.find((x) => x.tipo === 'material' && !x.parcial)
+  return a ? { fonte: a.fonte, texto: a.trecho.texto } : null
+}

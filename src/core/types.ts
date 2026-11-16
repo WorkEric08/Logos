@@ -18,6 +18,10 @@ export interface Question {
   ps?: string
   /** 1 = veio do banco antigo e não tem par no novo; gabarito ainda não conferido. */
   ant?: 1
+  /** 1 = GERADA por regras a partir de um material da própria pessoa (F4): pesa menos no sorteio e nunca entra no simulado do edital. */
+  ger?: 1
+  /** Das geradas: o trecho do material de onde saiu (mostrado depois de responder). */
+  fonte?: string
 }
 export interface Progress { n: number; c: number; ok: boolean | null; last?: Letter; t?: number }
 export type ProgressMap = Record<string, Progress>

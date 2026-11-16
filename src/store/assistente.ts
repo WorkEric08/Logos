@@ -6,8 +6,12 @@ import { sugerirCartoes, type Sugestoes } from '../core/importar/cartoes'
 import { montarQuestoes, type MetaProva } from '../core/importar/montar'
 import type { QuestaoLida } from '../core/importar/prova'
 import { ACOES, acaoPorId, type IdAcao } from '../core/assistente'
-import { entender } from '../core/conversa'
-import { ajustarPelasEntidades, entenderResposta, pedidoDe, preencher, proximoPasso, descrever, TREINO_PADRAO, type AcaoPedido, type Opcao, type Pedido, type Slot } from '../core/dialogo/dialogo'
+import { cadernoDoEspaco, dosErros, montarSemana, resumirCaderno, type Caderno } from '../core/caderno'
+import { montarPainel, montarPlano, textoDoPainel, textoDoPlano, type EntradaPainel, type Painel, type Plano, type SugestaoDia } from '../core/dia'
+import { entender, semAcento } from '../core/conversa'
+import { gerarQuestoes, type Geracao } from '../core/questoes/gerar'
+import type { Evento } from '../core/sync/eventos'
+import { ajustarPelasEntidades, entenderResposta, pedidoDe, preencher, proximoPasso, descrever, ERROS_PADRAO, TREINO_PADRAO, type AcaoPedido, type Opcao, type Pedido, type Slot } from '../core/dialogo/dialogo'
 import { extrairEntidades, type Contexto, type CtxProva, type Entidades } from '../core/dialogo/entidades'
 import { aplicarSugestao, type Sugestao } from '../core/importar/ia'
 import { prepararMaterial, type Material } from '../core/material'
@@ -17,18 +21,20 @@ import { pick } from '../core/weights'
 import type { Letter } from '../core/types'
 import { anexarImagens, paragrafosDoArquivo, prepararProva, type ProvaPreparada } from '../services/importar/arquivos'
 import { consultar, type Achado } from '../services/busca/consultar'
-import { apagarMaterial, gravarConversa, lerConversa, limparConversaSalva, listarMateriais, salvarMaterial, trechosDoMaterial } from '../services/db'
+import { apagarMaterial, gravarConversa, lerConversa, lerEventos, limparConversaSalva, listarMateriais, salvarMaterial, trechosDoMaterial } from '../services/db'
 import { lerChave, lerModelo, mensagemErroIA, relerComIA } from '../services/importar/ia'
 import { recortarQuestao } from '../services/importar/recorte'
 import { BANK, TF, useApp } from './app'
 import { useCards } from './cards'
 import { useEspacos } from './espacos'
 
-export type Etapa = 'inicio' | 'espaco-novo' | 'prova-arquivos' | 'lendo' | 'prova-previa' | 'prova-pronta' | 'cartoes-arquivo' | 'cartoes-previa' | 'cartoes-pronto' | 'materiais' | 'material-arquivo' | 'material-pronto' | 'pergunta' | 'limpar' | 'espacos' | 'ia'
+export type Etapa = 'inicio' | 'espaco-novo' | 'prova-arquivos' | 'lendo' | 'prova-previa' | 'prova-pronta' | 'cartoes-arquivo' | 'cartoes-previa' | 'cartoes-pronto' | 'materiais' | 'material-arquivo' | 'material-pronto' | 'plano' | 'questoes-material' | 'questoes-previa' | 'caderno' | 'pergunta' | 'limpar' | 'espacos' | 'ia'
 /** `tipo`: erro (balão avermelhado que treme uma vez) ou ok (balão de sucesso); sem tipo é conversa normal. */
-export interface Msg { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok'; /** Achados de uma pergunta (trechos com a palavra em destaque e a fonte). */ achados?: Achado[] }
+export interface Msg { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok' | 'painel'; /** Achados de uma pergunta (trechos com a palavra em destaque e a fonte). */ achados?: Achado[] }
 /** A pergunta que o assistente fez para completar um pedido ("De qual matéria?"): as opções viram sugestões e o texto digitado também responde. */
 export interface Pendente { pedido: Pedido; slot: Slot; texto: string; opcoes: Opcao[] }
+/** As questões geradas de um material, na prévia (nada entra no espaço antes de a pessoa confirmar). */
+export interface PreviaGeradas { material: Material; geracao: Geracao; escolhidas: number[] }
 export type QuaisImagens = 'figuras' | 'todas' | 'nenhuma'
 export interface Previa {
   prep: ProvaPreparada
@@ -67,6 +73,27 @@ interface State {
   desfazivel: string | null
   /** O que a pessoa já digitou na caixa (as sugestões se filtram enquanto ela escreve). */
   rascunho: string
+  /** O painel do dia mostrado ao abrir a aba (as sugestões dele viram pílulas enquanto a última fala for ele). */
+  painel: Painel | null
+  painelMsgId: number | null
+  /** O plano de estudo montado (as pílulas começam pelos cartões ou pelas questões). */
+  plano: Plano | null
+  /** Abre a aba: lê o histórico, se apresenta (primeira vez) e mostra o painel do dia (no máximo uma vez a cada 3 horas). */
+  abrirAba: () => Promise<void>
+  painelAcao: (s: SugestaoDia) => void
+  planoAcao: (que: 'cartoes' | 'questoes' | 'outro') => void
+  /** Prévia das questões geradas do material. */
+  geradas: PreviaGeradas | null
+  /** Gera questões de um material do espaço ativo (mostra a prévia). */
+  gerarQuestoes: (materialId: string) => Promise<void>
+  alternarGerada: (i: number) => void
+  confirmarGeradas: () => Promise<void>
+  /** Os eventos de resposta (de todos os aparelhos): dali sai a ordem das respostas do caderno de erros. Lidos ao abrir a aba. */
+  eventos: Evento[]
+  /** Relê os eventos (depois de responder questões, o caderno muda). */
+  atualizarCaderno: () => Promise<void>
+  /** Uma sugestão do painel do caderno de erros: rever (todas ou só uma matéria) ou simulado só dos erros. */
+  cadernoAcao: (que: 'rever' | 'simulado' | { materia: string; rotulo: string }) => void
   /** O histórico já foi lido do aparelho. */
   carregada: boolean
   /** Muda quando a conversa é apagada: a tela refaz a conversa do zero. */
@@ -128,6 +155,8 @@ const NAO_ENTENDI = 'Não entendi esse pedido. Tente, por exemplo: "importar pro
 /** O que "Desfazer" faz agora (só a última coisa; some ao fazer outra). */
 let acaoDesfazer: (() => Promise<void>) | null = null
 let gravadas = 0
+/** O histórico guardado já foi lido nesta abertura do app? */
+let historicoLido = false
 /** As gravações do histórico saem uma de cada vez, na ordem (apagar a conversa não pode passar na frente de uma fala que ainda está sendo gravada). */
 let fila: Promise<unknown> = Promise.resolve()
 const naFila = <T,>(fn: () => Promise<T>): Promise<T> => { const p = fila.then(fn, fn); fila = p.catch(() => {}); return p }
@@ -144,6 +173,8 @@ export const useAssistente = create<State>((set, get) => {
   const espacoAtivo = () => useEspacos.getState().ativo
   const tipoDoArquivo = (f: File) => (/\.pdf$/i.test(f.name) || f.type === 'application/pdf' ? 'pdf' : 'texto') as 'pdf' | 'texto'
   const inicio = () => set({ etapa: 'inicio', sugestoes: {}, relendo: null, previa: null, cartoes: null, resultado: null, depois: null, progresso: null, ocupado: false, desambiguar: [], pendente: null })
+  /** O caderno de erros de agora, do espaço ativo (refeito a cada uso: é barato e nunca fica velho). */
+  const caderno = (): Caderno => cadernoDoEspaco(get().eventos, useApp.getState().prog, BANK)
   const definirDesfazer = (rotulo: string, fn: () => Promise<void>) => { acaoDesfazer = fn; set({ desfazivel: rotulo }) }
 
   /** O que o assistente sabe do espaço ativo e da conversa: a base para entender "de matemática", "bb 2021", "essa prova". */
@@ -153,17 +184,63 @@ export const useAssistente = create<State>((set, get) => {
       materias: ALL_SUBJECTS.filter((x) => BANK.some((q) => q.m === x.n)).map((x) => ({ nome: x.n, curto: x.s })),
       provas: SOURCE_KEYS.map((chave) => ({ chave, rotulo: SOURCES[chave] })),
       espacos: e.lista.map((x) => ({ id: x.id, nome: x.nome })),
-      espacoAtivo: e.ativo, temRegras: !!REGRAS, ultimaProva: get().ultimaProva ?? undefined,
+      espacoAtivo: e.ativo, temRegras: !!REGRAS, ultimaProva: get().ultimaProva ?? undefined, erros: Object.keys(caderno()).length,
     }
+  }
+
+  const entradaPainel = (): EntradaPainel => {
+    const c = useCards.getState(), a = useApp.getState()
+    return { agora: Date.now(), cartoes: c.cartoes, ajustes: c.ajustes, histQuestoes: a.hist, histCartoes: c.hist, prog: a.prog, bank: BANK, caderno: caderno() }
+  }
+  const SAUDACAO = "Oi! Eu sou o assistente do Logos. Monto o seu espaço de estudo a partir dos seus arquivos: provas em PDF, gabaritos e resumos. Tudo é lido aqui no seu aparelho. Por onde quer começar?"
+  /** O painel do dia como fala do assistente (no máximo uma vez a cada 3 horas: o id da fala é a hora em que ela foi dita). */
+  const mostrarPainel = () => {
+    const ultimo = [...get().mensagens].reverse().find((x) => x.tipo === 'painel')
+    if (ultimo && Date.now() - ultimo.id < 3 * 3_600_000) return
+    const p = montarPainel(entradaPainel())
+    const msg = m('a', textoDoPainel(p, Date.now()), 'painel')
+    set((st) => ({ mensagens: [...st.mensagens, msg], painel: p, painelMsgId: msg.id }))
+  }
+  /** Tudo o que precisa estar pronto antes de a tela do chat aparecer: histórico, apresentação (1ª vez) e, ao abrir a aba, o painel do dia. */
+  const abrir = async (comPainel: boolean) => {
+    await get().atualizarCaderno()
+    await get().carregarHistorico()
+    if (!get().mensagens.length) set({ mensagens: [m('a', SAUDACAO)] })
+    if (comPainel) mostrarPainel()
+    set({ carregada: true })
   }
 
   /** Monta e começa o simulado/treino pedido (tudo o que faltava já foi respondido). */
   const executarPedido = (p: Pedido) => {
     const { prog, startSimulado, startCustom } = useApp.getState()
     inicio()
+    if (p.acao === 'plano') { const pl = montarPlano(entradaPainel(), p.minutos ?? 30, TF); diz(textoDoPlano(pl)); set({ plano: pl }); ir('plano'); return }
     if (p.acao === 'simulado' && p.materia === 'edital') { dizOk('Montei o simulado do edital: questões sorteadas pelo peso de cada matéria, com nota e regras. Boa prova!'); startSimulado(); return }
+    if (p.fonte === 'semana') {
+      const s = montarSemana(BANK, prog, caderno(), TF, p.quantidade ?? 20)
+      if (!s.ids.length) { dizErro('Este espaço não tem questões para montar o simulado da semana. Importe uma prova primeiro.'); return }
+      const partes = [s.partes.erros && `${s.partes.erros} do seu caderno de erros`, s.partes.fracas && `${s.partes.fracas} de matérias fracas (${s.materiasFracas.join(', ')})`, s.partes.novas && `${s.partes.novas} novas`, s.partes.outras && `${s.partes.outras} para completar`].filter(Boolean)
+      dizOk(`Montei o ${p.acao === 'simulado' ? 'simulado' : 'treino'} da semana com ${plural(s.ids.length, 'questão', 'questões')}: ${partes.join(', ')}. ${p.acao === 'simulado' ? 'Boa prova!' : 'Bom treino!'}`)
+      startCustom(s.ids, p.acao === 'simulado'); return
+    }
     const chaves = p.provas?.length ? new Set(p.provas.map((x) => x.chave)) : null
     const materia = p.materia && p.materia !== 'todas' && p.materia !== 'edital' ? p.materia : null
+    if (p.fonte === 'erros') {
+      const cad = caderno()
+      const lista = dosErros(cad, BANK.filter((q) => (!materia || q.m === materia) && (!chaves || chaves.has(q.s))), p.quantidade ?? ERROS_PADRAO)
+      if (!lista.length) {
+        diz(Object.keys(cad).length ? `Seu caderno de erros não tem questões ${descrever({ ...p, quantidade: undefined, fonte: undefined }).replace(/^(simulado|treino)( de todas as matérias)?/, '').trim() || 'para esse pedido'}. Tente sem esse filtro.` : 'Seu caderno de erros está vazio: ou você ainda não errou nenhuma questão, ou já superou todas com 3 acertos seguidos. Bom sinal! Que tal um treino?')
+        return
+      }
+      dizOk(`Pronto: ${descrever({ ...p, quantidade: lista.length })}. ${p.acao === 'simulado' ? 'Boa prova!' : 'Bom treino!'}`)
+      startCustom(lista.map((q) => q.id), p.acao === 'simulado'); return
+    }
+    if (p.fonte === 'novas') {
+      const lista = pick(BANK.filter((q) => !prog[q.id]?.n && (!materia || q.m === materia) && (!chaves || chaves.has(q.s))), p.quantidade ?? TREINO_PADRAO, TF, prog)
+      if (!lista.length) { diz('Você já respondeu todas as questões que cabem nesse pedido: não há nenhuma nova. Que tal rever o caderno de erros ou fazer o simulado da semana?'); return }
+      dizOk(`Pronto: ${descrever({ ...p, quantidade: lista.length })}. ${p.acao === 'simulado' ? 'Boa prova!' : 'Bom treino!'}`)
+      startCustom(lista.map((q) => q.id), p.acao === 'simulado'); return
+    }
     const pool = BANK.filter((q) => (!materia || q.m === materia) && (!chaves || chaves.has(q.s)))
     if (!pool.length) { dizErro(`Não achei questões ${descrever({ ...p, quantidade: undefined }).replace(/^(simulado|treino)( de todas as matérias)?/, '').trim() || 'para esse pedido'}. Tente outra matéria ou prova.`); return }
     const pedida = p.quantidade ?? TREINO_PADRAO
@@ -209,7 +286,22 @@ export const useAssistente = create<State>((set, get) => {
 
   const mostrarAjuda = () => diz(['Eu sei fazer isto, tudo aqui no seu aparelho:', ...ACOES.map((a) => `• ${a.rotulo}: ${a.resumo}`), 'Toque numa sugestão ou escreva o que quer (por exemplo: "importar prova").'].join('\n'))
 
-  const executar = (id: IdAcao, e: Entidades = {}) => {
+  const executar = (id: IdAcao, e: Entidades = {}, texto = '') => {
+    if (id === 'plano') {
+      // sem o tempo: mostra o dia e pergunta quanto tempo a pessoa tem; com o tempo: monta o plano
+      if (!e.minutos) diz(textoDoPainel(montarPainel(entradaPainel()), Date.now()))
+      avancar(pedidoDe('plano', e)); return
+    }
+    if (id === 'caderno') {
+      // "rever erros de português", "treinar meus erros": direto; "caderno de erros": o painel com o resumo
+      const direto = !!(e.materia || e.provas?.length || e.quantidade) || /\b(rever|revisar|refazer|treinar|estudar|resolver)\b/.test(semAcento(texto))
+      if (direto) { iniciarPedido('treinar', { ...e, erros: true }); return }
+      const r = resumirCaderno(caderno(), BANK)
+      if (!r.total) { diz('Seu caderno de erros está vazio: ou você ainda não errou nenhuma questão, ou já superou todas com 3 acertos seguidos. Bom sinal! Que tal um treino?'); return }
+      diz(`Seu caderno de erros tem ${plural(r.total, 'questão', 'questões')}: ${plural(r.naUltima, 'errada na última vez', 'erradas na última vez')} e ${plural(r.recuperando, 'já acertada', 'já acertadas')} 1 ou 2 vezes seguidas (saem do caderno com 3). Onde mais erra: ${r.porMateria.slice(0, 3).map((m) => `${m.materia} (${m.n})`).join(', ')}.`)
+      ir('caderno')
+      return
+    }
     if (id === 'resumo' && (e.materia || e.provas?.length)) {
       const chaves = e.provas?.length ? new Set(e.provas.map((x) => x.chave)) : null
       const n = BANK.filter((q) => (!e.materia || q.m === e.materia) && (!chaves || chaves.has(q.s))).length
@@ -221,6 +313,16 @@ export const useAssistente = create<State>((set, get) => {
       const n = BANK.length, mats = ALL_SUBJECTS.filter((x) => BANK.some((q) => q.m === x.n)).length, provas = SOURCE_KEYS.length
       diz(`O espaço "${useEspacos.getState().lista.find((x) => x.id === useEspacos.getState().ativo)?.nome ?? ''}" tem ${plural(n, 'questão', 'questões')}, ${plural(mats, 'matéria', 'matérias')} e ${plural(provas, 'prova', 'provas')}.`)
       void listarMateriais(espacoAtivo()).then((l) => { if (l.length) diz(`E ${plural(l.length, 'material guardado', 'materiais guardados')} para consulta.`) })
+      return
+    }
+    if (id === 'questoes') {
+      if (ehBB()) { diz('As questões geradas entram em espaços seus (o do Banco do Brasil é fixo). Crie um espaço, guarde nele o material e peça de novo.'); ir('espaco-novo', { depois: 'questoes' }); return }
+      void listarMateriais(espacoAtivo()).then((l) => {
+        set({ materiais: l })
+        if (!l.length) { diz('Para gerar questões preciso de um material seu neste espaço. Guarde um resumo ou apostila (PDF, TXT ou MD).'); ir('material-arquivo'); return }
+        if (l.length === 1) { void get().gerarQuestoes(l[0].id); return }
+        diz('De qual material quer gerar as questões?'); ir('questoes-material')
+      })
       return
     }
     if (id === 'prova' && ehBB()) { diz('O espaço do Banco do Brasil não recebe arquivos. Para importar, preciso de um espaço seu: crie um agora (dá para começar com as questões do BB).'); ir('espaco-novo', { depois: 'prova' }); return }
@@ -242,14 +344,78 @@ export const useAssistente = create<State>((set, get) => {
 
   const continuarDepoisDoEspaco = (id: IdAcao | null) => {
     if (id === 'prova') { diz('Escolha o PDF da prova. Se tiver o do gabarito, escolha também (ou marque as respostas na prévia).'); ir('prova-arquivos') }
+    else if (id === 'questoes') { diz('Agora guarde o material de onde saem as questões (PDF, TXT ou MD).'); ir('material-arquivo') }
     else inicio()
   }
 
   return {
     etapa: 'inicio', mensagens: [], ocupado: false, progresso: null, depois: null, previa: null, cartoes: null, resultado: null, materiais: [], sugestoes: {}, relendo: null, vistas: 0, desambiguar: [],
-    pendente: null, ultimaProva: null, desfazivel: null, rascunho: '', carregada: false, epoca: 0,
+    pendente: null, ultimaProva: null, desfazivel: null, rascunho: '', carregada: false, epoca: 0, eventos: [], geradas: null, painel: null, painelMsgId: null, plano: null,
+    painelAcao: (sug) => {
+      voce(sug.rotulo)
+      if (sug.id === 'cartoes') { useApp.getState().setTab('cartoes'); return }
+      if (sug.id === 'erros') { iniciarPedido('treinar', { erros: true }); return }
+      if (sug.id === 'fraca') { iniciarPedido('treinar', { materia: sug.materia }); return }
+      if (sug.id === 'novas') { iniciarPedido('treinar', { novas: true }); return }
+      if (sug.id === 'semana') { iniciarPedido('simulado', { tempo: 'semana' }); return }
+      executar('prova')
+    },
+    planoAcao: (que) => {
+      const pl = get().plano
+      if (que === 'outro') { voce('Outro tempo'); avancar({ acao: 'plano' }); return }
+      if (!pl) return
+      if (que === 'cartoes') { voce('Começar pelos cartões'); useApp.getState().setTab('cartoes'); return }
+      voce(`Fazer as ${pl.questoes.ids.length} questões`)
+      dizOk(`Pronto: ${plural(pl.questoes.ids.length, 'questão', 'questões')} do plano de ${pl.minutos} minutos. Bom treino!`)
+      inicio(); useApp.getState().startCustom(pl.questoes.ids, false)
+    },
+    gerarQuestoes: async (materialId) => {
+      if (get().ocupado) return
+      const mat = get().materiais.find((x) => x.id === materialId) ?? (await listarMateriais(espacoAtivo())).find((x) => x.id === materialId)
+      if (!mat) { dizErro('Não achei esse material. Abra "Meus materiais" e tente de novo.'); return }
+      voce(`Gerar questões de "${mat.nome}"`)
+      ir('lendo', { ocupado: true, progresso: { texto: 'Lendo o material e montando as questões…', pct: 30 } })
+      try {
+        const textos = (await trechosDoMaterial(mat.id)).sort((a, b) => a.i - b.i).map((t) => t.t)
+        const geracao = gerarQuestoes(textos, { id: mat.id, nome: mat.nome })
+        set({ ocupado: false, progresso: null })
+        if (!geracao.questoes.length) {
+          const motivos = [...new Set(geracao.descartadas.map((d) => d.motivo))].slice(0, 2).join('; ')
+          diz(geracao.fatos ? `Achei ${plural(geracao.fatos, 'fato', 'fatos')} no material, mas nenhuma questão saiu${motivos ? ' (' + motivos + ')' : ''}. Para gerar questões preciso de pelo menos 5 definições, siglas ou perguntas do mesmo tipo, para ter alternativas erradas parecidas.` : 'Não achei definições, siglas, números nem perguntas neste material (o formato "Termo: definição", "SIGLA – expansão" ou "Pergunta::Resposta" ajuda). Nenhuma questão saiu.')
+          ir('material-pronto'); return
+        }
+        const g = geracao
+        diz(`Montei ${plural(g.questoes.length, 'questão', 'questões')} de "${mat.nome}", a partir de ${plural(g.fatos, 'fato', 'fatos')} do material.${g.descartadas.length ? ` ${plural(g.descartadas.length, 'fato não rendeu questão', 'fatos não renderam questão')} (poucas alternativas parecidas, ou alternativas longas demais).` : ''} Confira as alternativas e desmarque o que não servir.`)
+        set({ geradas: { material: mat, geracao: g, escolhidas: g.questoes.map((_, i) => i) } })
+        ir('questoes-previa')
+      } catch (e) { dizErro('Não consegui gerar as questões: ' + erroTexto(e)); set({ ocupado: false, progresso: null }); ir('material-pronto') }
+    },
+    alternarGerada: (i) => set((s) => (s.geradas ? { geradas: { ...s.geradas, escolhidas: s.geradas.escolhidas.includes(i) ? s.geradas.escolhidas.filter((x) => x !== i) : [...s.geradas.escolhidas, i] } } : {})),
+    confirmarGeradas: async () => {
+      const g = get().geradas
+      if (!g || get().ocupado) return
+      const lista = g.escolhidas.slice().sort((a, b) => a - b).map((i) => g.geracao.questoes[i]?.q).filter(Boolean)
+      if (!lista.length) { dizErro('Escolha ao menos uma questão.'); return }
+      set({ ocupado: true })
+      try {
+        const m = g.geracao.meta
+        voce(`Adicionar ${plural(lista.length, 'questão', 'questões')}`)
+        const r = await useEspacos.getState().adicionar(lista, { fontes: { [m.chave]: m.rotulo }, bancos: [{ id: m.bancoId, nome: m.bancoNome }] })
+        const texto = `${plural(r.adicionadas, 'questão entrou', 'questões entraram')} em "${m.rotulo.split(' · ')[0]}"${r.repetidas ? ` (${plural(r.repetidas, 'já estava', 'já estavam')}: não duplicou)` : ''}`
+        dizOk(`${texto}. Treine na aba Treinar: elas aparecem como uma prova própria e pesam metade das de prova real no sorteio.`)
+        set({ ocupado: false, geradas: null, ultimaProva: { chave: m.chave, rotulo: m.rotulo }, resultado: { texto, treinar: true, n: r.adicionadas } })
+        ir('prova-pronta')
+      } catch (e) { dizErro('Não consegui adicionar: ' + erroTexto(e)); set({ ocupado: false }) }
+    },
+    atualizarCaderno: async () => { try { set({ eventos: await lerEventos() }) } catch { /* sem eventos: vale o progresso agregado */ } },
+    cadernoAcao: (que) => {
+      if (que === 'rever') { voce('Rever o caderno'); iniciarPedido('treinar', { erros: true }) }
+      else if (que === 'simulado') { voce('Simulado só dos erros'); iniciarPedido('simulado', { erros: true }) }
+      else { voce(`Rever só ${que.rotulo}`); iniciarPedido('treinar', { erros: true, materia: que.materia }) }
+    },
     carregarHistorico: async () => {
-      if (get().carregada) return
+      if (historicoLido) return
+      historicoLido = true
       try {
         const rows = await naFila(lerConversa)
         if (rows.length && !get().mensagens.length) {
@@ -257,13 +423,9 @@ export const useAssistente = create<State>((set, get) => {
           set({ mensagens: rows as Msg[], vistas: rows.length })
         }
       } catch { /* sem histórico guardado: a conversa começa do zero */ }
-      set({ carregada: true })
     },
-    iniciarConversa: async () => {
-      await get().carregarHistorico()
-      if (get().mensagens.length) return
-      set({ mensagens: [m('a', 'Oi! Eu sou o assistente do Logos. Monto o seu espaço de estudo a partir dos seus arquivos: provas em PDF, gabaritos e resumos. Tudo é lido aqui no seu aparelho. Por onde quer começar?')] })
-    },
+    iniciarConversa: async () => { await abrir(false) },
+    abrirAba: async () => { await abrir(true) },
     ajuda: () => { voce('O que você sabe fazer?'); mostrarAjuda() },
     marcarVistas: (n) => set((st) => (n > st.vistas ? { vistas: n } : {})),
     voltarAoInicio: () => inicio(),
@@ -295,7 +457,7 @@ export const useAssistente = create<State>((set, get) => {
       set({ desambiguar: [] })
       if (i.tipo === 'desfazer') { void refazerDesfazer(); return }
       if (i.tipo === 'limpar') { perguntarLimpar(); return }
-      if (i.tipo === 'acao') { executar(i.id, ent); return }
+      if (i.tipo === 'acao') { executar(i.id, ent, t); return }
       if (i.tipo === 'perguntar') { void get().perguntar(t); return }
       if (i.tipo === 'ajuda') { mostrarAjuda(); return }
       if (i.tipo === 'oi') { diz('Oi! Em que posso ajudar? Toque numa sugestão ou escreva, por exemplo, "importar prova".'); return }
@@ -436,7 +598,7 @@ export const useAssistente = create<State>((set, get) => {
         const guardado = prepararMaterial(espacoAtivo(), f.name, tipoDoArquivo(f), paragrafos)
         const novoMaterial = guardado.ok ? await salvarMaterial(guardado.material, guardado.trechos).catch(() => false) : false
         diz(
-          sug.cartoes.length ? `Achei ${plural(sug.cartoes.length, 'cartão', 'cartões')} em ${plural(paragrafos.length, 'parágrafo', 'parágrafos')}. ${sug.sobraram ? `${plural(sug.sobraram, 'parágrafo ficou', 'parágrafos ficaram')} de fora (sem padrão de definição). ` : ''}Escolha os que quer.` : 'Não achei trechos no formato "termo: definição" nem outros padrões que eu reconheça.',
+          sug.cartoes.length ? `Achei ${plural(sug.cartoes.length, 'cartão', 'cartões')} em ${plural(paragrafos.length, 'parágrafo', 'parágrafos')}. ${sug.sobraram ? `${plural(sug.sobraram, 'parágrafo ficou', 'parágrafos ficaram')} de fora (sem padrão de definição). ` : ''}${sug.descartados.length ? `${plural(sug.descartados.length, 'cartão foi barrado', 'cartões foram barrados')} pelas regras de qualidade (por exemplo: ${sug.descartados[0].motivo}). ` : ''}Escolha os que quer.` : sug.descartados.length ? `Os padrões que reconheci (${plural(sug.descartados.length, 'cartão', 'cartões')}) foram barrados pelas regras de qualidade, por exemplo: ${sug.descartados[0].motivo}.` : 'Não achei trechos no formato "termo: definição", nem listas, siglas ou a sua marcação (Pergunta::Resposta, ==lacuna==) que eu reconheça.',
           ...(novoMaterial ? ['Guardei o resumo para você consultar depois: é só perguntar (por exemplo "o que é …?").'] : []),
           ...avisos,
         )

@@ -3,6 +3,7 @@ import { sentidoDaQuestao } from '../core/movimento'
 import { createPortal } from 'react-dom'
 import { ALL_SUBJECTS, SOURCES, SUBJECT } from '../core/subjects'
 import { AVISOS } from '../core/avisos'
+import { versoComMaterial } from '../core/cartoes/material'
 import { REGRAS, scoreSimulado } from '../core/scoring'
 import { useUrlImagem } from './useUrlImagem'
 import { formatarDuracao } from '../core/cronometro'
@@ -88,8 +89,11 @@ function textoDoCartao(q: Question, soImg: boolean, nota?: string): { f: string;
     v: `Gabarito: ${q.g}) ${q.o[q.g]}\n\n${q.a ? `Assunto: ${q.a}` : `Tema: ${q.t}`} · ${prova}, questão ${q.n}${minha}`,
   }
 }
-function criarCartao(q: Question, soImg: boolean, nota?: string) {
-  const r = useCards.getState().daQuestao(q, textoDoCartao(q, soImg, nota))
+async function criarCartao(q: Question, soImg: boolean, nota?: string) {
+  const texto = textoDoCartao(q, soImg, nota)
+  // se a pessoa guardou um material que fala do assunto, o verso ganha o trecho que explica (o gabarito diz QUAL é a certa; o material, POR QUÊ)
+  const material = await import('../services/busca/consultar').then((m) => m.trechoParaQuestao(q)).catch(() => null)
+  const r = useCards.getState().daQuestao(q, material ? { ...texto, v: versoComMaterial(texto.v, material.fonte, material.texto) } : texto)
   useApp.getState().showToast(r === 'criado' ? AVISOS.flashcardCriado : AVISOS.flashcardExiste)
 }
 
@@ -156,6 +160,7 @@ export function Questao() {
               <div className={`fb ${a === q.g ? 'ok' : 'err'}`} role="status">
                 <b className="v">{a === q.g ? 'Certo.' : 'Errou.'} Gabarito: {q.g}</b>
                 <p>{q.a ? `Assunto: ${q.a}` : `Tema: ${q.t}`}{seen > 1 ? ` · você já viu ${seen}×` : ''}</p>
+                {q.ger && q.fonte && <p className="note">Questão gerada do seu material. Do trecho: “{q.fonte}”</p>}
               </div>
             )}
             {reveal && a && <button className="btn small-btn criarcard" onClick={() => criarCartao(q, soImg, mk?.a)}><Icon n="cards" size={18} />Criar flashcard desta questão</button>}

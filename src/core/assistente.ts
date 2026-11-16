@@ -1,7 +1,7 @@
 // O "pseudo-agente": um chat com AÇÕES FIXAS (sem IA). Cada ação está descrita aqui, uma vez, e a tela, a ajuda e a documentação (docs/assistente.md)
 // leem daqui. Acrescentar uma ação = acrescentar aqui, no fluxo (store/assistente.ts) e na tela (ui/Assistente.tsx); o teste confere que a documentação a cita.
 
-export type IdAcao = 'prova' | 'cartoes' | 'simulado' | 'treinar' | 'perguntar' | 'materiais' | 'espaco' | 'resumo' | 'ia'
+export type IdAcao = 'prova' | 'cartoes' | 'simulado' | 'treinar' | 'caderno' | 'questoes' | 'plano' | 'perguntar' | 'materiais' | 'espaco' | 'resumo' | 'ia'
 
 export interface Acao {
   id: IdAcao
@@ -46,6 +46,27 @@ export const ACOES: Acao[] = [
     precisa: 'Nada, ou o que quiser dizer: "treinar 15 de matemática", "treinar a prova do BB 2021", "treinar português". O que faltar eu pergunto.',
     gera: 'Uma sessão de treino (com correção na hora) sorteada pelo peso da matéria e pelo que você mais erra.',
     limites: 'Só sorteia entre as questões que já estão no espaço. Sem dizer a quantidade, são 10.',
+  },
+  {
+    id: 'caderno', rotulo: 'Caderno de erros', sugestao: 'Caderno de erros',
+    resumo: 'Guarda sozinho toda questão que você errou e a tira depois de 3 acertos seguidos; mostra onde você mais erra e deixa revisar ou fazer um simulado só com elas.',
+    precisa: 'Nada: ele se monta com o que você responde. Para ir direto: "rever erros de português", "treinar meus erros", "simulado de 30 com o que mais erro".',
+    gera: 'Uma revisão (ou simulado) só com as questões do caderno, as que você mais erra primeiro. O "Simulado da semana" (pergunta do simulado) mistura caderno, matérias fracas e questões novas.',
+    limites: 'Só conta o que o app viu você responder (a ordem das respostas vem do registro de respostas). Revisão sem quantidade: 20 questões.',
+  },
+  {
+    id: 'plano', rotulo: 'Painel do dia e plano de estudo', sugestao: 'Painel do dia e plano de estudo',
+    resumo: 'Mostra o seu dia (o que já estudou, a sequência, o que está esperando) e monta um plano de estudo para o tempo que você tiver.',
+    precisa: 'Nada para ver o painel. Para o plano, o tempo que tem: "tenho 30 minutos", "meia hora", "1 hora".',
+    gera: 'Um resumo do dia com uma sugestão principal, e um plano que divide o tempo entre cartões, caderno de erros, matéria fraca e questões novas, com botões para começar.',
+    limites: 'Tudo calculado no aparelho, com o que o app viu você estudar. Plano de 5 a 240 minutos. O painel também aparece sozinho quando você abre a aba (no máximo uma vez a cada 3 horas). Não há lembrete por notificação.',
+  },
+  {
+    id: 'questoes', rotulo: 'Gerar questões do material', sugestao: 'Gerar questões do meu material',
+    resumo: 'Transforma um material seu (resumo, apostila) em questões de 5 alternativas, no estilo das provas, para você treinar.',
+    precisa: 'Um material guardado em um espaço seu ("Meus materiais"). O espaço do Banco do Brasil não recebe questões novas.',
+    gera: 'Questões de múltipla escolha sobre o que o seu material diz: definição, termo, sigla, número, lacuna, pergunta e resposta e "assinale a INCORRETA". As alternativas erradas vêm do próprio material. Você vê tudo numa prévia e escolhe o que entra.',
+    limites: 'Só sai questão quando há alternativas parecidas suficientes no material (pelo menos 5 definições, siglas ou perguntas do mesmo tipo). No máximo 120 por vez. Entram como "geradas": pesam metade no sorteio e nunca no simulado do edital.',
   },
   {
     id: 'perguntar', rotulo: 'Perguntar ao meu material', sugestao: 'Perguntar ao meu material',

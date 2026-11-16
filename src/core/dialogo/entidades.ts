@@ -1,6 +1,7 @@
 // As "entidades" da fala: o que a pessoa disse ALÉM do que quer fazer (de que matéria, quantas questões, de qual prova, "essa prova", que espaço, que nome).
 // Sem IA: compara palavras pelo radical (core/busca/radical.ts) com o que existe no espaço ativo (o `Contexto`). Puro: sem DOM, banco nem estado.
 import { radical } from '../busca/radical'
+import { acharMinutos } from '../dia'
 import { PALAVRAS_VAZIAS, palavras, semAcento } from '../busca/texto'
 
 export interface CtxMateria { nome: string; curto: string }
@@ -16,6 +17,8 @@ export interface Contexto {
   temRegras: boolean
   /** A última prova importada na conversa ("dessa prova"). */
   ultimaProva?: CtxProva
+  /** Quantas questões estão no caderno de erros agora (0 = nada a rever; as opções "dos meus erros" só aparecem se houver). */
+  erros?: number
 }
 
 export interface Entidades {
@@ -30,6 +33,12 @@ export interface Entidades {
   tempo?: 'hoje' | 'semana'
   /** Nome de um espaço novo ("criar espaço Direito Penal"). */
   nome?: string
+  /** "os meus erros", "o que mais erro": o pedido é sobre o caderno de erros. */
+  erros?: boolean
+  /** "questões novas", "inéditas": só as que a pessoa ainda não respondeu. */
+  novas?: boolean
+  /** "tenho 30 minutos", "meia hora": o tempo que a pessoa tem (para o plano de estudo). */
+  minutos?: number
 }
 
 const NUMEROS: Record<string, number> = {
@@ -116,10 +125,14 @@ export function extrairEntidades(bruto: string, ctx: Contexto): Entidades {
   if (!provas.length && ctx.ultimaProva && REFERE_ULTIMA.test(sem) && /\bprova\b/.test(sem)) provas = [ctx.ultimaProva]
   if (provas.length) e.provas = provas
   const usados = new Set(provas.flatMap((p) => palavras(p.rotulo.split(' · ')[0]).filter((t) => /^\d+$/.test(t))))
+  const minutos = acharMinutos(bruto)
+  if (minutos) { e.minutos = minutos; for (const d of sem.matchAll(/\b(\d{1,3})\s*(?:min|mins|minutos?|m|h|horas?)\b/g)) usados.add(d[1]) } // "30 minutos" não é a quantidade de questões
   const q = acharQuantidade(bruto, usados)
   if (q) e.quantidade = q
   if (/\b(todas|todos|qualquer|geral|misturad[oa]s?|tudo)\b/.test(sem)) e.todas = true
   if (/\bhoje\b/.test(sem)) e.tempo = 'hoje'; else if (/\bsemana\b/.test(sem)) e.tempo = 'semana'
+  if (/\b(erro|erros|errei|errad[oa]s?|errando)\b/.test(sem)) e.erros = true
+  if (/\b(novas|novos|ineditas?|ineditos?)\b/.test(sem)) e.novas = true
   // espaço citado pelo nome (todas as palavras significativas do nome aparecem)
   const falados = new Set(palavras(bruto, true).map(rad))
   for (const sp of ctx.espacos) { const w = sig(sp.nome); if (w.length && w.every((x) => falados.has(x))) { e.espaco = sp; break } }

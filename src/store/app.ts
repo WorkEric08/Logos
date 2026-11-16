@@ -153,7 +153,7 @@ export const useApp = create<State>((set, get) => {
     startSimulado: () => {
       const { prog } = get()
       const ids = SIMULADO_PLAN.flatMap(([m, n]) =>
-        pick(BANK.filter((q) => q.m === m), n, TF, prog).sort((a, b) => a.y - b.y || a.n - b.n).map((q) => q.id))
+        pick(BANK.filter((q) => q.m === m && !q.ger), n, TF, prog).sort((a, b) => a.y - b.y || a.n - b.n).map((q) => q.id)) // o simulado do edital só tem questão de prova: nunca as geradas
       begin(ids, true)
     },
     startCustom: (ids, sim) => begin(ids, sim),

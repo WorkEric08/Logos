@@ -67,6 +67,10 @@ describe('cartões sem IA', () => {
     const r = sugerirCartoes(['# Selic', 'Taxa básica de juros da economia brasileira, definida pelo Copom a cada 45 dias.', 'O órgão que define a Selic é o **Copom**, do Banco Central do Brasil.'])
     expect(r.cartoes.map((c) => c.tipo)).toEqual(['titulo', 'lacuna']); expect(r.cartoes[1].f).toContain('_____'); expect(r.cartoes[1].v).toBe('Copom')
   })
+  it('título seguido de um parágrafo que já é uma definição: o parágrafo vale por si, o título não ganha um cartão errado (F3)', () => {
+    const r = sugerirCartoes(['# Juros', 'Juros simples: o rendimento é calculado só sobre o capital inicial, em cada período.'])
+    expect(r.cartoes.map((c) => [c.tipo, c.f])).toEqual([['definicao', 'Juros simples']])
+  })
   it('não repete a mesma frente e respeita o tamanho', () => {
     const longo = 'x'.repeat(2000)
     const r = sugerirCartoes(['Termo: ' + longo, 'Termo: outra definição bem longa aqui para repetir a frente'])

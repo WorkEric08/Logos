@@ -162,12 +162,24 @@ Cada fase segue o mesmo **checklist de padrões** (seção 6). Ordem pensada par
 |---|---|
 | **F1** — Biblioteca de materiais + busca | **Feita (2026-11-15)** |
 | **F2** — Diálogo com detalhes, contexto e memória | **Feita (2026-11-15)** |
-| F3 — Cartões 2.0 | Próxima |
-| F5 — Caderno de erros e simulados inteligentes | Falta |
-| F4 — Questões A–E geradas do material | Falta |
-| F6 — Painel do dia + plano de estudo | Falta |
-| F7 — FSRS nos Cards (opcional) | Falta |
+| **F3** — Cartões 2.0 | **Feita (2026-11-16)** |
+| **F5** — Caderno de erros e simulados inteligentes | **Feita (2026-11-16)** |
+| **F4** — Questões A–E geradas do material | **Feita (2026-11-16)** |
+| **F6** — Painel do dia + plano de estudo | **Feita (2026-11-16)** |
+| F7 — FSRS nos Cards (opcional) | Próxima (só com o seu "sim") |
 | F8 — Busca por significado (opcional) | Falta |
+
+### F6 — o que ficou
+O assistente **abre a aba falando** (painel do dia, no máximo a cada 3 h) com UMA sugestão principal por prioridade e até 2 alternativas como pílulas; **plano por tempo** ("tenho 30 minutos") dividindo cartões, caderno de erros, matérias fracas e novas; "treinar questões novas". Sem tabela nova. **Limites:** estimativas de tempo (30 s/cartão, 2 min/questão) e meta de 20/dia são minhas; **lembrete diário por notificação NÃO feito** (exige plugin nativo + permissão do Android: muda o APK; faço se você pedir).
+
+### F4 — o que ficou
+Questões de 5 alternativas geradas por regras a partir dos fatos do gerador de cartões, em 7 tipos (definição, termo, sigla, número, lacuna, pergunta e resposta, "assinale a INCORRETA"), com alternativas erradas do próprio material (mesmo tipo e forma, tamanho parecido; números variados na mesma unidade), prévia com a fonte, marcação "gerada" (metade do peso, fora do simulado do edital), repetíveis (mesmos ids). **Limites:** só sai questão quando há ≥ 5 fatos do mesmo tipo; alternativas do banco de provas reais **não** foram usadas (entregariam a certa pelo estilo); a meta de ≥ 70 % aproveitáveis só se confirma com os seus materiais (`scripts/medir-questoes.mjs`); "simulado só de geradas" ficou para quando você pedir (hoje: "treinar essa prova" logo depois de adicionar, ou a "prova" Geradas no Treinar).
+
+### F5 — o que ficou
+Caderno de erros automático (entra ao errar, sai com 3 acertos seguidos, lido do registro de eventos), painel e comandos ("rever erros de português", "treinar meus erros", "simulado de 30 com o que mais erro"), **simulado da semana** (40 % caderno + 30 % matérias fracas + novas) com a mistura explicada, e a opção "Só dos meus erros" no simulado. Sem tabela nova. Medido com testes de núcleo (17), frases (corpus) e e2e no navegador com respostas reais. **Limites:** "Rever erros" do Treinar/Início usa a regra antiga; simulado "só de geradas" e o cartão automático de questão errada ficaram para depois da F4 (dependem das questões geradas); a regra de 3 seguidos não é configurável.
+
+### F3 — o que ficou
+Sintaxe explícita (`::`, `:::`, `?` sozinho, `==x==`, `{{x}}`), siglas nos dois sentidos, listas e enumerações em um cartão por item, lacuna em números/datas/valores, regras de qualidade (barra o ruim com o motivo à vista, avisa o discutível), tipo de cada cartão na prévia e trecho do material no verso do cartão de questão. Sem tabela nova. Medido com o conjunto-ouro do teste (100 %, pequeno e meu) e com `scripts/medir-cartoes.mjs`. **Limites:** a meta "≥ 80 % de cartões bons em ~100" só se confirma com os seus resumos reais (o script existe para isso); "lacuna na entidade principal da frase-fato" (sem NLP) **não** foi feita — só números e negrito; o cartão automático de questão errada depende do caderno de erros da F5.
 
 ### F2 — o que ficou
 Camada pura `core/dialogo/` (entidades, motor de perguntar o que falta, sugestões ao digitar), ação **`treinar`**, pedidos com detalhes em simulado e treino, perguntas com opções (etapa `pergunta`), desfazer da última ação (espaço, material, cartões), limpar conversa com confirmação e histórico guardado (Dexie **v7**, tabela `conversa`, últimas 300 falas, fila de gravação). Medido: 87 frases (`corpus.test.ts`) e 77 casos de entidades/motor; e2e no navegador (`e2e-assistente-dialogo.mjs`). Limites: desfazer de **um** passo, importar prova não se desfaz; frases com dois pedidos ("importar e depois criar cartões") continuam sem entender; falta conferir a lista de sugestões no teclado de um celular real.

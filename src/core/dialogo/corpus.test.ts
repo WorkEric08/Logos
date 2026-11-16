@@ -20,7 +20,7 @@ function ler(frase: string) {
   return { quem, pedido, e }
 }
 
-type Esperado = { quem: string; materia?: string; quantidade?: number; provas?: string[]; falta?: 'materia' | 'quantidade' | 'nada' }
+type Esperado = { quem: string; materia?: string; quantidade?: number; provas?: string[]; fonte?: 'erros' | 'semana' | 'novas'; falta?: 'materia' | 'quantidade' | 'nada' }
 const SIMULADO_E_TREINO: [string, Esperado][] = [
   // simulado
   ['quero um simulado', { quem: 'simulado', falta: 'materia' }],
@@ -60,6 +60,16 @@ const SIMULADO_E_TREINO: [string, Esperado][] = [
   ['treino de ética', { quem: 'treinar', materia: 'Ética', falta: 'nada' }],
   ['exercitar matemática financeira', { quem: 'treinar', materia: 'Matemática Financeira', falta: 'nada' }],
   ['treinar bb 10/2015', { quem: 'treinar', provas: ['bb-102015'], falta: 'nada' }],
+  ['treinar questões novas', { quem: 'treinar', fonte: 'novas', falta: 'nada' }],
+  ['treinar 5 questões inéditas de português', { quem: 'treinar', fonte: 'novas', materia: 'Língua Portuguesa', quantidade: 5, falta: 'nada' }],
+  // F5: caderno de erros e simulado da semana
+  ['treinar meus erros', { quem: 'treinar', fonte: 'erros', falta: 'nada' }],
+  ['treinar 15 questões dos meus erros de matemática', { quem: 'treinar', fonte: 'erros', materia: 'Matemática', quantidade: 15, falta: 'nada' }],
+  ['simulado de 30 com o que mais erro', { quem: 'simulado', fonte: 'erros', quantidade: 30, falta: 'nada' }],
+  ['simulado só com as questões que errei', { quem: 'simulado', fonte: 'erros', falta: 'quantidade' }],
+  ['simulado da semana', { quem: 'simulado', fonte: 'semana', falta: 'quantidade' }],
+  ['quero o simulado da semana com 20 questões', { quem: 'simulado', fonte: 'semana', quantidade: 20, falta: 'nada' }],
+  ['simulado da semana de 10', { quem: 'simulado', fonte: 'semana', quantidade: 10, falta: 'nada' }],
 ]
 
 describe('simulado e treino: o que é entendido e o que falta perguntar', () => {
@@ -69,6 +79,7 @@ describe('simulado e treino: o que é entendido e o que falta perguntar', () => 
     expect(r.pedido?.materia).toBe(esp.materia)
     expect(r.pedido?.quantidade).toBe(esp.quantidade)
     expect(r.pedido?.provas?.map((p) => p.chave)).toEqual(esp.provas)
+    expect(r.pedido?.fonte).toBe(esp.fonte)
     const passo = proximoPasso(r.pedido!, ctx)
     expect(passo.tipo === 'executar' ? 'nada' : passo.slot).toBe(esp.falta)
   })
@@ -83,6 +94,9 @@ const OUTRAS: [string, string][] = [
   ['ligar a IA', 'ia'], ['colocar a minha chave', 'ia'],
   ['o que é Copom?', 'perguntar'], ['onde fala de inflação', 'perguntar'], ['explique juros compostos', 'perguntar'], ['procure consignado', 'perguntar'],
   ['meus materiais', 'materiais'], ['guardar uma apostila', 'materiais'],
+  ['caderno de erros', 'caderno'], ['meu caderno', 'caderno'], ['rever erros', 'caderno'], ['revisar os erros', 'caderno'], ['rever erros de português', 'caderno'], ['quero ver o que eu errei', 'caderno'],
+  ['gerar questões do meu material', 'questoes'], ['criar questões do resumo', 'questoes'], ['gerar questões da apostila', 'questoes'], ['quero questões do meu resumo', 'questoes'], ['transformar o material em questões', 'questoes'],
+  ['plano de estudo', 'plano'], ['tenho 30 minutos', 'plano'], ['só tenho meia hora hoje', 'plano'], ['painel do dia', 'plano'], ['como estou hoje', 'plano'], ['o que estudar hoje', 'plano'], ['por onde começar', 'plano'], ['tenho 1 hora para estudar', 'plano'], ['o que estudei hoje', 'plano'], ['minha sequência', 'plano'],
   ['ajuda', 'ajuda'], ['o que você sabe fazer?', 'ajuda'], ['menu', 'ajuda'],
   ['cancelar', 'cancelar'], ['voltar', 'cancelar'], ['deixa pra lá', 'cancelar'],
   ['oi', 'oi'], ['bom dia', 'oi'], ['obrigado', 'obrigado'], ['valeu', 'obrigado'],

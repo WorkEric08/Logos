@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import 'fake-indexeddb/auto'
 import Dexie from 'dexie'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A conversa do assistente: o que ele responde ao que a pessoa escreve ou toca. (Os arquivos e o movimento têm os seus próprios testes: e2e-assistente*.mjs.)
 type Loja = typeof import('./assistente')
@@ -122,7 +122,7 @@ describe('assistente: pedidos com detalhes e perguntas do que falta (F2)', () =>
   })
   it('o que foi dito não é perguntado de novo, e as respostas escritas valem como as tocadas', () => {
     estado().enviar('simulado com 15 questões')
-    expect(estado().pendente?.slot).toBe('materia'); expect(fala().texto).toBe('De qual matéria?') // sem o do edital: a quantidade já foi dita
+    expect(estado().pendente?.slot).toBe('materia'); expect(fala().texto).toMatch(/^De qual matéria\?/) // sem o do edital: a quantidade já foi dita
     estado().enviar('português')
     expect(estado().pendente).toBeNull(); expect(sessao()?.ids).toHaveLength(15)
     expect(sessao()!.ids.every((id) => app.BY_ID[id].m === 'Língua Portuguesa')).toBe(true)
@@ -230,5 +230,224 @@ describe('assistente: sugestões ao digitar (F2)', () => {
     estado().digitar('inflacao'); estado().procurar('inflacao')
     expect(estado().rascunho).toBe(''); expect(estado().mensagens[0]).toMatchObject({ de: 'v', texto: 'inflacao' })
     await vi.waitFor(() => expect(estado().mensagens.length).toBeGreaterThan(1))
+  })
+})
+
+describe('assistente: cartões 2.0 (F3)', () => {
+  const arquivo = (nome: string, texto: string) => new File([texto], nome, { type: 'text/markdown' })
+  const RESUMO = ['Selic::Taxa básica de juros da economia', '', 'O Banco Central do Brasil (BACEN) regula o sistema financeiro nacional.', '', 'Os poderes da União:', '', '- Legislativo', '', '- Executivo', '', '- Judiciário', '', 'Isso: algo que ninguém sabe dizer direito aqui.'].join('\n')
+
+  it('a prévia traz cartões da marcação, das siglas e das listas, e conta os barrados pela qualidade', async () => {
+    await estado().lerCartoes(arquivo('resumo.md', RESUMO))
+    const c = estado().cartoes!
+    expect(c.sug.cartoes.map((x) => x.tipo)).toEqual(['sintaxe', 'sigla', 'sigla', 'lista', 'lista', 'lista'])
+    expect(c.sug.descartados).toHaveLength(1)
+    expect(estado().mensagens.find((m) => /barrado/.test(m.texto))?.texto).toMatch(/1 cartão foi barrado pelas regras de qualidade \(por exemplo: pronome solto/)
+  })
+  it('só o que foi barrado: explica o motivo em vez de dizer que não achou nada', async () => {
+    await estado().lerCartoes(arquivo('ruim.md', 'Isso: algo que ninguém sabe dizer direito aqui.'))
+    expect(estado().etapa).toBe('cartoes-arquivo'); expect(estado().mensagens.some((m) => /foram barrados pelas regras de qualidade/.test(m.texto) || /barrados/.test(m.texto))).toBe(true)
+  })
+  it('o cartão de uma questão ganha o trecho do material que fala do assunto (só do material, e só resposta completa)', async () => {
+    const { trechoParaQuestao } = await import('../services/busca/consultar')
+    await estado().guardarMaterial(arquivo('Moeda.md', '# Moeda\nA taxa Selic é a taxa básica de juros da economia brasileira, definida pelo Copom a cada 45 dias.'))
+    expect(await trechoParaQuestao({ a: 'taxa Selic', t: 'Atualidades' })).toMatchObject({ fonte: expect.stringContaining('Moeda'), texto: expect.stringContaining('taxa básica de juros') })
+    expect(await trechoParaQuestao({ a: 'xablaupfrt', t: 'Atualidades' })).toBeNull()
+    expect(await trechoParaQuestao({ a: '', t: '' })).toBeNull()
+  })
+})
+
+describe('assistente: caderno de erros e simulado da semana (F5)', () => {
+  let app: typeof import('./app')
+  let ev: typeof import('../core/sync/eventos')
+  beforeEach(async () => { app = await import('./app'); ev = await import('../core/sync/eventos') })
+  const sessao = () => app.useApp.getState().session
+  /** Põe respostas ERRADAS (uma por questão) para as questões dadas, como se o app as tivesse registrado. */
+  const errar = (ids: string[]) => loja.useAssistente.setState({ eventos: ids.map((id, i) => ev.resposta('d1', id, 'B', false, 1000 + i)) })
+  const mat = (m: string, n: number) => app.BANK.filter((q) => q.m === m).slice(0, n).map((q) => q.id)
+
+  it('caderno vazio: diz que está vazio (e que é bom sinal), sem abrir painel', () => {
+    estado().enviar('caderno de erros')
+    expect(fala().texto).toMatch(/caderno de erros está vazio/); expect(estado().etapa).toBe('inicio')
+  })
+  it('"caderno de erros" resume (total, onde mais erra) e abre as saídas', () => {
+    errar([...mat('Matemática', 3), ...mat('Língua Portuguesa', 1)])
+    estado().enviar('caderno de erros')
+    expect(estado().etapa).toBe('caderno'); expect(fala().texto).toMatch(/4 questões: 4 erradas na última vez e 0 já acertadas/); expect(fala().texto).toMatch(/Matemática \(3\), Língua Portuguesa \(1\)/)
+  })
+  it('"rever erros de matemática" vai direto: só as do caderno naquela matéria, como treino (não simulado)', () => {
+    errar([...mat('Matemática', 3), ...mat('Língua Portuguesa', 2)])
+    estado().enviar('rever erros de matemática')
+    expect(sessao()?.ids.sort()).toEqual(mat('Matemática', 3).sort()); expect(sessao()?.sim).toBe(false)
+    expect(fala().texto).toMatch(/treino de 3 questões do seu caderno de erros de Matemática/)
+  })
+  it('as saídas do painel do caderno: rever tudo, só uma matéria, simulado só dos erros', () => {
+    errar([...mat('Matemática', 3), ...mat('Língua Portuguesa', 2)])
+    estado().enviar('meus erros'); expect(estado().etapa).toBe('caderno')
+    estado().cadernoAcao('rever'); expect(sessao()?.ids).toHaveLength(5)
+    app.useApp.getState().leave(); estado().voltarAoInicio()
+    estado().cadernoAcao({ materia: 'Língua Portuguesa', rotulo: 'Português' }); expect(sessao()?.ids).toHaveLength(2)
+    app.useApp.getState().leave(); estado().voltarAoInicio()
+    estado().cadernoAcao('simulado'); expect(estado().pendente?.slot).toBe('quantidade')
+    estado().responder({ rotulo: '10 questões', valor: 10 }); expect(sessao()?.sim).toBe(true); expect(sessao()?.ids).toHaveLength(5) // só tem 5 no caderno
+  })
+  it('"simulado de 30 com o que mais erro": simulado só do caderno; os que mais erraram vêm primeiro', () => {
+    const [a, b, c] = mat('Matemática', 3)
+    loja.useAssistente.setState({ eventos: [ev.resposta('d1', a, 'B', false, 1), ev.resposta('d1', b, 'B', false, 2), ev.resposta('d1', b, 'B', false, 3), ev.resposta('d1', c, 'B', false, 4)] })
+    estado().enviar('simulado de 2 questões com o que mais erro')
+    expect(sessao()?.sim).toBe(true); expect(sessao()?.ids[0]).toBe(b) // b errou 2 vezes
+    expect(sessao()?.ids).toHaveLength(2)
+  })
+  it('3 acertos seguidos tiram a questão do caderno', () => {
+    const [a] = mat('Matemática', 1)
+    loja.useAssistente.setState({ eventos: [ev.resposta('d1', a, 'B', false, 1), ev.resposta('d1', a, 'A', true, 2), ev.resposta('d1', a, 'A', true, 3), ev.resposta('d1', a, 'A', true, 4)] })
+    estado().enviar('caderno de erros'); expect(fala().texto).toMatch(/está vazio/)
+  })
+  it('a pergunta do simulado oferece "Simulado da semana" (sempre) e "Só dos meus erros" (se houver erros)', () => {
+    estado().enviar('simulado'); expect(estado().pendente!.opcoes.map((o) => o.valor)).toContain('semana'); expect(estado().pendente!.opcoes.map((o) => o.valor)).not.toContain('erros')
+    estado().cancelarPergunta()
+    errar(mat('Matemática', 2))
+    estado().enviar('simulado'); expect(estado().pendente!.opcoes.find((o) => o.valor === 'erros')?.rotulo).toBe('Só dos meus erros (2)')
+  })
+  it('"simulado da semana" pergunta só o tamanho; monta mistura de erros, fracas e novas e explica a mistura', () => {
+    errar(mat('Matemática', 6))
+    estado().enviar('simulado da semana'); expect(estado().pendente?.slot).toBe('quantidade')
+    estado().responder({ rotulo: '20 questões', valor: 20 })
+    expect(sessao()?.sim).toBe(true); expect(sessao()?.ids).toHaveLength(20); expect(new Set(sessao()!.ids).size).toBe(20)
+    expect(fala().texto).toMatch(/^Montei o simulado da semana com 20 questões: 6 do seu caderno de erros/)
+    expect(mat('Matemática', 6).every((id) => sessao()!.ids.includes(id))).toBe(true) // o caderno inteiro entrou
+  })
+})
+
+describe('assistente: questões geradas do material (F4)', () => {
+  let app: typeof import('./app')
+  let esp: typeof import('./espacos')
+  let RESUMO: string
+  beforeEach(async () => { app = await import('./app'); esp = await import('./espacos'); RESUMO = (await import('../core/questoes/fixture')).RESUMO_TESTE })
+  const arquivo = (texto: string) => new File([texto], 'Resumo SFN.md', { type: 'text/markdown' })
+  const espacoComMaterial = async (usaBB = false) => {
+    await esp.useEspacos.getState().iniciar()
+    await esp.useEspacos.getState().criar('Meu espaço', usaBB)
+    await estado().guardarMaterial(arquivo(RESUMO))
+  }
+
+  it('no espaço do Banco do Brasil explica e leva a criar um espaço seu', () => {
+    estado().enviar('gerar questões do meu material')
+    expect(estado().etapa).toBe('espaco-novo'); expect(estado().depois).toBe('questoes'); expect(fala().texto).toMatch(/espaços seus/)
+  })
+  it('sem material guardado, pede para guardar um', async () => {
+    await esp.useEspacos.getState().iniciar(); await esp.useEspacos.getState().criar('Vazio', false)
+    estado().enviar('gerar questões do material')
+    await vi.waitFor(() => expect(estado().etapa).toBe('material-arquivo')); expect(fala().texto).toMatch(/preciso de um material seu/)
+  })
+  it('com um material: monta a prévia (nada entra antes de confirmar)', async () => {
+    await espacoComMaterial()
+    const antes = app.BANK.length
+    estado().enviar('gerar questões do material')
+    await vi.waitFor(() => expect(estado().etapa).toBe('questoes-previa'))
+    const g = estado().geradas!
+    expect(g.geracao.questoes.length).toBeGreaterThanOrEqual(20); expect(g.escolhidas).toHaveLength(g.geracao.questoes.length)
+    expect(fala().texto).toMatch(/^Montei \d+ questões de "Resumo SFN"/); expect(app.BANK.length).toBe(antes)
+  })
+  it('confirmar adiciona como "geradas" (uma prova própria); desmarcar tira da lista; repetir não duplica', async () => {
+    await espacoComMaterial()
+    estado().enviar('gerar questões do material'); await vi.waitFor(() => expect(estado().etapa).toBe('questoes-previa'))
+    const total = estado().geradas!.geracao.questoes.length
+    estado().alternarGerada(0); estado().alternarGerada(1)
+    await estado().confirmarGeradas()
+    expect(estado().etapa).toBe('prova-pronta'); expect(estado().resultado?.n).toBe(total - 2)
+    const ger = app.BANK.filter((q) => q.ger)
+    expect(ger).toHaveLength(total - 2); expect(ger.every((q) => q.m === 'Do meu material' && q.fonte && q.s === estado().ultimaProva!.chave)).toBe(true)
+    expect(fala().texto).toMatch(/Treine na aba Treinar/)
+    // de novo: as mesmas questões (mesmos ids): só as duas desmarcadas entram
+    estado().voltarAoInicio(); estado().enviar('gerar questões do material'); await vi.waitFor(() => expect(estado().etapa).toBe('questoes-previa'))
+    await estado().confirmarGeradas()
+    expect(app.BANK.filter((q) => q.ger)).toHaveLength(total); expect(fala().texto).toMatch(/2 questões entraram .* \(\d+ já estavam/)
+  })
+  it('as geradas nunca entram no simulado do edital', async () => {
+    await espacoComMaterial(true) // espaço com as questões do BB + as suas
+    estado().enviar('gerar questões do material'); await vi.waitFor(() => expect(estado().etapa).toBe('questoes-previa'))
+    await estado().confirmarGeradas()
+    expect(app.BANK.some((q) => q.ger)).toBe(true)
+    app.useApp.getState().startSimulado()
+    expect(app.useApp.getState().session!.ids.some((id) => app.BY_ID[id].ger)).toBe(false)
+  })
+  it('material sem padrão nenhum: diz o que faltou, não inventa questão', async () => {
+    await esp.useEspacos.getState().iniciar(); await esp.useEspacos.getState().criar('Texto corrido', false)
+    await estado().guardarMaterial(arquivo('Uma frase solta qualquer sem nenhum padrão reconhecível dentro dela para virar fato de estudo.'))
+    estado().enviar('gerar questões do material')
+    await vi.waitFor(() => expect(fala().texto).toMatch(/Não achei definições, siglas, números nem perguntas/)); expect(estado().geradas).toBeNull()
+  })
+})
+
+describe('assistente: painel do dia e plano de estudo (F6)', () => {
+  // as gravações do histórico são assíncronas: esperar o fim de cada teste evita que uma fala gravada tarde apareça no banco do teste seguinte
+  afterEach(async () => { await new Promise((r) => setTimeout(r, 80)) })
+  let app: typeof import('./app')
+  let cards: typeof import('./cards')
+  let cardsCore: typeof import('../core/cards')
+  beforeEach(async () => { app = await import('./app'); cards = await import('./cards'); cardsCore = await import('../core/cards') })
+  const sessao = () => app.useApp.getState().session
+  const vencido = (id: string) => ({ ...cardsCore.criarCartao({ b: 'b', f: 'frente ' + id, v: 'verso' }, Date.now() - 9e8, id), estado: 'revisao' as const, due: Date.now() - 1000, ivl: 3, reps: 2 })
+
+  it('ao abrir a aba: apresenta-se (1ª vez) e mostra o painel do dia, com a sugestão principal', async () => {
+    await estado().abrirAba()
+    const [oi, painel] = estado().mensagens
+    expect(oi.texto).toMatch(/assistente do Logos/); expect(painel.tipo).toBe('painel')
+    expect(painel.texto).toMatch(/^(Bom dia|Boa tarde|Boa noite|Boa madrugada)! Aqui está o seu dia:/); expect(painel.texto).toMatch(/Hoje ainda não estudou/); expect(painel.texto).toMatch(/Sugiro começar por: questões novas \(10\)/)
+    expect(estado().painel?.sugestao.id).toBe('novas'); expect(estado().painelMsgId).toBe(painel.id); expect(estado().carregada).toBe(true)
+  })
+  it('o painel não se repete a cada visita: só depois de 3 horas', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      vi.setSystemTime(new Date(2026, 10, 16, 9, 0))
+      await estado().abrirAba(); const n = estado().mensagens.length
+      vi.setSystemTime(new Date(2026, 10, 16, 10, 30)); await estado().abrirAba()
+      expect(estado().mensagens).toHaveLength(n)
+      vi.setSystemTime(new Date(2026, 10, 16, 12, 30)); await estado().abrirAba()
+      expect(estado().mensagens).toHaveLength(n + 1); expect(estado().mensagens.at(-1)!.tipo).toBe('painel')
+    } finally { vi.useRealTimers() }
+  })
+  it('com cartões vencidos e erros: o painel sugere os cartões e traz o caderno como alternativa', async () => {
+    cards.useCards.setState({ cartoes: [vencido('c1'), vencido('c2')], pronto: true })
+    const ev = await import('../core/sync/eventos')
+    const ids = app.BANK.filter((q) => q.m === 'Matemática').slice(0, 3).map((q) => q.id)
+    const db = await import('../services/db'), { HIST_VAZIO } = await import('../core/historico')
+    for (const [i, id] of ids.entries()) await db.gravarResposta(id, { n: 1, c: 0, ok: false, last: 'B', t: 1000 + i }, HIST_VAZIO, ev.resposta('d1', id, 'B', false, 1000 + i)) // as respostas erradas ficam no registro, de onde o caderno é lido
+    await estado().abrirAba()
+    expect(estado().painel?.sugestao).toMatchObject({ id: 'cartoes', n: 2 }); expect(estado().painel?.alternativas[0]).toMatchObject({ id: 'erros', n: 3 })
+    expect(estado().mensagens.at(-1)!.texto).toMatch(/Esperando por você: 2 cartões para estudar e 3 questões no caderno de erros/)
+  })
+  it('as sugestões do painel funcionam: questões novas começam um treino só de questões que nunca apareceram', async () => {
+    await estado().abrirAba()
+    estado().painelAcao(estado().painel!.sugestao)
+    expect(sessao()?.ids).toHaveLength(10); expect(sessao()?.sim).toBe(false)
+    expect(sessao()!.ids.every((id) => !app.useApp.getState().prog[id]?.n)).toBe(true)
+  })
+  it('"tenho 30 minutos": monta o plano (aqui só questões novas: não há cartões nem erros) e abre as saídas', () => {
+    estado().enviar('tenho 30 minutos')
+    expect(estado().etapa).toBe('plano'); expect(fala().texto).toMatch(/^Plano de 30 minutos:\n1\. 15 questões \(cerca de 30 min\): 15 novas/)
+    expect(estado().plano?.questoes.ids).toHaveLength(15)
+  })
+  it('"plano de estudo" sem o tempo: mostra o dia e pergunta quanto tempo tem; escrever "meia hora" responde', () => {
+    estado().enviar('plano de estudo')
+    expect(estado().pendente?.slot).toBe('minutos'); expect(estado().pendente!.opcoes.map((o) => o.valor)).toEqual([15, 30, 45, 60, 90]); expect(fala().texto).toBe('Quanto tempo você tem hoje?')
+    expect(estado().mensagens.some((x) => /Aqui está o seu dia/.test(x.texto))).toBe(true)
+    estado().enviar('meia hora'); expect(estado().etapa).toBe('plano'); expect(estado().plano?.minutos).toBe(30)
+  })
+  it('o plano com cartões vencidos começa pelos cartões; "Fazer as questões" começa o treino do plano; "Outro tempo" pergunta de novo', () => {
+    cards.useCards.setState({ cartoes: Array.from({ length: 10 }, (_, i) => vencido('c' + i)), pronto: true })
+    estado().enviar('tenho 20 minutos')
+    const pl = estado().plano!
+    expect(pl.cartoes).toBe(10); expect(fala().texto).toMatch(/1\. 10 cartões \(cerca de 5 min\)\n2\. 7 questões/)
+    estado().planoAcao('questoes'); expect(sessao()?.ids).toEqual(pl.questoes.ids); expect(sessao()?.sim).toBe(false)
+    app.useApp.getState().leave(); estado().voltarAoInicio()
+    estado().enviar('tenho 20 minutos'); estado().planoAcao('outro'); expect(estado().pendente?.slot).toBe('minutos')
+  })
+  it('"treinar questões novas" por escrito', () => {
+    estado().enviar('treinar 5 questões novas'); expect(sessao()?.ids).toHaveLength(5); expect(fala().texto).toMatch(/treino de 5 questões de questões novas/)
+  })
+  it('"30 minutos" não é a quantidade de questões de um pedido', () => {
+    estado().enviar('simulado de matemática em 30 minutos'); expect(estado().pendente?.slot).toBe('quantidade')
   })
 })

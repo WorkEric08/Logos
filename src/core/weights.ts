@@ -23,7 +23,8 @@ export function questionFactor(q: Question, tf: Record<string, number>, prog: Pr
   const st = !p || !p.n ? 1.5 : p.ok === false ? 2.6 : 0.45
   const oldSubject = q.m === 'Vendas e Negociação' || q.m === 'Conhecimentos de Informática'
   const age = q.ol ? (oldSubject ? 0.3 : 0.6) : 1
-  return (1 + f) * st * age
+  const gerada = q.ger ? 0.5 : 1 // gerada do material da pessoa: entra, mas pesa metade de uma questão de prova real
+  return (1 + f) * st * age * gerada
 }
 
 /** Peso "de uma etapa só" (matéria × fator). Não é mais o que o sorteio usa; fica para comparação e testes. */

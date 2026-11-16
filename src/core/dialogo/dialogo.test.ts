@@ -113,7 +113,8 @@ describe('motor do diálogo (preencher o que falta)', () => {
     const p = proximoPasso(simulado(), semRegras)
     if (p.tipo !== 'perguntar') throw new Error('devia perguntar')
     expect(p.opcoes.some((o) => o.valor === 'edital')).toBe(false)
-    expect(p.texto).toBe('De qual matéria?')
+    expect(p.texto).toMatch(/^De qual matéria\?/)
+    expect(p.opcoes[0]).toEqual({ rotulo: 'Simulado da semana', valor: 'semana' })
   })
   it('simulado de matéria sem quantidade pergunta a quantidade', () => {
     const p = proximoPasso(simulado({ materia: 'Matemática' }), ctx)
