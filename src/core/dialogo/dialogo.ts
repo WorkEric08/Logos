@@ -4,12 +4,13 @@ import { acharMateria, acharQuantidade, type Contexto, type CtxProva, type Entid
 import { semAcento } from '../busca/texto'
 import type { IdAcao } from '../assistente'
 import { acharMinutos, MAX_PLANO, MIN_PLANO } from '../dia'
+import { acharHorario, horaTexto } from '../lembrete'
 import type { Intencao } from '../conversa'
 
-export type AcaoPedido = 'simulado' | 'treinar' | 'plano'
+export type AcaoPedido = 'simulado' | 'treinar' | 'plano' | 'lembrete'
 /** `materia`: o nome de uma matéria, "todas" ou "edital" (só o simulado do edital: 70 questões com nota). */
-export interface Pedido { acao: AcaoPedido; materia?: string; quantidade?: number; provas?: CtxProva[]; /** De onde vêm as questões: o caderno de erros ou a mistura "da semana" (F5). */ fonte?: 'erros' | 'semana' | 'novas'; /** Só no plano de estudo: quanto tempo a pessoa tem. */ minutos?: number }
-export type Slot = 'materia' | 'quantidade' | 'minutos'
+export interface Pedido { acao: AcaoPedido; materia?: string; quantidade?: number; provas?: CtxProva[]; /** De onde vêm as questões: o caderno de erros ou a mistura "da semana" (F5). */ fonte?: 'erros' | 'semana' | 'novas'; /** Só no plano de estudo: quanto tempo a pessoa tem. */ minutos?: number; /** Só no lembrete diário: a hora, ou `desligar`. */ hora?: number; minuto?: number; desligar?: boolean }
+export type Slot = 'materia' | 'quantidade' | 'minutos' | 'horario'
 export interface Opcao { rotulo: string; valor: string | number }
 export type Passo =
   | { tipo: 'executar'; pedido: Pedido }
@@ -20,6 +21,8 @@ export const TREINO_PADRAO = 10
 /** Revisar o caderno de erros sem dizer quantas: 20, como sempre foi. */
 export const ERROS_PADRAO = 20
 export const OPCOES_MINUTOS = [15, 30, 45, 60, 90]
+/** Horários prontos do lembrete (os mesmos atalhos da tela Mais). */
+export const OPCOES_HORARIO = [{ rotulo: 'Manhã (07:30)', valor: '07:30' }, { rotulo: 'Almoço (12:30)', valor: '12:30' }, { rotulo: 'Fim da tarde (18:00)', valor: '18:00' }, { rotulo: 'Noite (21:00)', valor: '21:00' }]
 
 const PALAVRAS_DE_IMPORTAR = /\b(importar|importa|importe|pdf|gabarito|gabaritos|adicionar|adiciona|subir|enviar|carregar|arquivo|arquivos)\b/
 
@@ -47,6 +50,7 @@ export function ajustarPelasEntidades(i: Intencao, e: Entidades, bruto: string):
 /** Do que a pessoa disse ao pedido (matéria, quantidade e prova já ditas ficam; "todas" vira a matéria "todas"). */
 export function pedidoDe(acao: AcaoPedido, e: Entidades): Pedido {
   if (acao === 'plano') return { acao, ...(e.minutos ? { minutos: e.minutos } : {}) }
+  if (acao === 'lembrete') return e.desligar ? { acao, desligar: true } : { acao, ...(e.horario ? { hora: e.horario.hora, minuto: e.horario.minuto } : {}) }
   return { acao, ...(e.materia ? { materia: e.materia } : e.todas ? { materia: 'todas' } : {}), ...(e.quantidade ? { quantidade: e.quantidade } : {}), ...(e.provas?.length ? { provas: e.provas } : {}), ...(e.erros ? { fonte: 'erros' as const } : e.novas ? { fonte: 'novas' as const } : acao === 'simulado' && e.tempo === 'semana' ? { fonte: 'semana' as const } : {}) }
 }
 
@@ -59,6 +63,12 @@ const opcoesDeMateria = (ctx: Contexto, comEdital: boolean, comSemana = false): 
 ]
 
 export function proximoPasso(p: Pedido, ctx: Contexto): Passo {
+  if (p.acao === 'lembrete') {
+    if (p.desligar || p.hora !== undefined) return { tipo: 'executar', pedido: p }
+    const l = ctx.lembrete
+    const texto = l?.ativo ? `O lembrete está ligado às ${horaTexto(l)}. Em que horário quer o aviso?` : 'Em que horário quer o lembrete diário?'
+    return { tipo: 'perguntar', slot: 'horario', pedido: p, texto, opcoes: [...OPCOES_HORARIO, ...(l?.ativo ? [{ rotulo: 'Desligar o lembrete', valor: 'desligar' }] : [])] }
+  }
   if (p.acao === 'plano') {
     if (p.minutos) return { tipo: 'executar', pedido: p }
     return { tipo: 'perguntar', slot: 'minutos', pedido: p, texto: 'Quanto tempo você tem hoje?', opcoes: OPCOES_MINUTOS.map((n) => ({ rotulo: n === 60 ? '1 hora' : n === 90 ? '1 h 30' : `${n} min`, valor: n })) }
@@ -80,10 +90,15 @@ export function proximoPasso(p: Pedido, ctx: Contexto): Passo {
 
 /** Põe a resposta no lugar que faltava. */
 export const preencher = (p: Pedido, slot: Slot, valor: string | number): Pedido =>
-  slot === 'quantidade' ? { ...p, quantidade: Number(valor) } : slot === 'minutos' ? { ...p, minutos: Number(valor) } : valor === 'erros' || valor === 'semana' ? { ...p, fonte: valor } : { ...p, materia: String(valor) }
+  slot === 'horario' ? (valor === 'desligar' ? { ...p, desligar: true } : { ...p, hora: Number(String(valor).split(':')[0]), minuto: Number(String(valor).split(':')[1] ?? 0) }) : slot === 'quantidade' ? { ...p, quantidade: Number(valor) } : slot === 'minutos' ? { ...p, minutos: Number(valor) } : valor === 'erros' || valor === 'semana' ? { ...p, fonte: valor } : { ...p, materia: String(valor) }
 
 /** Lê o que a pessoa ESCREVEU em resposta a uma pergunta de slot ("matemática", "vinte", "edital"). Undefined = não entendeu a resposta. */
 export function entenderResposta(slot: Slot, texto: string, ctx: Contexto): string | number | undefined {
+  if (slot === 'horario') {
+    if (/\b(desligar|desligue|desliga|desativar|desative|sem lembrete|nao quero)\b/.test(semAcento(texto)) && ctx.lembrete?.ativo) return 'desligar'
+    const h = acharHorario(texto) ?? (/^\s*\d{1,2}\s*$/.test(texto) && Number(texto) <= 23 ? { hora: Number(texto), minuto: 0 } : undefined) // "20" sozinho = 20:00
+    return h ? horaTexto(h) : undefined
+  }
   if (slot === 'minutos') { const n = Number(texto.trim()); return acharMinutos(texto) ?? (Number.isInteger(n) && n >= MIN_PLANO && n <= MAX_PLANO ? n : undefined) }
   if (slot === 'quantidade') return acharQuantidade(texto) ?? (/^\s*\d{1,3}\s*$/.test(texto) && Number(texto) > 0 ? Number(texto) : undefined)
   const sem = semAcento(texto)
@@ -97,6 +112,7 @@ export function entenderResposta(slot: Slot, texto: string, ctx: Contexto): stri
 const rotuloProva = (p: CtxProva) => p.rotulo.split(' · ')[0]
 /** "simulado de 20 questões de Matemática", "treino de 10 questões da prova BB 2021". */
 export function descrever(p: Pedido): string {
+  if (p.acao === 'lembrete') return p.desligar ? 'desligar o lembrete diário' : `lembrete diário às ${horaTexto({ hora: p.hora ?? 0, minuto: p.minuto ?? 0 })}`
   if (p.acao === 'plano') return `plano de estudo de ${p.minutos ?? '?'} minutos`
   const o = p.acao === 'simulado' ? 'simulado' : 'treino'
   if (p.materia === 'edital') return 'simulado do edital (70 questões, com nota e regras)'

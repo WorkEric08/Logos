@@ -14,8 +14,8 @@ export interface MensagemSalva { id: number; de: 'a' | 'v'; texto: string; tipo?
 export interface EspacoRow { id: string; nome: string; criado: number; fontes: Record<string, string>; bases: Record<string, string>; materias: Subject[]; extras: Subject[]; bancos: Banco[]; simulado: RegrasSimulado | null
   /** Começa com as questões do Banco do Brasil embutidas no app (e as suas próprias somam). */
   usaBB?: boolean }
-type QuestaoRow = Question & { e: string }
-interface ImagemRow { id: string; e: string; blob: Blob }
+export type QuestaoRow = Question & { e: string }
+export interface ImagemRow { id: string; e: string; blob: Blob }
 interface Row extends Progress { id: string }
 interface Meta { key: string; value: string }
 /** Evento de sincronização como fica no banco: o `t` (quando aconteceu) vai na linha para o índice [dev+t] (o simulado guarda o seu em `sim.t`). */
@@ -288,6 +288,27 @@ export const apagarEspaco = (id: string) =>
     await db.espacos.delete(id); versaoMat++
   })
 export const gravarImagem = (id: string, e: string, blob: Blob) => db.imagens.put({ id, e, blob })
+
+// ---------- cópia de segurança do que só existe neste aparelho (core/copia.ts) ----------
+export interface ConteudoDoAparelho { espacos: EspacoRow[]; questoes: QuestaoRow[]; imagens: ImagemRow[]; materiais: Material[]; trechos: Trecho[] }
+/** Tudo o que a pessoa trouxe para o aparelho e a conta Google não sincroniza: espaços criados, questões importadas, imagens das provas, materiais e trechos. */
+export async function lerConteudoDoAparelho(): Promise<ConteudoDoAparelho> {
+  return { espacos: await db.espacos.toArray(), questoes: await db.questoes.toArray(), imagens: await db.imagens.toArray(), materiais: await db.materiais.toArray(), trechos: await db.trechos.toArray() }
+}
+/** Só os ids (para a restauração saber o que já existe sem carregar as imagens). */
+export async function idsDoAparelho(): Promise<Record<keyof ConteudoDoAparelho, Set<string>>> {
+  const ids = async (t: Table<{ id: string }, string>) => new Set((await t.toCollection().primaryKeys()) as string[])
+  return { espacos: await ids(db.espacos), questoes: await ids(db.questoes), imagens: await ids(db.imagens), materiais: await ids(db.materiais), trechos: await ids(db.trechos) }
+}
+/** Restaura SÓ ACRESCENTANDO, numa transação (se falhar, nada fica pela metade). `put` por id: o que já existia com o mesmo id (mesmo conteúdo) não é duplicado. */
+export const acrescentarConteudoDoAparelho = (c: ConteudoDoAparelho) =>
+  db.transaction('rw', db.espacos, db.questoes, db.imagens, db.materiais, db.trechos, async () => {
+    await db.espacos.bulkPut(c.espacos); await db.questoes.bulkPut(c.questoes); await db.imagens.bulkPut(c.imagens)
+    await db.materiais.bulkPut(c.materiais); await db.trechos.bulkPut(c.trechos); versaoMat++
+  })
+const CHAVE_ULTIMA_COPIA = 'copia:ultima'
+export const lerUltimaCopia = async (): Promise<number | null> => { const v = Number((await db.meta.get(CHAVE_ULTIMA_COPIA))?.value); return Number.isFinite(v) && v > 0 ? v : null }
+export const gravarUltimaCopia = (em: number) => db.meta.put({ key: CHAVE_ULTIMA_COPIA, value: String(em) })
 export const lerImagem = async (id: string): Promise<Blob | null> => (await db.imagens.get(id))?.blob ?? null
 
 // ---------- materiais de estudo (core/material.ts) ----------

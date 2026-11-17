@@ -2,7 +2,7 @@
 // nada é enviado para fora (só a "Reler com IA", opcional, manda o trecho da questão para a API da Anthropic, com a chave da própria pessoa).
 import { lerGabarito, type GabaritoLido } from '../../core/importar/gabarito'
 import { linhasParaParagrafos, textoParaParagrafos } from '../../core/importar/cartoes'
-import { paginasParaLinhas } from '../../core/importar/layout'
+import { paginasParaLinhas, removerCitacoes } from '../../core/importar/layout'
 import { detectarProva, type MetaProva } from '../../core/importar/montar'
 import { lerProva, type ProvaLida, type QuestaoLida } from '../../core/importar/prova'
 import type { Question } from '../../core/types'
@@ -44,8 +44,11 @@ export async function paragrafosDoArquivo(f: File, progresso: Progresso): Promis
   const pdfjs = await carregarPdfJs()
   const lido = await lerPaginas(pdfjs, await bytes(f), (p) => progresso(`Lendo página ${p.pagina} de ${p.de}…`, 5 + Math.round((90 * p.pagina) / p.de)))
   await lido.doc.destroy?.()
-  const linhas = paginasParaLinhas(lido.paginas)
-  return { paragrafos: linhasParaParagrafos(linhas), avisos: linhas.length ? [] : ['Não encontrei texto no PDF: ele pode ser escaneado (só imagem).'] }
+  const { paginas, removidas } = removerCitacoes(lido.paginas) // números de citação (sobrescritos) não são conteúdo e se enfiam no meio das frases
+  const linhas = paginasParaLinhas(paginas, { margens: 'repetidas' }) // cabeçalho e rodapé = o que se repete nas páginas (o corte fixo comia linhas do corpo)
+  const avisos = linhas.length ? [] : ['Não encontrei texto no PDF: ele pode ser escaneado (só imagem).']
+  if (removidas) avisos.push(`Tirei ${removidas} números de citação (os pequenos sobrescritos das referências) do texto, para não aparecerem no meio das frases.`)
+  return { paragrafos: linhasParaParagrafos(linhas), avisos }
 }
 
 /** Guarda a imagem recortada das questões que pedem (figura/tabela, ou todas) e aponta `img` da questão para ela (`u:<id>`). */

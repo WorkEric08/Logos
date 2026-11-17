@@ -44,7 +44,7 @@ const msgs = () => p.locator('.as-msg').allInnerTexts()
 // 1. abre, mostra as ações documentadas
 await abrir()
 ok('o assistente é uma aba própria (ícone na barra), sem card no Início', (await p.locator('.tile', { hasText: 'Assistente' }).count()) === 0 && (await p.locator('.chat-tela').count()) === 1)
-ok('abre como um chat: balão de boas-vindas do assistente e 13 sugestões fixas em pílulas', (await p.locator('.as-linha.a .as-msg').count()) >= 1 && (await p.locator('.as-pilula[data-acao]').count()) === 13, `${await p.locator('.as-pilula').count()} pílulas`)
+ok('abre como um chat: balão de boas-vindas do assistente e 14 sugestões fixas em pílulas', (await p.locator('.as-linha.a .as-msg').count()) >= 1 && (await p.locator('.as-pilula[data-acao]').count()) === 14, `${await p.locator('.as-pilula').count()} pílulas`)
 await acao('ajuda')
 ok('"O que você sabe fazer?" responde em balão listando as ações', (await msgs()).some((t) => /Importar uma prova em PDF/.test(t) && /Criar cartões/.test(t)))
 ok('tocar numa sugestão mostra a fala da pessoa em um balão à direita', (await p.locator('.as-linha.v .as-msg').count()) >= 1)

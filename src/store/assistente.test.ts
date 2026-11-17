@@ -451,3 +451,69 @@ describe('assistente: painel do dia e plano de estudo (F6)', () => {
     estado().enviar('simulado de matemática em 30 minutos'); expect(estado().pendente?.slot).toBe('quantidade')
   })
 })
+
+describe('assistente: lembrete diário pelo chat', () => {
+  // um Android de mentira: o que o app mandaria agendar fica registrado
+  const trocas: unknown[][] = []
+  let permissao: 'granted' | 'denied' | 'prompt' = 'granted'
+  const porta = {
+    permissao: async () => permissao,
+    pedirPermissao: async () => permissao,
+    substituir: async (a: unknown[]) => { trocas.push([...a]) },
+    agendarUm: async () => {},
+  }
+  let lembrete: typeof import('./lembrete')
+  const aposta = async (comPorta: boolean) => {
+    vi.resetModules()
+    vi.doMock('../services/native/notificacoes', () => ({ portaDeNotificacoes: () => (comPorta ? porta : null), aoTocarNaNotificacao: async () => () => {}, CANAL_LEMBRETE: 'lembrete-diario', paraOPlugin: (x: unknown) => x, portaCapacitor: porta }))
+    loja = await import('./assistente'); lembrete = await import('./lembrete')
+    await lembrete.useLembrete.getState().carregar()
+  }
+  beforeEach(() => { trocas.length = 0; permissao = 'granted' })
+  afterEach(() => { vi.doUnmock('../services/native/notificacoes') })
+  const cfg = () => lembrete.useLembrete.getState().config
+  const ultimaFala = () => estado().mensagens.at(-1)!.texto
+
+  it('"me lembre às 20h": liga o lembrete na hora dita, agenda e confirma com o próximo aviso', async () => {
+    await aposta(true)
+    estado().enviar('me lembre às 20h')
+    await vi.waitFor(() => expect(ultimaFala()).toMatch(/^Pronto: lembrete diário às 20:00\./))
+    expect(cfg()).toEqual({ ativo: true, hora: 20, minuto: 0 })
+    expect(trocas.at(-1)!.length).toBeGreaterThanOrEqual(13)
+    expect(ultimaFala()).toMatch(/Próximo aviso: (hoje|amanhã) às 20:00/)
+  })
+  it('"lembrete" sem hora pergunta; tocar num atalho liga naquela hora; depois "desligar o lembrete" desliga', async () => {
+    await aposta(true)
+    estado().enviar('lembrete')
+    expect(estado().pendente?.slot).toBe('horario'); expect(ultimaFala()).toBe('Em que horário quer o lembrete diário?')
+    estado().responder(estado().pendente!.opcoes.find((o) => o.valor === '07:30')!)
+    await vi.waitFor(() => expect(ultimaFala()).toMatch(/^Pronto: lembrete diário às 07:30\./))
+    expect(cfg().ativo).toBe(true)
+    estado().enviar('lembrete')
+    expect(ultimaFala()).toMatch(/ligado às 07:30/)
+    estado().enviar('desligar o lembrete')
+    await vi.waitFor(() => expect(ultimaFala()).toMatch(/Desliguei o lembrete diário/))
+    expect(cfg().ativo).toBe(false); expect(trocas.at(-1)).toEqual([])
+  })
+  it('responder escrevendo ("20h30") também vale; "desligar o lembrete" quando já está desligado só avisa', async () => {
+    await aposta(true)
+    estado().enviar('lembrete'); estado().enviar('8 da noite')
+    await vi.waitFor(() => expect(ultimaFala()).toMatch(/^Pronto: lembrete diário às 20:00\./))
+    await lembrete.useLembrete.getState().desligar()
+    estado().enviar('parar de lembrar')
+    await vi.waitFor(() => expect(ultimaFala()).toBe('O lembrete diário já está desligado.'))
+  })
+  it('sem permissão do Android: não liga e explica onde liberar', async () => {
+    permissao = 'denied'
+    await aposta(true)
+    estado().enviar('me lembre às 19h')
+    await vi.waitFor(() => expect(ultimaFala()).toMatch(/Configurações do Android/))
+    expect(cfg().ativo).toBe(false); expect(trocas.every((l) => l.length === 0)).toBe(true) // (nenhum aviso agendado; no máximo a limpeza do que sobrou)
+  })
+  it('no navegador (sem porta) diz que só existe no aplicativo do Android', async () => {
+    await aposta(false)
+    estado().enviar('me lembre às 20h')
+    await vi.waitFor(() => expect(ultimaFala()).toMatch(/só funciona no aplicativo do Android/))
+    expect(cfg().ativo).toBe(false)
+  })
+})

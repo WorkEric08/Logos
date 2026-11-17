@@ -34,9 +34,9 @@ const ate = (p, fn, arg, ms = 6000) => p.waitForFunction(fn, arg, { timeout: ms 
   ok('ao entrar, o assistente "digita" (pontinhos) antes da primeira fala', (await p.locator('.as-digitando').count()) === 1 || (await p.locator('.as-linha.a .as-msg:not(.as-digitando)').count()) === 1)
   ok('enquanto digita, as sugestões e a caixa de mensagem de resposta não disputam a tela: as sugestões esperam', (await p.locator('.as-pilula').count()) === 0)
   await ate(p, () => !!document.querySelector('.as-pilula'), null, 5000)
-  ok('a primeira fala apareceu e depois dela as sugestões entram', (await p.locator('.as-linha.a .as-msg').count()) >= 1 && (await p.locator('.as-pilula[data-acao]').count()) === 13)
+  ok('a primeira fala apareceu e depois dela as sugestões entram', (await p.locator('.as-linha.a .as-msg').count()) >= 1 && (await p.locator('.as-pilula[data-acao]').count()) === 14)
   const cascata = await p.evaluate(() => [...document.querySelectorAll('.as-pilula')].map((e) => e.style.getPropertyValue('--i')).join(','))
-  ok('as sugestões entram em cascata (um atraso crescente por pílula)', cascata.split(',').length >= 13 && cascata.split(',').every((v, i) => Number(v) === i), cascata)
+  ok('as sugestões entram em cascata (um atraso crescente por pílula)', cascata.split(',').length >= 14 && cascata.split(',').every((v, i) => Number(v) === i), cascata)
   await esperarMovimento(p)
 
   // tocar numa sugestão
@@ -60,7 +60,7 @@ const ate = (p, fn, arg, ms = 6000) => p.waitForFunction(fn, arg, { timeout: ms 
   await p.waitForTimeout(50)
   ok('Voltar: o painel SAI com animação (as-fecha) antes de a conversa voltar ao menu', (await p.locator('.as-cena.saindo').count()) === 1 && (await nomes(p)).includes('as-fecha'))
   await ate(p, () => !document.querySelector('.as-cena.saindo') && !!document.querySelector('.as-pilula[data-acao="prova"]'), null, 5000)
-  ok('depois da saída as sugestões voltam', (await p.locator('.as-pilula[data-acao]').count()) === 13)
+  ok('depois da saída as sugestões voltam', (await p.locator('.as-pilula[data-acao]').count()) === 14)
   await esperarMovimento(p)
 
   // erro: arquivo inválido
@@ -121,7 +121,7 @@ const ate = (p, fn, arg, ms = 6000) => p.waitForFunction(fn, arg, { timeout: ms 
   await p.goto(base); await p.waitForSelector('.folders')
   await irPara(p, 'Assistente'); await p.waitForSelector('.chat-tela')
   await p.waitForTimeout(150)
-  ok('"reduzir movimento": a primeira fala e as sugestões aparecem na hora, sem "digitando…"', (await p.locator('.as-digitando').count()) === 0 && (await p.locator('.as-linha.a .as-msg').count()) >= 1 && (await p.locator('.as-pilula[data-acao]').count()) === 13)
+  ok('"reduzir movimento": a primeira fala e as sugestões aparecem na hora, sem "digitando…"', (await p.locator('.as-digitando').count()) === 0 && (await p.locator('.as-linha.a .as-msg').count()) >= 1 && (await p.locator('.as-pilula[data-acao]').count()) === 14)
   await p.locator('.as-pilula[data-acao="resumo"]').click()
   await p.waitForTimeout(150)
   ok('"reduzir movimento": tocar numa sugestão responde na hora', (await p.locator('.as-linha.v').count()) === 1 && (await p.locator('.as-linha.a .as-msg').count()) >= 2)

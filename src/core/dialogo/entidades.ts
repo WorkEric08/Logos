@@ -2,6 +2,7 @@
 // Sem IA: compara palavras pelo radical (core/busca/radical.ts) com o que existe no espaço ativo (o `Contexto`). Puro: sem DOM, banco nem estado.
 import { radical } from '../busca/radical'
 import { acharMinutos } from '../dia'
+import { acharHorario } from '../lembrete'
 import { PALAVRAS_VAZIAS, palavras, semAcento } from '../busca/texto'
 
 export interface CtxMateria { nome: string; curto: string }
@@ -19,6 +20,8 @@ export interface Contexto {
   ultimaProva?: CtxProva
   /** Quantas questões estão no caderno de erros agora (0 = nada a rever; as opções "dos meus erros" só aparecem se houver). */
   erros?: number
+  /** O lembrete diário agora (para dizer "hoje ele está às 19:00" e oferecer desligar). */
+  lembrete?: { ativo: boolean; hora: number; minuto: number }
 }
 
 export interface Entidades {
@@ -39,6 +42,10 @@ export interface Entidades {
   novas?: boolean
   /** "tenho 30 minutos", "meia hora": o tempo que a pessoa tem (para o plano de estudo). */
   minutos?: number
+  /** "às 20h", "8 da noite", "7 e meia": a hora do lembrete diário. */
+  horario?: { hora: number; minuto: number }
+  /** "desligar o lembrete", "parar de lembrar": quer tirar o lembrete. */
+  desligar?: boolean
 }
 
 const NUMEROS: Record<string, number> = {
@@ -127,6 +134,9 @@ export function extrairEntidades(bruto: string, ctx: Contexto): Entidades {
   const usados = new Set(provas.flatMap((p) => palavras(p.rotulo.split(' · ')[0]).filter((t) => /^\d+$/.test(t))))
   const minutos = acharMinutos(bruto)
   if (minutos) { e.minutos = minutos; for (const d of sem.matchAll(/\b(\d{1,3})\s*(?:min|mins|minutos?|m|h|horas?)\b/g)) usados.add(d[1]) } // "30 minutos" não é a quantidade de questões
+  const horario = acharHorario(bruto)
+  if (horario) { e.horario = horario; for (const d of [horario.hora, horario.minuto]) { usados.add(String(d)); usados.add(String(d).padStart(2, '0')) } } // "às 20h30" não é a quantidade de questões (nem o 20 nem o 30)
+  if (/\b(desligar|desligue|desliga|desativar|desative|parar|pare|cancelar|cancele|tirar|tire|remover|remova|apagar|apague|sem)\b/.test(sem) && /\b(lembrete|lembretes|lembrar|lembre|avisar|avise|notificacao|notificacoes|alarme)\b/.test(sem)) e.desligar = true
   const q = acharQuantidade(bruto, usados)
   if (q) e.quantidade = q
   if (/\b(todas|todos|qualquer|geral|misturad[oa]s?|tudo)\b/.test(sem)) e.todas = true

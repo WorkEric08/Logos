@@ -169,6 +169,9 @@ Cada fase segue o mesmo **checklist de padrões** (seção 6). Ordem pensada par
 | F7 — FSRS nos Cards (opcional) | Próxima (só com o seu "sim") |
 | F8 — Busca por significado (opcional) | Falta |
 
+### F3/F4 medidas num PDF científico real (2026-11-17)
+As metas de qualidade (80 % de cartões bons, 70 % de questões aproveitáveis) foram medidas pela primeira vez com um material de verdade (manual de 24 páginas): antes só ~40 % e ~20 %. Corrigidos a leitura do PDF de estudo, a higiene do texto e as regras (ver `docs/assistente.md`, "PDFs de estudo de verdade"); depois, ~89 % e ~90 % pelo meu julgamento, **num único documento**. Falta a medição com os materiais do dono.
+
 ### F6 — o que ficou
 O assistente **abre a aba falando** (painel do dia, no máximo a cada 3 h) com UMA sugestão principal por prioridade e até 2 alternativas como pílulas; **plano por tempo** ("tenho 30 minutos") dividindo cartões, caderno de erros, matérias fracas e novas; "treinar questões novas". Sem tabela nova. **Limites:** estimativas de tempo (30 s/cartão, 2 min/questão) e meta de 20/dia são minhas; **lembrete diário por notificação feito em 2026-11-16** (plugin `@capacitor/local-notifications`, "Mais" › Lembrete diário; ver `docs/assistente.md`).
 

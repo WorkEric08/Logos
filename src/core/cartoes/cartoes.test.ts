@@ -124,7 +124,7 @@ describe('regras de qualidade', () => {
   })
   it('verso e frente longos só avisam (o cartão entra)', () => {
     expect(c('definicao', 'Termo', 'x'.repeat(500)).aviso).toMatch(/verso longo/)
-    expect(c('definicao', 'x'.repeat(200), 'curto').aviso).toMatch(/frente longa/)
+    expect(c('definicao', 'A' + 'x'.repeat(199), 'curto').aviso).toMatch(/frente longa/)
   })
   it('o que é barrado volta em `descartados` com o motivo', () => {
     const r = gera('Isso: algo que ninguém sabe dizer direito aqui.')
@@ -148,7 +148,7 @@ const OURO: { nome: string; texto: string; esperado: Par[] }[] = [
   { nome: 'números e datas', texto: 'O Copom se reúne a cada 45 dias para definir a taxa Selic.\n\nO FGC garante até R$ 250 mil por CPF em cada instituição.\n\nO Plano Real foi lançado em 1994 e estabilizou a moeda brasileira.',
     esperado: [['O Copom se reúne a cada _____ para definir a taxa Selic.', '45 dias'], ['O FGC garante até _____ por CPF em cada instituição.', 'R$ 250 mil'], ['O Plano Real foi lançado em _____ e estabilizou a moeda brasileira.', '1994']] },
   { nome: 'definições comuns (como antes)', texto: 'Juros simples: o rendimento é calculado só sobre o capital inicial, em cada período.\n\nLiquidez – facilidade de transformar um ativo em dinheiro sem perder valor.\n\nP: Qual a sigla do Banco Central? R: BACEN.\n\nA inflação é o aumento generalizado e contínuo dos preços em uma economia.',
-    esperado: [['Juros simples', 'o rendimento é calculado só sobre o capital inicial, em cada período.'], ['Liquidez', 'facilidade de transformar um ativo em dinheiro sem perder valor.'], ['Qual a sigla do Banco Central?', 'BACEN.'], ['O que é A inflação?', 'A inflação é o aumento generalizado e contínuo dos preços em uma economia.']] },
+    esperado: [['Juros simples', 'o rendimento é calculado só sobre o capital inicial, em cada período.'], ['Liquidez', 'facilidade de transformar um ativo em dinheiro sem perder valor.'], ['Qual a sigla do Banco Central?', 'BACEN.'], ['O que é a inflação?', 'A inflação é o aumento generalizado e contínuo dos preços em uma economia.']] },
   { nome: 'o que NÃO pode virar cartão', texto: 'O item 3 do edital trata de matemática financeira básica.\n\nVeja a página 45 e a questão 12.\n\nIsso: algo que ninguém sabe dizer direito aqui.\n\nO Copom define a Selic, e o **Copom** se reúne todo mês no Banco Central.\n\nMas também: situação em que algo acontece de forma inesperada.\n\nhttps://exemplo.com: página inicial do site oficial\n\nJuros: rendimento do capital, calculado por período, pago ao fim.',
     esperado: [['Juros', 'rendimento do capital, calculado por período, pago ao fim.']] },
 ]

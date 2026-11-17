@@ -61,7 +61,7 @@ describe('cartões sem IA', () => {
   })
   it('"X é …" vira "O que é X?"; pronome solto não', () => {
     const r = sugerirCartoes(['A inflação é o aumento generalizado e contínuo dos preços em uma economia.', 'Isso é apenas uma frase qualquer sem termo definido aqui.'])
-    expect(r.cartoes).toHaveLength(1); expect(r.cartoes[0].f).toBe('O que é A inflação?'); expect(r.sobraram).toBe(1)
+    expect(r.cartoes).toHaveLength(1); expect(r.cartoes[0].f).toBe('O que é a inflação?'); expect(r.sobraram).toBe(1)
   })
   it('título de markdown + parágrafo; lacuna com negrito', () => {
     const r = sugerirCartoes(['# Selic', 'Taxa básica de juros da economia brasileira, definida pelo Copom a cada 45 dias.', 'O órgão que define a Selic é o **Copom**, do Banco Central do Brasil.'])

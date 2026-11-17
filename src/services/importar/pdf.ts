@@ -10,7 +10,7 @@ export interface PdfDoc { numPages: number; getPage(n: number): Promise<PdfPagin
 export interface PdfVista { getViewport(o: { scale: number }): { width: number; height: number }; render(o: { canvasContext: unknown; viewport: unknown; canvas?: unknown }): { promise: Promise<void> } }
 export interface PdfPagina extends PdfVista {
   getViewport(o: { scale: number }): { width: number; height: number }
-  getTextContent(): Promise<{ items: { str?: string; transform: number[]; width: number }[] }>
+  getTextContent(): Promise<{ items: { str?: string; transform: number[]; width: number; height?: number }[] }>
 }
 
 export interface Progresso { pagina: number; de: number }
@@ -26,7 +26,7 @@ export async function lerPaginas(pdfjs: PdfJs, dados: Uint8Array, aoProgredir?: 
     const tc = await p.getTextContent()
     saida.push({
       numero: n, largura: vp.width, altura: vp.height,
-      itens: tc.items.filter((i) => typeof i.str === 'string').map((i) => ({ x: i.transform[4], y: i.transform[5], w: i.width, texto: i.str as string })),
+      itens: tc.items.filter((i) => typeof i.str === 'string').map((i) => ({ x: i.transform[4], y: i.transform[5], w: i.width, texto: i.str as string, h: i.height })),
     })
     aoProgredir?.({ pagina: n, de: alvo.length })
   }

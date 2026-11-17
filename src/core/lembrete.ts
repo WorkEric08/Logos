@@ -25,6 +25,28 @@ export const HORARIOS_RAPIDOS: readonly { rotulo: string; hora: number; minuto: 
 ]
 
 const doisDigitos = (n: number) => String(n).padStart(2, '0')
+const semAcentos = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+
+/**
+ * O horário que a pessoa escreveu ("20h", "20h30", "às 20:30", "8 da noite", "7 e meia da manhã", "meio-dia", "às 19 horas"). Undefined se não há horário
+ * (e "30 minutos" não é horário: é o tempo que a pessoa tem). "da noite" e "da tarde" passam de 12 h: "8 da noite" = 20:00, "6 da tarde" = 18:00.
+ * Só vale numa fala sobre o lembrete (quem decide isso é o entendedor de comandos); a hora vem sempre dentro de 0–23 e o minuto de 0–59.
+ */
+export function acharHorario(texto: string): { hora: number; minuto: number } | undefined {
+  const t = semAcentos(texto).replace(/[,.;!?]+/g, ' ').replace(/\s+/g, ' ')
+  if (/\bmeio[- ]?dia\b/.test(t)) return { hora: 12, minuto: 0 }
+  if (/\bmeia[- ]?noite\b/.test(t)) return { hora: 0, minuto: 0 }
+  let hora: number | undefined, minuto = 0
+  let m: RegExpExecArray | null
+  if ((m = /\b(\d{1,2})\s*:\s*(\d{2})\b/.exec(t))) { hora = Number(m[1]); minuto = Number(m[2]) } // 20:30
+  else if ((m = /\b(\d{1,2})\s*h(?:oras?)?\s*(\d{2})?\b/.exec(t))) { hora = Number(m[1]); minuto = m[2] ? Number(m[2]) : 0 } // 20h, 20h30, 19 horas
+  else if ((m = /\bas\s+(\d{1,2})(?:\s+e\s+(meia|\d{1,2}))?\b/.exec(t))) { hora = Number(m[1]); minuto = m[2] === 'meia' ? 30 : m[2] ? Number(m[2]) : 0 } // às 8, às 7 e meia
+  else if ((m = /\b(\d{1,2})(?:\s+e\s+(meia|\d{1,2}))?\s+da\s+(?:manha|tarde|noite|madrugada)\b/.exec(t))) { hora = Number(m[1]); minuto = m[2] === 'meia' ? 30 : m[2] ? Number(m[2]) : 0 } // 8 da noite
+  if (hora === undefined) return undefined
+  if (/\bda\s+noite\b/.test(t) && hora >= 6 && hora <= 11) hora += 12
+  else if (/\bda\s+tarde\b/.test(t) && hora >= 1 && hora <= 11) hora += 12
+  return hora >= 0 && hora <= 23 && minuto >= 0 && minuto <= 59 ? { hora, minuto } : undefined
+}
 export const horaTexto = (c: Pick<ConfigLembrete, 'hora' | 'minuto'>) => `${doisDigitos(c.hora)}:${doisDigitos(c.minuto)}`
 const inteiro = (v: unknown, min: number, max: number, padrao: number) => (typeof v === 'number' && Number.isInteger(v) && v >= min && v <= max ? v : padrao)
 

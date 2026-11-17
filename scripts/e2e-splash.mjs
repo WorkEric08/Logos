@@ -11,6 +11,8 @@ const out = []
 const ok = (n, c, x = '') => out.push(`${c ? 'OK      ' : 'FALHOU  '} ${n}${x ? ' — ' + x : ''}`)
 const b = await chromium.launch({ channel: 'chrome' })
 const erros = []
+/** As três linhas de texto da abertura estão inteiras (30, 30 e 18)? Com tolerância: a largura é animada e o último quadro pode ficar em 17,99999 (e não em 18 exato). */
+const linhasCheias = (l) => l.length === 3 && [30, 30, 18].every((v, i) => Math.abs(l[i] - v) < 0.01)
 
 // ---- 1. preto já na 1ª pintura (com o código do app atrasado de propósito), mesmo com tema claro; e o tempo total ----
 // Obs.: o seletor é `div.splash` porque a classe `splash` também fica (por instantes) no <html>.
@@ -60,7 +62,7 @@ for (const [w, h] of [[360, 800], [390, 844], [412, 915], [768, 1024], [1280, 72
   const dx = Math.abs(m.cx - w / 2), dy = Math.abs(m.cy - h / 2)
   ok(`${w}×${h}: composição centralizada (erro ≤ 1 px)`, dx <= 1 && dy <= 1, `centro off ${dx.toFixed(2)}, ${dy.toFixed(2)} px`)
   ok(`${w}×${h}: proporcional (100×84 u com u = ${u.toFixed(3)} px; ±1 px)`, Math.abs(m.w - 100 * u) <= 1.5 && Math.abs(m.h - 84 * u) <= 1.5, `${m.w.toFixed(1)}×${m.h.toFixed(1)} px (esperado ${(100 * u).toFixed(1)}×${(84 * u).toFixed(1)})`)
-  ok(`${w}×${h}: linhas de texto completas (30, 30, 18) e arquivo da frente em 100 %`, m.linhas.join() === '30,30,18' && Math.abs(m.frente - 48 * u) <= 0.5, `${m.linhas.join()} / frente ${m.frente.toFixed(1)} px`)
+  ok(`${w}×${h}: linhas de texto completas (30, 30, 18) e arquivo da frente em 100 %`, linhasCheias(m.linhas) && Math.abs(m.frente - 48 * u) <= 0.5, `${m.linhas.join()} / frente ${m.frente.toFixed(1)} px`)
   ok(`${w}×${h}: cabe na tela com folga (≤ 60 % da largura, ≤ 30 % da altura)`, m.w <= w * 0.6 + 1 && m.h <= h * 0.3 + 1)
   await ctx.close()
 }
@@ -83,10 +85,10 @@ for (const [w, h] of [[360, 800], [390, 844], [412, 915], [768, 1024], [1280, 72
   const p = await ctx.newPage()
   await p.goto(base, { waitUntil: 'commit' }); await p.waitForSelector('div.splash', { state: 'attached' })
   const t0 = Date.now()
-  const linhas = await p.evaluate(() => [...document.querySelectorAll('div.splash rect')].map((e) => +e.getAttribute('width')).join())
+  const linhas = await p.evaluate(() => [...document.querySelectorAll('div.splash rect')].map((e) => +e.getAttribute('width')))
   await p.waitForSelector('div.splash', { state: 'detached', timeout: 4000 })
   const dur = (Date.now() - t0) / 1000
-  ok('movimento reduzido: estado final desde o 1º quadro e entra em ~0,5 s (+ fade)', linhas === '30,30,18' && dur >= 0.4 && dur <= 1.2, `linhas ${linhas}, ${dur.toFixed(2)} s`)
+  ok('movimento reduzido: estado final desde o 1º quadro e entra em ~0,5 s (+ fade)', linhasCheias(linhas) && dur >= 0.4 && dur <= 1.2, `linhas ${linhas.join()}, ${dur.toFixed(2)} s`)
   await ctx.close()
 }
 

@@ -29,10 +29,10 @@ const voltarDaSessao = async () => { await irPara(p, 'Assistente'); const enc = 
 
 await p.goto(base); await p.waitForSelector('.folders')
 await abrir()
-ok('abre com 13 sugestões fixas (com Treinar, Caderno de erros, Gerar questões e Painel e plano)', (await p.locator('.as-pilula[data-acao]').count()) === 13 && (await rotulos()).includes('Treinar questões') && (await rotulos()).includes('Caderno de erros'), (await rotulos()).join(' | '))
+ok('abre com 14 sugestões fixas (com Treinar, Caderno de erros, Gerar questões e Painel e plano)', (await p.locator('.as-pilula[data-acao]').count()) === 14 && (await rotulos()).includes('Treinar questões') && (await rotulos()).includes('Caderno de erros'), (await rotulos()).join(' | '))
 
 ok('ao abrir a aba o assistente mostra o painel do dia, e a sugestão principal vem à frente das pílulas', /Aqui está o seu dia/.test((await msgs())[1] ?? '') && (await rotulos())[0] === 'Questões novas (10)' && (await rotulos())[1] === 'Simulado da semana', (await rotulos()).slice(0, 3).join(' | '))
-ok('o painel não é uma sugestão a mais na lista fixa: as 13 de sempre continuam', (await p.locator('.as-pilula[data-acao]').count()) === 13)
+ok('o painel não é uma sugestão a mais na lista fixa: as 14 de sempre continuam', (await p.locator('.as-pilula[data-acao]').count()) === 14)
 
 // 1. sugestões enquanto se digita
 await p.fill('#as-msg', 'si')
@@ -98,6 +98,13 @@ await falar(() => p.locator('.as-pilula', { hasText: /^30 min$/ }).click())
 ok('tocar em "30 min" monta o plano de 30 minutos', /^Plano de 30 minutos:/.test(await ultima()))
 await p.locator('.as-pilula[data-sug="mais"]').click()
 await p.waitForSelector('.as-pilula[data-acao="prova"]')
+
+// 6a'. lembrete diário (no navegador ele só existe no Android: o assistente entende o pedido e explica)
+ok('a sugestão "Lembrete diário" existe entre as fixas', (await rotulos()).includes('Lembrete diário'))
+await escrever('me lembre às 20h')
+ok('"me lembre às 20h": entende o pedido e explica que o lembrete só funciona no aplicativo do Android', /só funciona no aplicativo do Android/.test(await ultima()), (await ultima()).slice(0, 90))
+await escrever('desligar o lembrete')
+ok('"desligar o lembrete" também chega ao lembrete (e não vira outra ação)', /só funciona no aplicativo do Android/.test(await ultima()))
 
 // 6b. caderno de erros: responde de verdade (sempre a alternativa A: quase certo errar alguma) e abre o caderno
 ok('antes de errar, o caderno está vazio', await (async () => { await escrever('caderno de erros'); return /está vazio/.test(await ultima()) })())

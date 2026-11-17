@@ -1,7 +1,7 @@
 // O "pseudo-agente": um chat com AÇÕES FIXAS (sem IA). Cada ação está descrita aqui, uma vez, e a tela, a ajuda e a documentação (docs/assistente.md)
 // leem daqui. Acrescentar uma ação = acrescentar aqui, no fluxo (store/assistente.ts) e na tela (ui/Assistente.tsx); o teste confere que a documentação a cita.
 
-export type IdAcao = 'prova' | 'cartoes' | 'simulado' | 'treinar' | 'caderno' | 'questoes' | 'plano' | 'perguntar' | 'materiais' | 'espaco' | 'resumo' | 'ia'
+export type IdAcao = 'prova' | 'cartoes' | 'simulado' | 'treinar' | 'caderno' | 'questoes' | 'plano' | 'lembrete' | 'perguntar' | 'materiais' | 'espaco' | 'resumo' | 'ia'
 
 export interface Acao {
   id: IdAcao
@@ -67,6 +67,13 @@ export const ACOES: Acao[] = [
     precisa: 'Um material guardado em um espaço seu ("Meus materiais"). O espaço do Banco do Brasil não recebe questões novas.',
     gera: 'Questões de múltipla escolha sobre o que o seu material diz: definição, termo, sigla, número, lacuna, pergunta e resposta e "assinale a INCORRETA". As alternativas erradas vêm do próprio material. Você vê tudo numa prévia e escolhe o que entra.',
     limites: 'Só sai questão quando há alternativas parecidas suficientes no material (pelo menos 5 definições, siglas ou perguntas do mesmo tipo). No máximo 120 por vez. Entram como "geradas": pesam metade no sorteio e nunca no simulado do edital.',
+  },
+  {
+    id: 'lembrete', rotulo: 'Lembrete diário', sugestao: 'Lembrete diário',
+    resumo: 'Liga, muda a hora ou desliga o aviso diário de estudo (uma notificação por dia, no horário que você escolher).',
+    precisa: 'O horário, se quiser dizer: "me lembre às 20h", "lembrete às 7h30", "lembrete 8 da noite". Para desligar: "desligar o lembrete". Sem horário eu pergunto.',
+    gera: 'Uma notificação por dia com o que está esperando (cartões e erros); ela não toca se você já estudou naquele dia. Tocar nela abre o Assistente.',
+    limites: 'Só funciona no aplicativo do Android (o navegador não avisa com o app fechado); na primeira vez o Android pede a permissão de notificações. O aviso chega na hora marcada, com variação de poucos minutos.',
   },
   {
     id: 'perguntar', rotulo: 'Perguntar ao meu material', sugestao: 'Perguntar ao meu material',

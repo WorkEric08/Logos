@@ -9,6 +9,7 @@ import { useCards } from '../store/cards'
 import { useAba } from '../store/aba'
 import { useOrdemRail } from '../store/ordemRail'
 import { useConta } from '../services/sync/conta'
+import { Copia } from './Copia'
 import { Lembrete } from './Lembrete'
 import { ICONES, descreverAba, type Icones } from '../core/aba'
 
@@ -330,9 +331,10 @@ export function Mais() {
     <>
       <div className="split edge tr">
         <div className="col">
-          <Top title="Mais" sub="conta, aparência, lembrete, barra de navegação e sobre o banco" />
+          <Top title="Mais" sub="conta, cópia de segurança, aparência, lembrete, barra de navegação e sobre o banco" />
           <div className="mgrid">
             <Conta />
+            <Copia />
             <div className="card"><h3>Aparência</h3>
               <div className="seg" role="group" aria-label="Tema">
                 {[['auto', 'Do aparelho'], ['light', 'Claro'], ['dark', 'Escuro']].map(([v, l]) =>

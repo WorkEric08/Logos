@@ -35,6 +35,7 @@ O desenho da conversa do assistente (aba **Assistente**). O catálogo das açõe
 | Caderno de erros | "caderno de erros", "meus erros" (painel com resumo); "rever erros de português", "simulado de 30 com o que mais erro" (direto) |
 | Simulado da semana | "simulado da semana", "o simulado da semana com 20 questões" |
 | Gerar questões | "gerar questões do meu material", "criar questões do resumo", "transformar o material em questões" |
+| Lembrete diário | "me lembre às 20h", "lembrete 8 da noite", "avise às 7h30", "desligar o lembrete", "parar de lembrar" |
 | Painel e plano de estudo | "painel do dia", "como estou", "o que estudei hoje", "tenho 30 minutos", "meia hora", "plano de estudo"; também treinar "questões novas" |
 | Desfazer | "desfazer", "volta atrás", "foi sem querer" |
 | Limpar a conversa | "limpar conversa", "apagar conversa", "recomeçar" |
@@ -105,7 +106,7 @@ Ao abrir a aba o assistente **fala primeiro**: "Bom dia! Aqui está o seu dia:" 
 
 ## Estados da conversa
 
-`etapa` em `store/assistente.ts`: `inicio` (menu), `espaco-novo`, `prova-arquivos`, `lendo`, `prova-previa`, `prova-pronta`, `cartoes-arquivo`, `cartoes-previa`, `cartoes-pronto`, `pergunta` (o assistente espera a resposta de um pedido), `caderno` (resumo do caderno de erros e as saídas), `plano` (o plano de estudo e as saídas), `questoes-material` (qual material), `questoes-previa` (as questões geradas, antes de entrar), `limpar` (confirmação), `espacos`, `materiais`, `material-arquivo`, `material-pronto`, `ia`. A caixa de mensagem existe em `inicio`, `pergunta` e nos `*-pronta`; nos demais o painel tem os seus próprios botões (e "Voltar/Cancelar").
+`etapa` em `store/assistente.ts`: `inicio` (menu), `espaco-novo`, `prova-arquivos`, `lendo`, `prova-previa`, `prova-pronta`, `cartoes-arquivo`, `cartoes-previa`, `cartoes-pronto`, `pergunta` (o assistente espera a resposta de um pedido), `caderno` (resumo do caderno de erros e as saídas), `plano` (o plano de estudo e as saídas), `lembrete` (liga, muda a hora ou desliga o lembrete diário), `questoes-material` (qual material), `questoes-previa` (as questões geradas, antes de entrar), `limpar` (confirmação), `espacos`, `materiais`, `material-arquivo`, `material-pronto`, `ia`. A caixa de mensagem existe em `inicio`, `pergunta` e nos `*-pronta`; nos demais o painel tem os seus próprios botões (e "Voltar/Cancelar").
 
 ## Próximos passos da conversa (não feitos)
 - Entender frases com mais de um pedido ("importar a prova e depois criar cartões").

@@ -4,7 +4,9 @@ import type { Linha } from './layout'
 
 import { avaliar } from '../cartoes/qualidade'
 import { cartoesDeLista, ehIntroducao, ehItemDeLista, itemLimpo, itensValidos, lerEnumeracaoInline } from '../cartoes/enumeracao'
-import { lacunaNumerica } from '../cartoes/lacunas'
+import { lerConceito } from '../cartoes/conceito'
+import { lacunasDeFrases } from '../cartoes/lacunas'
+import { limparParagrafos } from './higiene'
 import { cartoesDeSiglas } from '../cartoes/siglas'
 import { lerSintaxe, temSintaxe } from '../cartoes/sintaxe'
 import type { CartaoSugerido, Descartado, Sugestoes } from '../cartoes/tipos'
@@ -24,15 +26,30 @@ export function linhasParaParagrafos(linhas: readonly Linha[]): string[] {
   for (let i = 1; i < linhas.length; i++) if (linhas[i].pagina === linhas[i - 1].pagina && linhas[i].coluna === linhas[i - 1].coluna) { const d = linhas[i - 1].y - linhas[i].y; if (d > 2 && d < 40) gaps.push(d) }
   const tipico = gaps.length ? [...gaps].sort((a, b) => a - b)[Math.floor(gaps.length * 0.3)] : 12
   const fecha = () => { if (atual.trim()) saida.push(atual.trim()); atual = '' }
+  // largura típica (a MEDIANA, que tabelas e quadros de largura inteira não distorcem) das linhas de cada coluna: uma linha bem mais curta, sem pontuação no fim, é um TÍTULO ("Tratamento medicamentoso"), não meio de parágrafo
+  const larguras = new Map<string, number[]>()
+  for (const l of linhas) { const k = `${l.pagina}:${l.coluna}`; larguras.set(k, [...(larguras.get(k) ?? []), l.x1 - l.x0]) }
+  const tipica = new Map([...larguras].map(([k, v]) => [k, [...v].sort((a, b) => a - b)[Math.floor(v.length * 0.5)] ?? 0]))
+  const ehTitulo = (l: Linha) => l.texto.length <= 90 && /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9"“]/.test(l.texto) && !/[.!?;:”"]$/.test(l.texto) && l.x1 - l.x0 < 0.72 * (tipica.get(`${l.pagina}:${l.coluna}`) ?? 0)
   for (const l of linhas) {
-    const quebra = !anterior || l.pagina !== anterior.pagina || l.coluna !== anterior.coluna || anterior.y - l.y > tipico * 1.55 || /^[•·▪■●○◦-]\s/.test(l.texto)
+    const marcador = /^[•·▪■●○◦-]\s/.test(l.texto) || /^\d{1,2}[.)]\s+\S/.test(l.texto)
+    const lugarNovo = !anterior || l.pagina !== anterior.pagina || l.coluna !== anterior.coluna
+    // a frase que termina no pé de uma coluna ou de uma página e continua no alto da seguinte (palavra partida com hífen, ou um trecho sem ponto final) segue sendo o mesmo parágrafo; os títulos curtos já foram fechados à parte
+    const continua = lugarNovo && !!anterior && !marcador && /^[a-zà-ÿ]/.test(l.texto) && (/[A-Za-zÀ-ÿ]-$/.test(atual) || (atual.trim().length >= 20 && !/[.!?:;)”"»]$/.test(atual.trim())))
+    const titulo = ehTitulo(l)
+    // um título começa parágrafo novo quando o anterior já acabou numa frase, e fica sozinho (o corpo vem no parágrafo seguinte)
+    const quebra = !anterior || (lugarNovo ? !continua : anterior.y - l.y > tipico * 1.55 || marcador) || (titulo && /[.!?:;)”"»]$/.test(atual.trim()))
     if (quebra) fecha()
-    atual = atual ? (/[A-Za-zÀ-ÿ]-$/.test(atual) && /^[a-zà-ÿ]/.test(l.texto) ? atual.slice(0, -1) + l.texto : `${atual} ${l.texto}`) : l.texto
+    atual = atual ? (/[A-Za-zÀ-ÿ]-$/.test(atual) && /^[a-zà-ÿ]/.test(l.texto) ? atual.slice(0, -1) + l.texto : /[A-Za-zÀ-ÿ]-$/.test(atual) && /^-[A-Za-zÀ-ÿ]/.test(l.texto) ? atual + l.texto.slice(1) : `${atual} ${l.texto}`) : l.texto // (o 2º caso: "M-" + "-CHAT-R", o hífen do composto repetido na quebra de linha)
     anterior = l
+    if (titulo) { fecha(); anterior = null }
   }
   fecha()
   return saida
 }
+
+/** Um título de seção solto ("Tratamento medicamentoso"): curto, sem ponto final, começa com maiúscula e não é item de lista. */
+const pareceTitulo = (p: string) => !/\s[–—-]\s|:/.test(p) && p.length >= 4 && p.length <= 90 && p.split(/\s+/).length <= 12 && /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9"“]/.test(p) && !/[.!?;:”"»]$/.test(p) && !/^#/.test(p)
 
 /** Texto puro (TXT/MD) → parágrafos, mantendo os títulos de markdown ("# …") como parágrafos próprios. */
 export function textoParaParagrafos(texto: string): string[] {
@@ -51,7 +68,6 @@ export function textoParaParagrafos(texto: string): string[] {
 const DEF_DOIS_PONTOS = /^(?:\*\*)?([^:.;?!]{2,70}?)(?:\*\*)?\s*:\s+(.{12,})$/
 const DEF_TRACO = /^([^:.;?!–—-]{2,60}?)\s+[–—-]\s+(.{15,})$/
 const PERGUNTA = /^(?:P|Pergunta|Q)\s*[:.)]\s*(.+?\?)\s*(?:R|Resposta|A)\s*[:.)]\s*(.+)$/i
-const VERBO = /^((?:[A-ZÁÉÍÓÚÂÊÔÃÕÇ][\wÀ-ÿ'’-]*)(?:\s+(?:de|da|do|das|dos|e|em|para|a|o)?\s*[\wÀ-ÿ'’-]+){0,5})\s+(é|são|significa|consiste em|refere-se a|define-se como|chama-se|denomina-se)\s+(.{20,})$/
 
 /**
  * Cartões a partir dos parágrafos. A ordem importa (do mais fiel ao mais adivinhado): marcação explícita da pessoa (`::`, `:::`, `==x==`, `{{x}}`, ` ? `) →
@@ -59,7 +75,10 @@ const VERBO = /^((?:[A-ZÁÉÍÓÚÂÊÔÃÕÇ][\wÀ-ÿ'’-]*)(?:\s+(?:de|da|do
  * Siglas ("Banco Central (BACEN)") rendem cartões ALÉM do que o parágrafo já rendeu. Tudo passa pelo filtro de qualidade (`cartoes/qualidade.ts`): o que for barrado
  * volta em `descartados`, com o motivo, em vez de sumir sem explicação.
  */
-export function sugerirCartoes(paragrafos: readonly string[]): Sugestoes {
+export function sugerirCartoes(todosOsParagrafos: readonly string[]): Sugestoes {
+  // o que não é para estudar (referências bibliográficas, créditos) nem entra na conta
+  const higiene = limparParagrafos(todosOsParagrafos)
+  const paragrafos = higiene.paragrafos
   const cartoes: CartaoSugerido[] = []
   const descartados: Descartado[] = []
   const vistos = new Set<string>()
@@ -75,10 +94,13 @@ export function sugerirCartoes(paragrafos: readonly string[]): Sugestoes {
   }
   const addTodos = (lista: readonly CartaoSugerido[]) => lista.reduce((n, c) => n + (add(c) ? 1 : 0), 0)
 
+  let titulo = '' // o título curto logo acima do parágrafo da vez (o assunto das frases dele)
   for (let i = 0; i < paragrafos.length; i++) {
     const bruto = paragrafos[i]
     const p = limpa(bruto.replace(/\*\*/g, '**'))
     if (!p) continue
+    const contexto = titulo
+    titulo = pareceTitulo(p) ? p : ''
     let m: RegExpExecArray | null
     // siglas: cartões a mais, sem consumir o parágrafo
     const dasSiglas = addTodos(cartoesDeSiglas(p))
@@ -109,14 +131,12 @@ export function sugerirCartoes(paragrafos: readonly string[]): Sugestoes {
       const termo = negritos[0][1]
       if (add({ f: p.replace(`**${termo}**`, '_____').replace(/\*\*/g, ''), v: termo, tipo: 'lacuna', origem: p })) continue
     }
-    if ((m = VERBO.exec(p)) && !/^(Isso|Ele|Ela|Eles|Elas|Esse|Essa|Este|Esta|Aquele|Aquela|Tudo|Também)\b/.test(m[1])) {
-      const frente = m[2] === 'é' ? `O que é ${m[1]}?` : m[2] === 'são' ? `O que são ${m[1]}?` : `${m[1]}: o que ${m[2] === 'chama-se' || m[2] === 'denomina-se' ? 'é' : 'significa'}?`
-      if (add({ f: frente, v: `${m[1]} ${m[2]} ${m[3]}`, tipo: 'verbo', origem: p })) continue
-    }
+    const conceito = lerConceito(p)
+    if (conceito && add({ f: conceito.frente, v: conceito.verso, tipo: 'verbo', origem: p })) continue
     // 4. último recurso: números, datas e valores em lacuna
-    const numeros = lacunaNumerica(p)
+    const numeros = lacunasDeFrases(p, contexto)
     if (numeros && addTodos(numeros)) continue
     if (!dasSiglas) sobraram++
   }
-  return { cartoes, paragrafos: paragrafos.length, sobraram, descartados }
+  return { cartoes, paragrafos: paragrafos.length, sobraram, descartados, ignorados: higiene.ignorados, motivosIgnorados: higiene.motivos }
 }

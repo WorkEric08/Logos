@@ -20,7 +20,9 @@ const esperarFim = async (p) => { await p.waitForFunction(() => document.getAnim
 /** Grava por `ms` a posição do pé (Anterior/Próxima) e a rolagem lateral. Com `espera`, só começa quando esse seletor aparece (a nova questão). O pé acompanha a altura
  *  da questão (no monitor ele vem logo abaixo dela), então a posição de referência é a FINAL: o movimento da animação não pode tirá-lo dela em nenhum quadro. */
 const vigiar = (p, ms, espera = null) => p.evaluate(({ ms, espera }) => new Promise((res) => {
-  const pe = () => [...document.querySelectorAll('.foot.sticky .btn')].map((e) => { const r = e.getBoundingClientRect(); return [r.left, r.top, r.width] })
+  // Só a posição HORIZONTAL (esquerda e largura): o defeito que o teste existe para pegar é o pé deslizando junto com a tela. A altura NÃO entra: o pé acompanha a altura da
+  // questão, e a questão seguinte pode ter imagem ou texto que termina de carregar no meio da medição (era a causa das falhas "do pé 27 px / 337 px" só sob carga).
+  const pe = () => [...document.querySelectorAll('.foot.sticky .btn')].map((e) => { const r = e.getBoundingClientRect(); return [r.left, 0, r.width] })
   const amostras = []; let lateral = 0, t0 = null
   const q = () => {
     if (espera && t0 === null && !document.querySelector(espera)) return requestAnimationFrame(q)

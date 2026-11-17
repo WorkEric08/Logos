@@ -19,8 +19,22 @@ function bonito(x: number): number {
   return Math.round(x / mag) * mag
 }
 
+/** Limites impostos pela frase: numa faixa ("entre 12 e _____") a resposta é MAIOR que o número que vem antes; em "_____ e 30" é MENOR que o que vem depois. */
+export interface LimitesNumericos { acima?: number; abaixo?: number }
+
+/**
+ * Os números que a frase deixa em volta da lacuna, para as alternativas respeitarem a faixa: "entre 12 e _____" → acima 12 ("12 meses" e "10 meses" seriam absurdos).
+ * Só olha o número colado à lacuna por "e", "a", "ou", "até" ou traço.
+ */
+export function limitesDaFrase(frase: string): LimitesNumericos {
+  const num = (t: string) => Number(t.replace(/\./g, '').replace(',', '.'))
+  const antes = /(\d+(?:\.\d{3})*(?:,\d+)?)\s*(?:e|a|ou|até|-|–|—)\s*_____/.exec(frase)
+  const depois = /_____\s*(?:e|a|ou|até|-|–|—)\s*(\d+(?:\.\d{3})*(?:,\d+)?)/.exec(frase)
+  return { ...(antes ? { acima: num(antes[1]) } : {}), ...(depois ? { abaixo: num(depois[1]) } : {}) }
+}
+
 /** Quatro valores diferentes do original, na mesma forma (mesma unidade e mesmas casas decimais). Null se não for um número simples. */
-export function perturbar(valor: string, rng: Rng): string[] | null {
+export function perturbar(valor: string, rng: Rng, limites: LimitesNumericos = {}): string[] | null {
   const m = NUM.exec(valor.trim())
   if (!m) return null
   const [, moeda = '', inteiro, dec = '', resto] = m
@@ -30,7 +44,7 @@ export function perturbar(valor: string, rng: Rng): string[] | null {
   const ano = !moeda && !casas && !resto.trim() && n >= 1500 && n <= 2100
   const plural = /s\s*$/.test(resto.trim()) // "3 anos": "1 anos" não existe
   const candidatos = new Set<number>()
-  const poe = (x: number) => { const v = casas ? Math.round(x * 10 ** casas) / 10 ** casas : Math.round(x); if (v > (plural ? 1 : 0) && v !== n) candidatos.add(v) }
+  const poe = (x: number) => { const v = casas ? Math.round(x * 10 ** casas) / 10 ** casas : Math.round(x); if (v > (plural ? 1 : 0) && v !== n && (limites.acima === undefined || v > limites.acima) && (limites.abaixo === undefined || v < limites.abaixo)) candidatos.add(v) }
   if (ano) { for (const d of [-10, -5, -3, -2, -1, 1, 2, 3, 5, 10]) poe(n + d) }
   else if (!casas && n <= 12) { for (const d of [-3, -2, -1, 1, 2, 3, 4, 6]) poe(n + d) } // contagens pequenas: vizinhos
   else for (const f of [0.5, 0.67, 0.8, 1.2, 1.5, 2]) poe(casas ? n * f : bonito(n * f)) // degraus em volta: metade, dois terços, ±20 %, 1,5×, dobro

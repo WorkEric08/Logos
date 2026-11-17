@@ -8,7 +8,7 @@ import { slug } from '../importar/montar'
 import type { Letter, Question } from '../types'
 import type { Rng } from '../weights'
 import { destacaPeloTamanho, escolherDistratores, formaDe, norm, rngDe } from './distratores'
-import { perturbar } from './numeros'
+import { limitesDaFrase, perturbar } from './numeros'
 
 export type TipoQuestao = 'definicao' | 'termo' | 'sigla' | 'numero' | 'lacuna' | 'pergunta' | 'incorreta'
 export const ROTULO_TIPO_QUESTAO: Record<TipoQuestao, string> = {
@@ -21,6 +21,8 @@ export interface Geracao {
   /** Quantos fatos do material serviram de ponto de partida. */
   fatos: number
   descartadas: Descartada[]
+  /** O que ficou de fora do material por não ser para estudar (referências bibliográficas, créditos), em palavras, para a tela dizer. */
+  ignorados: string[]
   /** A "prova" que agrupa as geradas deste material (chave e rótulo no formato do Início e do Treinar). */
   meta: { chave: string; rotulo: string; ano: number; bancoId: string; bancoNome: string }
 }
@@ -32,6 +34,8 @@ const LETRAS: Letter[] = ['A', 'B', 'C', 'D', 'E']
 
 const corta = (t: string, n: number) => (t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…')
 const semPonto = (t: string) => t.trim().replace(/[.;]+$/, '')
+/** A definição começa com letra minúscula ("parece ter músculos fracos…")? Alternativas que misturam as duas formas entregam a certa só pela cara. */
+const comecaMinuscula = (t: string) => /^[a-zà-ÿ]/.test(t.trim())
 
 interface ParTermo { termo: string; def: string; origem: string }
 interface ParSigla { sigla: string; expansao: string; origem: string }
@@ -44,10 +48,12 @@ function fatosDosCartoes(cartoes: readonly CartaoSugerido[]) {
   for (const c of cartoes) {
     if (c.tipo === 'definicao' || c.tipo === 'titulo') { termos.push({ termo: c.f, def: semPonto(c.v), origem: c.origem }); continue }
     if (c.tipo === 'verbo') {
-      const termo = /^O que (?:é|são) (.+)\?$/.exec(c.f)?.[1]
-      if (!termo) continue
-      const def = c.v.slice(termo.length).replace(/^\s*(?:é|são|significa|consiste em|refere-se a|define-se como|chama-se|denomina-se)\s+/i, '')
-      if (def && def !== c.v.slice(termo.length)) termos.push({ termo, def: semPonto(def), origem: c.origem })
+      const sujeito = /^O que (?:é|são) (.+)\?$/.exec(c.f)?.[1]
+      if (!sujeito) continue
+      const def = c.v.slice(sujeito.length).replace(/^\s*(?:é|são|significa|consiste em|refere-se a|define-se como|chama-se|denomina-se)\s+/i, '')
+      // "o pediatra" → "Pediatra": o artigo não faz parte do termo que a questão pergunta
+      const termo = sujeito.replace(/^(?:o|a|os|as|um|uma)\s+/i, '').replace(/^./, (x) => x.toUpperCase())
+      if (def && def !== c.v.slice(sujeito.length)) termos.push({ termo, def: semPonto(def), origem: c.origem })
       continue
     }
     if (c.tipo === 'sigla') {
@@ -87,7 +93,8 @@ export function gerarQuestoes(paragrafos: readonly string[], material: { id: str
   const max = opcoes.max ?? MAX_QUESTOES
   const bancoId = 'ger-' + (slug(material.nome).slice(0, 24) || 'material')
   const meta = { chave: `${bancoId}-${ano}`, rotulo: `Geradas: ${material.nome} ${ano} · do meu material`, ano, bancoId, bancoNome: `Geradas: ${material.nome}` }
-  const { termos, siglas, qas, numeros, lacunas } = fatosDosCartoes(sugerirCartoes(paragrafos).cartoes)
+  const sugestoes = sugerirCartoes(paragrafos)
+  const { termos, siglas, qas, numeros, lacunas } = fatosDosCartoes(sugestoes.cartoes)
   const descartadas: Descartada[] = []
   const rascunhos: { r: Rascunho; rng: Rng }[] = []
   const semente = (tipo: string, chave: string) => rngDe(`${material.id}|${tipo}|${chave}`)
@@ -103,7 +110,7 @@ export function gerarQuestoes(paragrafos: readonly string[], material: { id: str
     const direcao = repeteTermo(t.termo, t.def) ? 'definicao' : semente('dir', t.termo)() < 0.5 ? 'definicao' : 'termo'
     if (direcao === 'definicao') {
       tenta('definicao', t.termo, (rng) => {
-        const erradas = escolherDistratores(t.def, termos.filter((x) => x !== t).map((x) => x.def), 4, rng)
+        const erradas = escolherDistratores(t.def, termos.filter((x) => x !== t && comecaMinuscula(x.def) === comecaMinuscula(t.def)).map((x) => x.def), 4, rng)
         return erradas ? { tipo: 'definicao', enunciado: `Segundo o seu material, qual é a definição de "${t.termo}"?`, correta: t.def, erradas, assunto: t.termo, origem: t.origem } : faltaPool(`definição de ${t.termo}`)
       })
     } else {
@@ -128,7 +135,7 @@ export function gerarQuestoes(paragrafos: readonly string[], material: { id: str
   }
   for (const n of numeros) {
     tenta('numero', n.frase, (rng) => {
-      const erradas = perturbar(n.resposta, rng)
+      const erradas = perturbar(n.resposta, rng, limitesDaFrase(n.frase)) // numa faixa ("entre 12 e ___") as erradas respeitam o limite da frase
       return erradas ? { tipo: 'numero', enunciado: `Segundo o seu material, complete: ${n.frase}`, correta: n.resposta, erradas, assunto: n.resposta, origem: n.origem } : { motivo: 'valor que não sei variar', resumo: corta(n.frase, 90) }
     })
   }
@@ -183,5 +190,5 @@ export function gerarQuestoes(paragrafos: readonly string[], material: { id: str
       e: r.enunciado, b: '', o: r.o, g: r.g, p: null, bp: null, f: 0, ol: 0, ger: 1, fonte: corta(r.origem.replace(/\s+/g, ' ').trim(), MAX_FONTE),
     },
   }))
-  return { questoes, fatos: termos.length + siglas.length + numeros.length + lacunas.length + qas.length, descartadas: [...descartadas, ...ordenadas.slice(max).map(({ r }) => ({ motivo: `passou do limite de ${max} questões`, resumo: corta(r.enunciado, 90) }))], meta }
+  return { questoes, fatos: termos.length + siglas.length + numeros.length + lacunas.length + qas.length, descartadas: [...descartadas, ...ordenadas.slice(max).map(({ r }) => ({ motivo: `passou do limite de ${max} questões`, resumo: corta(r.enunciado, 90) }))], ignorados: sugestoes.motivosIgnorados, meta }
 }

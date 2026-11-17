@@ -7,7 +7,8 @@ import { montarQuestoes, type MetaProva } from '../core/importar/montar'
 import type { QuestaoLida } from '../core/importar/prova'
 import { ACOES, acaoPorId, type IdAcao } from '../core/assistente'
 import { cadernoDoEspaco, dosErros, montarSemana, resumirCaderno, type Caderno } from '../core/caderno'
-import { estadoDoDiaDe, type EstadoDoDia } from '../core/lembrete'
+import { estadoDoDiaDe, horaTexto, type EstadoDoDia } from '../core/lembrete'
+import { useLembrete } from './lembrete'
 import { montarPainel, montarPlano, textoDoPainel, textoDoPlano, type EntradaPainel, type Painel, type Plano, type SugestaoDia } from '../core/dia'
 import { entender, semAcento } from '../core/conversa'
 import { gerarQuestoes, type Geracao } from '../core/questoes/gerar'
@@ -188,6 +189,7 @@ export const useAssistente = create<State>((set, get) => {
       provas: SOURCE_KEYS.map((chave) => ({ chave, rotulo: SOURCES[chave] })),
       espacos: e.lista.map((x) => ({ id: x.id, nome: x.nome })),
       espacoAtivo: e.ativo, temRegras: !!REGRAS, ultimaProva: get().ultimaProva ?? undefined, erros: Object.keys(caderno()).length,
+      lembrete: useLembrete.getState().disponivel ? useLembrete.getState().config : undefined,
     }
   }
 
@@ -213,10 +215,29 @@ export const useAssistente = create<State>((set, get) => {
     set({ carregada: true })
   }
 
+  /** "Me lembre às 20h" / "desligar o lembrete": liga, muda a hora ou desliga o lembrete diário (a permissão de notificação é pedida aqui, na 1ª vez que liga). */
+  const aplicarLembrete = async (p: Pedido) => {
+    const L = useLembrete.getState()
+    if (!L.disponivel) { diz('O lembrete diário só funciona no aplicativo do Android: o navegador não consegue avisar com o app fechado. No aplicativo é só pedir de novo, por exemplo "me lembre às 20h".'); return }
+    try {
+      if (p.desligar) {
+        if (!L.config.ativo) { diz('O lembrete diário já está desligado.'); return }
+        await L.desligar(); dizOk('Desliguei o lembrete diário. Para ligar de novo é só pedir, por exemplo "me lembre às 20h".'); return
+      }
+      const hora = p.hora ?? 19, minuto = p.minuto ?? 0
+      await L.definirHora(hora, minuto)
+      if (!useLembrete.getState().config.ativo) await useLembrete.getState().ligar()
+      const s = useLembrete.getState()
+      if (s.config.ativo) dizOk(`Pronto: lembrete diário às ${horaTexto({ hora, minuto })}.${s.proximo ? ` Próximo aviso: ${s.proximo}.` : ''} Se você já tiver estudado no dia, ele não toca.`)
+      else diz(s.nota ?? 'Não consegui ligar o lembrete agora.')
+    } catch { dizErro('Não consegui mexer no lembrete agora. Tente de novo mais tarde.') }
+  }
+
   /** Monta e começa o simulado/treino pedido (tudo o que faltava já foi respondido). */
   const executarPedido = (p: Pedido) => {
     const { prog, startSimulado, startCustom } = useApp.getState()
     inicio()
+    if (p.acao === 'lembrete') { void aplicarLembrete(p); return }
     if (p.acao === 'plano') { const pl = montarPlano(entradaPainel(), p.minutos ?? 30, TF); diz(textoDoPlano(pl)); set({ plano: pl }); ir('plano'); return }
     if (p.acao === 'simulado' && p.materia === 'edital') { dizOk('Montei o simulado do edital: questões sorteadas pelo peso de cada matéria, com nota e regras. Boa prova!'); startSimulado(); return }
     if (p.fonte === 'semana') {
@@ -290,6 +311,7 @@ export const useAssistente = create<State>((set, get) => {
   const mostrarAjuda = () => diz(['Eu sei fazer isto, tudo aqui no seu aparelho:', ...ACOES.map((a) => `• ${a.rotulo}: ${a.resumo}`), 'Toque numa sugestão ou escreva o que quer (por exemplo: "importar prova").'].join('\n'))
 
   const executar = (id: IdAcao, e: Entidades = {}, texto = '') => {
+    if (id === 'lembrete') { avancar(pedidoDe('lembrete', e)); return }
     if (id === 'plano') {
       // sem o tempo: mostra o dia e pergunta quanto tempo a pessoa tem; com o tempo: monta o plano
       if (!e.minutos) diz(textoDoPainel(montarPainel(entradaPainel()), Date.now()))
@@ -389,6 +411,7 @@ export const useAssistente = create<State>((set, get) => {
         }
         const g = geracao
         diz(`Montei ${plural(g.questoes.length, 'questão', 'questões')} de "${mat.nome}", a partir de ${plural(g.fatos, 'fato', 'fatos')} do material.${g.descartadas.length ? ` ${plural(g.descartadas.length, 'fato não rendeu questão', 'fatos não renderam questão')} (poucas alternativas parecidas, ou alternativas longas demais).` : ''} Confira as alternativas e desmarque o que não servir.`)
+        if (g.ignorados.length) diz(`Deixei de fora ${g.ignorados.join(' e ')}: não é conteúdo para estudar.`)
         set({ geradas: { material: mat, geracao: g, escolhidas: g.questoes.map((_, i) => i) } })
         ir('questoes-previa')
       } catch (e) { dizErro('Não consegui gerar as questões: ' + erroTexto(e)); set({ ocupado: false, progresso: null }); ir('material-pronto') }
@@ -602,8 +625,9 @@ export const useAssistente = create<State>((set, get) => {
         const guardado = prepararMaterial(espacoAtivo(), f.name, tipoDoArquivo(f), paragrafos)
         const novoMaterial = guardado.ok ? await salvarMaterial(guardado.material, guardado.trechos).catch(() => false) : false
         diz(
-          sug.cartoes.length ? `Achei ${plural(sug.cartoes.length, 'cartão', 'cartões')} em ${plural(paragrafos.length, 'parágrafo', 'parágrafos')}. ${sug.sobraram ? `${plural(sug.sobraram, 'parágrafo ficou', 'parágrafos ficaram')} de fora (sem padrão de definição). ` : ''}${sug.descartados.length ? `${plural(sug.descartados.length, 'cartão foi barrado', 'cartões foram barrados')} pelas regras de qualidade (por exemplo: ${sug.descartados[0].motivo}). ` : ''}Escolha os que quer.` : sug.descartados.length ? `Os padrões que reconheci (${plural(sug.descartados.length, 'cartão', 'cartões')}) foram barrados pelas regras de qualidade, por exemplo: ${sug.descartados[0].motivo}.` : 'Não achei trechos no formato "termo: definição", nem listas, siglas ou a sua marcação (Pergunta::Resposta, ==lacuna==) que eu reconheça.',
+          sug.cartoes.length ? `Achei ${plural(sug.cartoes.length, 'cartão', 'cartões')} em ${plural(sug.paragrafos, 'parágrafo', 'parágrafos')}. ${sug.sobraram ? `${plural(sug.sobraram, 'parágrafo ficou', 'parágrafos ficaram')} de fora (sem padrão de definição). ` : ''}${sug.descartados.length ? `${plural(sug.descartados.length, 'cartão foi barrado', 'cartões foram barrados')} pelas regras de qualidade (por exemplo: ${sug.descartados[0].motivo}). ` : ''}Escolha os que quer.` : sug.descartados.length ? `Os padrões que reconheci (${plural(sug.descartados.length, 'cartão', 'cartões')}) foram barrados pelas regras de qualidade, por exemplo: ${sug.descartados[0].motivo}.` : 'Não achei trechos no formato "termo: definição", nem listas, siglas ou a sua marcação (Pergunta::Resposta, ==lacuna==) que eu reconheça.',
           ...(novoMaterial ? ['Guardei o resumo para você consultar depois: é só perguntar (por exemplo "o que é …?").'] : []),
+          ...(sug.ignorados ? [`Deixei de fora ${sug.motivosIgnorados.join(' e ')}: não é conteúdo para estudar.`] : []),
           ...avisos,
         )
         if (!sug.cartoes.length) { set({ ocupado: false, progresso: null }); ir('cartoes-arquivo'); return }
