@@ -25,6 +25,7 @@ import { iniciarContaSeJaEntrou } from '../services/sync/conta'
 import { useEspacos } from '../store/espacos'
 import { Assistente } from './Assistente'
 import { reduzMovimento } from './movimentoChat'
+import { ligarLembretes } from '../services/lembrete'
 
 const ITENS: ItemRail<Tab>[] = [
   { id: 'inicio', rotulo: 'Início', icone: 'home' }, { id: 'treinar', rotulo: 'Treinar', icone: 'train' }, { id: 'cartoes', rotulo: 'Cards', icone: 'cards' },
@@ -47,6 +48,7 @@ export function App() {
     // primeiro o espaço de estudo ativo (as questões e matérias que as telas leem), depois o progresso
     void useEspacos.getState().iniciar().then(() => load()); void useCards.getState().load(); askPersist(); iniciarContaSeJaEntrou()
   }, [load])
+  useEffect(() => ligarLembretes(), []) // lembrete diário (só no APK: no navegador não faz nada)
   useEffect(() => (ehNativo() ? bindNativeBack : bindBack)({
     goHome: () => { if (useApp.getState().tab === 'inicio') return false; useApp.getState().setTab('inicio'); return true },
     askExit: () => useApp.getState().showToast(AVISOS.voltarParaSair),
@@ -85,7 +87,7 @@ export function App() {
   const miolo = !ready ? <div className="boot" aria-busy="true" /> : (
     <SlotCtx value={slot}>
     <div className="shell" data-recolhida={recolhida ? '1' : undefined} data-lado={aba.lado}>
-      <NavigationRail itens={itens} ativo={session ? null : tab} nomeAtual={ITENS.find((i) => i.id === tab)?.rotulo ?? ''} recolhida={recolhida} onSelecionar={aoSelecionar} onAlternar={alternarRail} lado={aba.lado} posicao={aba.pos} onMover={aba.mover} onReordenar={(id, para) => moverItem(itens.map((i) => i.id), id, para)} icones={aba.icones} />
+      <NavigationRail itens={itens} ativo={session ? null : tab} nomeAtual={ITENS.find((i) => i.id === tab)?.rotulo ?? ''} recolhida={recolhida} onSelecionar={aoSelecionar} onAlternar={alternarRail} lado={aba.lado} posicao={aba.pos} onMover={aba.mover} onReordenar={(id, para) => moverItem(itens.map((i) => i.id), id, para)} icones={aba.icones} seta={aba.seta} />
       <main className="scroll-y" ref={main} inert={celular && !recolhida}>
         <div key={`${mov.cam.id}-${versao}`} className={`page${saindo ? ' saindo' : ''}${!session && tab === 'inicio' ? ' ini' : ''}${!session && tab !== 'inicio' ? ' xl' : ''}${mov.sentido ? ` fc-tela ${mov.sentido}` : ''}`}>{session ? (session.done && !session.review ? <Resultado /> : <Questao />) : <View key={reinicio} />}</div>
       </main>

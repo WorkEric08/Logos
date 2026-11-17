@@ -34,6 +34,7 @@ const etapas = [
   ['barra de navegação (rail): aba retrátil, arrastar, memória, voltar, temas, deitado', 'node scripts/e2e-rail.mjs'],
   ['celular: alvos de toque, rolagem, texto cortado e teclado (9 tamanhos)', 'node scripts/medir-mobile.mjs'],
   ['APK: pacote do Android com a ponte do Capacitor simulada', 'node scripts/e2e-android.mjs'],
+  ['Lembrete diário por notificação: tela em Mais, permissão, horário, agenda de 14 dias, estudar tira o de hoje (plugin simulado)', 'node scripts/e2e-lembrete.mjs'],
   ['abertura animada: 2 s, preto na 1ª pintura, centralizada, movimento reduzido', 'node scripts/e2e-splash.mjs'],
   ['visual: 6 tamanhos × 2 temas × 7 telas', 'node scripts/e2e-visual.mjs'],
   ['atualização real: versão antiga → nova, backup e restauração', 'node scripts/e2e-migracao.mjs'],

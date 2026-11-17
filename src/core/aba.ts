@@ -52,6 +52,13 @@ export function descreverAba(p: PosicaoAba): string {
   return `${p.lado === 'dir' ? 'na direita' : 'na esquerda'}, ${altura}`
 }
 
+// ---- a SETA da aba (o quadrado com a seta na borda da tela): mostrar (padrão) ou ocultar ----
+// Ocultar só tira a aba da VISTA: ela continua no mesmo lugar e funciona igual (tocar abre e fecha a barra, segurar e arrastar muda de lado ou de altura,
+// Alt + setas no teclado). Enquanto a aba é arrastada ela aparece, para a pessoa ver o que está movendo.
+export const SETA_PADRAO = true
+/** Lê o valor guardado ('0' = oculta); qualquer outra coisa (ou nada) é a seta visível. */
+export const limparSeta = (x: unknown): boolean => !(x === '0' || x === false)
+
 // ---- onde ficam os ÍCONES dentro da barra aberta (celular): em cima (padrão), no meio ou embaixo ----
 export type Icones = 'cima' | 'meio' | 'baixo'
 export const ICONES_PADRAO: Icones = 'cima'

@@ -14,6 +14,8 @@ const config: CapacitorConfig = {
     // Login com Google no app: o plugin só abre o seletor de contas nativo e devolve o token; quem autentica é o SDK web (src/services/sync/firebase.ts),
     // para o Firestore enxergar o mesmo uid do site. Por isso skipNativeAuth.
     FirebaseAuthentication: { skipNativeAuth: true, providers: ['google.com'] },
+    // Lembrete diário (src/services/native/notificacoes.ts): o ícone pequeno é uma silhueta branca (res/drawable/ic_stat_logos.xml) e a cor é o laranja do app.
+    LocalNotifications: { smallIcon: 'ic_stat_logos', iconColor: '#F97316' },
   },
 }
 export default config

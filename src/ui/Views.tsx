@@ -9,6 +9,7 @@ import { useCards } from '../store/cards'
 import { useAba } from '../store/aba'
 import { useOrdemRail } from '../store/ordemRail'
 import { useConta } from '../services/sync/conta'
+import { Lembrete } from './Lembrete'
 import { ICONES, descreverAba, type Icones } from '../core/aba'
 
 import { BANK, TF, useApp } from '../store/app'
@@ -329,7 +330,7 @@ export function Mais() {
     <>
       <div className="split edge tr">
         <div className="col">
-          <Top title="Mais" sub="conta, aparência, barra de navegação e sobre o banco" />
+          <Top title="Mais" sub="conta, aparência, lembrete, barra de navegação e sobre o banco" />
           <div className="mgrid">
             <Conta />
             <div className="card"><h3>Aparência</h3>
@@ -338,11 +339,15 @@ export function Mais() {
                   <button key={v} aria-pressed={tema === v} onClick={() => setTema(v)}>{l}</button>)}
               </div>
             </div>
+            <Lembrete />
             <div className="card so-celular"><h3>Aba da barra de navegação</h3>
               <p className="note">No celular, segure a aba por meio segundo e arraste para mudar de lado ou de altura. Segurar um ícone e arrastar muda a ordem dos ícones. Ou escolha aqui.</p>
               <div className="field"><span className="lb">Lado</span>
-                <div className="chips" role="group" aria-label="Lado da aba">
-                  {([['esq', 'Esquerda'], ['dir', 'Direita']] as const).map(([v, r]) => <button key={v} className="chip" aria-pressed={aba.lado === v} onClick={() => aba.mover(v, aba.pos)}>{r}</button>)}
+                <div className="chips">
+                  <div role="group" aria-label="Lado da aba" style={{ display: 'contents' }}>
+                    {([['esq', 'Esquerda'], ['dir', 'Direita']] as const).map(([v, r]) => <button key={v} className="chip" aria-pressed={aba.lado === v} onClick={() => aba.mover(v, aba.pos)}>{r}</button>)}
+                  </div>
+                  <button className="chip" aria-pressed={!aba.seta} aria-label="Ocultar a seta da aba" onClick={() => aba.definirSeta(!aba.seta)}>Ocultar seta</button>
                 </div>
               </div>
               <div className="field"><span className="lb">Altura</span>
@@ -355,7 +360,7 @@ export function Mais() {
                   {(Object.keys(ICONES) as Icones[]).map((v) => <button key={v} className="chip" aria-pressed={aba.icones === v} onClick={() => aba.definirIcones(v)}>{ICONES[v]}</button>)}
                 </div>
               </div>
-              <p className="note" role="status">Agora: aba {descreverAba(aba)}; ícones {ICONES[aba.icones].toLowerCase()}.</p>
+              <p className="note" role="status">Agora: aba {descreverAba(aba)}; ícones {ICONES[aba.icones].toLowerCase()}; seta {aba.seta ? 'visível' : 'oculta (a aba continua no mesmo lugar e funciona igual)'}.</p>
               <div className="row"><button className="btn" onClick={() => { aba.reiniciar(); useOrdemRail.getState().reiniciar() }}>Voltar ao padrão</button></div>
             </div>
             <div className="card"><h3>Zerar progresso</h3>

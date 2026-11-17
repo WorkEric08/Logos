@@ -87,6 +87,9 @@ export async function replaceAll(prog: ProgressMap) {
   })
 }
 export const saveTema = (value: string) => db.meta.put({ key: 'tema', value })
+/** Lembrete diário: fica só neste aparelho (a permissão e o alarme também são do aparelho), na tabela meta: o esquema do banco não muda. */
+export const lerLembreteGuardado = () => lerJson('lembrete')
+export const gravarLembreteGuardado = (c: unknown) => db.meta.put({ key: 'lembrete', value: JSON.stringify(c) })
 export const saveHist = (h: Hist) => db.meta.put({ key: 'hist', value: JSON.stringify(h) })
 /** Marcações: grava e carimba só o que mudou (uma chave por questão), para a sincronização enviar só isso. */
 export const saveMarks = (m: Marks) => avisa(db.transaction('rw', db.meta, db.sinc, async () => {

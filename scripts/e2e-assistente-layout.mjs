@@ -48,10 +48,11 @@ for (const perfil of PERFIS) {
   const meias = pil.itens.filter((i) => i.meia), inteiras = pil.itens.filter((i) => !i.meia)
   const paresOk = meias.every((m) => meias.filter((x) => x.top === m.top).length === 2) // cada curta tem exatamente uma vizinha na mesma linha
   const igual = meias.every((m) => Math.abs(m.w - meias[0].w) < 1.5)
-  const inteirasOk = inteiras.every((i) => Math.abs(i.w - (pil.lista.w - 36)) < 1.5)
+  const inteirasOk = inteiras.every((i) => Math.abs(i.w - pil.lista.w) < 1.5)
   const dentro = pil.itens.every((i) => i.l >= pil.lista.l - 0.5 && i.r <= pil.lista.r + 0.5) && pil.lista.r <= W - 16 + 0.5
   ok(`${perfil.nome}: sugestões curtas em duplas (${meias.length} em duplas, ${inteiras.length} na linha toda), colunas iguais`, meias.length >= 2 && paresOk && igual && inteirasOk, JSON.stringify(pil.itens.map((i) => `${i.meia ? '½' : '1'} ${i.t}`)))
   ok(`${perfil.nome}: nenhuma sugestão encosta nas bordas (o recuo de 16 px da tela é respeitado)`, dentro, `lista ${Math.round(pil.lista.l)}–${Math.round(pil.lista.r)} de ${W}`)
+  ok(`${perfil.nome}: as sugestões vão de uma margem à outra (16 px de cada lado), sem o recuo que havia para o ícone`, Math.abs(pil.lista.l - 16) < 1 && Math.abs(pil.lista.r - (W - 16)) < 1, `lista ${Math.round(pil.lista.l)}–${Math.round(pil.lista.r)} de ${W}`)
   const semCorte = await p.evaluate(() => [...document.querySelectorAll('.as-pilula')].every((e) => e.scrollWidth <= e.clientWidth + 1 && e.scrollHeight <= e.clientHeight + 1))
   ok(`${perfil.nome}: o texto das sugestões não é cortado`, semCorte)
 
@@ -127,10 +128,30 @@ for (const perfil of PERFIS) {
 
   // ───── 5. cor de destaque laranja ─────
   const cores = await p.evaluate(() => {
-    const v = document.querySelector('.as-msg.v'), pri = document.querySelector('.as-pilula.pri'), av = document.querySelector('.as-avatar')
+    const v = document.querySelector('.as-msg.v'), pri = document.querySelector('.as-pilula.pri'), av = v
     return { v: v && getComputedStyle(v).backgroundColor, pri: pri && getComputedStyle(pri).backgroundColor, av: av && getComputedStyle(av).backgroundColor }
   })
   ok(`${perfil.nome}: o destaque é laranja (balão da pessoa, avatar e sugestão principal)`, cores.v === 'rgb(249, 115, 22)' && cores.av === 'rgb(249, 115, 22)' && (cores.pri === null || cores.pri === 'rgb(249, 115, 22)'), JSON.stringify(cores))
+  // ───── 6. balões: sem ícone ao lado, com bico no canto de cima à esquerda, compridos; sugestões na largura toda ─────
+  const bal = await p.evaluate(() => {
+    const chat = document.querySelector('.as-chat').getBoundingClientRect()
+    const a = document.querySelector('.as-linha.a .as-msg.a'), v = document.querySelector('.as-linha.v .as-msg.v')
+    const ra = a.getBoundingClientRect(), rv = v.getBoundingClientRect()
+    const bico = getComputedStyle(a, '::before'), cobre = getComputedStyle(a, '::after')
+    const lista = document.querySelector('.as-sug-lista')?.getBoundingClientRect()
+    return {
+      semIcone: document.querySelectorAll('.as-linha.a svg, .as-avatar').length === 0,
+      larguraA: ra.width / chat.width, direitaV: Math.abs(rv.right - chat.right), esquerdaA: Math.abs(ra.left - chat.left),
+      bico: { w: bico.borderTopWidth, estilo: bico.borderTopStyle, esq: bico.borderLeftColor, esqW: bico.borderLeftWidth, pos: bico.position, left: bico.left, top: bico.top },
+      cobre: { w: cobre.borderTopWidth, esqW: cobre.borderLeftWidth },
+      cantoReto: getComputedStyle(a).borderTopLeftRadius,
+      lista: lista ? { esq: Math.abs(lista.left - chat.left), dir: Math.abs(lista.right - chat.right) } : null,
+    }
+  })
+  ok(`${perfil.nome}: a fala do assistente não tem ícone ao lado`, bal.semIcone)
+  ok(`${perfil.nome}: o bico do assistente está no canto de cima à esquerda, apontando para a esquerda (e o canto do balão é reto)`, bal.bico.pos === 'absolute' && bal.bico.w === '12px' && bal.bico.estilo === 'solid' && bal.bico.esq === 'rgba(0, 0, 0, 0)' && bal.bico.top === '-1px' && parseFloat(bal.bico.left) < 0 && bal.cobre.w === '11px' && bal.cantoReto === '0px', JSON.stringify(bal.bico))
+  ok(`${perfil.nome}: balões compridos (assistente ≥ 94 % da largura) e a fala da pessoa encosta na borda direita`, bal.larguraA >= 0.94 && bal.direitaV < 1 && bal.esquerdaA < 1, `assistente ${Math.round(bal.larguraA * 100)} %; pessoa a ${bal.direitaV.toFixed(1)} px da borda`)
+  ok(`${perfil.nome}: as sugestões usam a largura toda, sem recuo de nenhum lado`, !bal.lista || (bal.lista.esq < 1 && bal.lista.dir < 1), JSON.stringify(bal.lista))
   await ctx.close()
 }
 ok('sem erros de script no console', erros.length === 0, erros.join(' | '))

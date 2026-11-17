@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone pequeno das notificações (lembrete diário): silhueta branca de um livro aberto. O Android usa só a transparência e desenha numa caixa de
+     24 dp; a forma ocupa ~70% dela (abaixo de ~60% os detalhes se fundem). A cor da notificação vem de capacitor.config.ts (iconColor). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,7C10.1,5.4 7.4,4.8 3.5,5v13c3.9,-0.2 6.6,0.4 8.5,2 1.9,-1.6 4.6,-2.2 8.5,-2V5c-3.9,-0.2 -6.6,0.4 -8.5,2zM11.4,8.8h1.2v10h-1.2z" />
+</vector>

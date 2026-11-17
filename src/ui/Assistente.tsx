@@ -522,7 +522,6 @@ function Conversa({ iniciais, falas }: { iniciais: number; falas: { visiveis: nu
     <div className="as-chat" role="log" aria-live="polite" aria-label="Conversa com o assistente">
       {msgs.slice(0, falas.visiveis).map((x, i) => (
         <div key={x.id} data-id={x.id} className={`as-linha ${x.de}${i >= iniciais ? ' entra' : ''}`}>
-          {x.de === 'a' && <span className="as-avatar" aria-hidden="true"><Icon n="chat" size={16} /></span>}
           <div className="as-balao">
             <p className={`as-msg ${x.de}${x.tipo ? ' ' + x.tipo : ''}`}>{x.texto}</p>
             {x.achados && x.achados.length > 0 && <Achados achados={x.achados} />}
@@ -531,7 +530,6 @@ function Conversa({ iniciais, falas }: { iniciais: number; falas: { visiveis: nu
       ))}
       {falas.digitando && (
         <div className="as-linha a entra as-digitando-linha" aria-hidden="true">
-          <span className="as-avatar"><Icon n="chat" size={16} /></span>
           <p className="as-msg a as-digitando"><i /><i /><i /></p>
         </div>
       )}

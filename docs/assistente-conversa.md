@@ -16,7 +16,7 @@ O desenho da conversa do assistente (aba **Assistente**). O catálogo das açõe
 
 | Quem | Como aparece |
 |---|---|
-| Assistente | Balão à esquerda, com avatar (ícone de conversa). Erro: balão avermelhado que treme uma vez. Sucesso: balão verde-claro |
+| Assistente | Balão à esquerda, com um **bico** no canto de cima apontando para a esquerda (sem ícone ao lado: o espaço vai para o balão, que é mais comprido). Erro: balão avermelhado que treme uma vez. Sucesso: balão verde-claro |
 | Pessoa | Balão à direita, cor de destaque |
 | Sugestões | Pílulas no fim da conversa; as "principais" (por exemplo, as duas opções de uma dúvida) vêm destacadas |
 | Caixa de mensagem | Presa no pé da tela, como nos apps de mensagem: campo que cresce com o texto (até 5 linhas) + botão redondo só com o ícone de enviar, fixo à direita (Enter também envia; sem emoji). Aparece nos estados de menu (início e depois de concluir uma tarefa) e enquanto o assistente espera uma resposta. As sugestões acima dela se filtram enquanto a pessoa digita |
@@ -59,7 +59,7 @@ Tudo em `core/ritmo.ts` (números) e `ui/movimentoChat.tsx` (comportamento). **"
 |---|---|
 | Entrar na aba | A tela sobe de leve (movimento de troca de aba já existente); o assistente "digita" (3 pontinhos) e só então a primeira fala entra; as sugestões entram em cascata depois dela |
 | Voltar à aba | O que já foi mostrado aparece **de uma vez**, sem refazer a conversa |
-| Fala do assistente | Pontinhos por 450–1.400 ms (320 ms + 12 ms por letra) e o balão entra (sobe 8 px e cresce de .97 a 1); o avatar "salta". Várias falas seguidas entram uma depois da outra |
+| Fala do assistente | Pontinhos por 450–1.400 ms (320 ms + 12 ms por letra) e o balão entra (sobe 8 px e cresce de .97 a 1). Várias falas seguidas entram uma depois da outra |
 | Tocar numa sugestão | A pílula escolhida **voa** e as outras recolhem (170 ms); só então a ação roda e a fala da pessoa entra à direita |
 | Painel que o assistente pede | Entra de baixo (280 ms); **sai** (170 ms) ao tocar em Voltar/Cancelar e só depois a conversa volta ao menu |
 | Lendo o PDF | Barra de progresso com brilho e esqueleto da prévia |
@@ -80,6 +80,9 @@ Só `transform` e `opacity`. Testado em `scripts/e2e-assistente-movimento.mjs` (
 
 ## Para onde a tela olha (2026-11-16)
 Quando o assistente responde, a tela vai para o **início da resposta dele** (a primeira fala da última sequência dele; `inicioDaResposta` em `core/rolagem.ts`), com as sugestões logo abaixo, para ler de cima para baixo mesmo nas respostas de vários balões e nas listas longas de prévia. Enquanto a resposta não chega, a fala da pessoa fica no alto. Se a pessoa rolou a tela por conta própria, a câmera não a puxa de volta (só volta a agir numa resposta nova). A posição vem do layout (`offsetTop`), não da tela: a fala que entra anima (desliza e cresce) e mediria uns pixels fora do lugar.
+
+## Balões e bico (2026-11-16)
+O ícone de conversa ao lado da fala do assistente saiu. Quem fala agora se distingue por um **bico** pequeno no canto de cima, à esquerda, apontando para a esquerda (`.as-msg.a::before/::after`: dois triângulos, o da cor da borda e, por cima, o da cor do fundo, para a borda do balão continuar pelo bico; as cores vêm de `--as-bg`/`--as-bd`, que os balões de erro e de sucesso trocam). O canto de cima à esquerda do balão é reto. O bico fica na margem de 16 px da tela, fora do balão. Os balões (do assistente e da pessoa) ocupam até 96 % da largura (máx. 720 px); a fala da pessoa encosta na borda direita (o limite de largura vale para o contêiner, nunca em porcentagem dentro dele: foi um defeito de 4 px achado na medição). As sugestões, o aviso de sucesso e a caixa de mensagem usam a largura toda, sem o recuo que havia para o ícone.
 
 ## Sugestões no celular (2026-11-16)
 As sugestões **curtas** (até 24 letras, `core/pilulas.ts`) ficam **em duplas**, lado a lado em duas colunas iguais; as longas ocupam a linha toda; a curta que sobrasse sozinha numa linha também ocupa a linha (sem buraco). Nada é reordenado e nada encosta no recuo das laterais. Só abaixo de 700 px de largura; em tela larga continuam em fila que quebra linha.

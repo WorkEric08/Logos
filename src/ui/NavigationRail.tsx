@@ -43,6 +43,8 @@ interface Props<T extends string> {
   onReordenar?: (id: T, para: number) => void
   /** Onde os ícones ficam dentro da barra aberta do celular: em cima (padrão), no meio ou embaixo. */
   icones?: Icones
+  /** Mostrar a seta da aba? Falso só a tira da vista (a aba continua no lugar e funciona igual). */
+  seta?: boolean
 }
 
 /**
@@ -53,7 +55,7 @@ interface Props<T extends string> {
  * tudo ao repouso. SEGURAR a aba (~0,4 s) e arrastar a leva para cima ou para baixo e para o outro lado da tela; ao soltar, ela fica
  * ali (Alt + setas faz o mesmo no teclado). No computador (≥ 900 px) é o trilho fixo de 96 px, sem aba nem desfoque.
  */
-export function NavigationRail<T extends string>({ itens, ativo, nomeAtual, recolhida, onSelecionar, onAlternar, lado, posicao, onMover, onReordenar, icones = 'cima' }: Props<T>) {
+export function NavigationRail<T extends string>({ itens, ativo, nomeAtual, recolhida, onSelecionar, onAlternar, lado, posicao, onMover, onReordenar, icones = 'cima', seta = true }: Props<T>) {
   const celular = useCelular()
   const aberta = celular && !recolhida
   const [rascunho, setRascunho] = useState<{ lado: Lado; pos: number } | null>(null) // posição enquanto o dedo arrasta a aba
@@ -252,7 +254,7 @@ export function NavigationRail<T extends string>({ itens, ativo, nomeAtual, reco
           ))}
         </div>
         <button
-          type="button" className="rail-alca" data-movendo={movendo ? '1' : undefined} aria-expanded={!recolhida} aria-controls="rail-itens"
+          type="button" className="rail-alca" data-movendo={movendo ? '1' : undefined} data-sem-seta={seta ? undefined : '1'} aria-expanded={!recolhida} aria-controls="rail-itens"
           aria-label={recolhida ? 'Mostrar a barra de navegação' : 'Recolher a barra de navegação'} aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight"
           aria-description="Segure e arraste para mudar de lado ou de altura. Com o teclado, Alt mais as setas." onClick={onAlternar}
           onPointerDown={aoApertarAba} onKeyDown={aoTeclar} onContextMenu={(e) => e.preventDefault()}

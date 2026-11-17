@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ABA_PADRAO, ALTURA_ABA, ICONES_PADRAO, MARGEM_ABA, descreverAba, ladoDoToque, limparAba, limparIcones, limitesTopo, moverPorTecla, posDoToque, topoDaAba } from './aba'
+import { ABA_PADRAO, ALTURA_ABA, ICONES_PADRAO, MARGEM_ABA, SETA_PADRAO, descreverAba, ladoDoToque, limparAba, limparIcones, limparSeta, limitesTopo, moverPorTecla, posDoToque, topoDaAba } from './aba'
 
 describe('posição da aba da barra de navegação', () => {
   it('dados do armazenamento: aceita o válido, corta pos fora de 0–1 e cai no padrão com lixo', () => {
@@ -47,5 +47,13 @@ describe('alinhamento dos ícones da barra', () => {
     expect(ICONES_PADRAO).toBe('cima')
     expect(limparIcones('meio')).toBe('meio'); expect(limparIcones('baixo')).toBe('baixo'); expect(limparIcones('cima')).toBe('cima')
     for (const x of [null, undefined, '', 'topo', 3, {}]) expect(limparIcones(x)).toBe('cima')
+  })
+})
+
+describe('seta da aba (mostrar ou ocultar)', () => {
+  it('de fábrica a seta aparece', () => { expect(SETA_PADRAO).toBe(true); expect(limparSeta(null)).toBe(true); expect(limparSeta(undefined)).toBe(true) })
+  it("só '0' (o que se grava ao ocultar) esconde; qualquer outra coisa estranha volta a mostrar", () => {
+    expect(limparSeta('0')).toBe(false); expect(limparSeta(false)).toBe(false)
+    for (const x of ['1', '', 'nao', 0, 1, {}, true]) expect(limparSeta(x)).toBe(true)
   })
 })

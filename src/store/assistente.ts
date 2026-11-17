@@ -7,6 +7,7 @@ import { montarQuestoes, type MetaProva } from '../core/importar/montar'
 import type { QuestaoLida } from '../core/importar/prova'
 import { ACOES, acaoPorId, type IdAcao } from '../core/assistente'
 import { cadernoDoEspaco, dosErros, montarSemana, resumirCaderno, type Caderno } from '../core/caderno'
+import { estadoDoDiaDe, type EstadoDoDia } from '../core/lembrete'
 import { montarPainel, montarPlano, textoDoPainel, textoDoPlano, type EntradaPainel, type Painel, type Plano, type SugestaoDia } from '../core/dia'
 import { entender, semAcento } from '../core/conversa'
 import { gerarQuestoes, type Geracao } from '../core/questoes/gerar'
@@ -92,6 +93,8 @@ interface State {
   eventos: Evento[]
   /** Relê os eventos (depois de responder questões, o caderno muda). */
   atualizarCaderno: () => Promise<void>
+  /** O resumo do dia (o que já estudou, o que espera) para o lembrete diário decidir se avisa e o que dizer. Relê os eventos antes. */
+  estadoDoDia: () => Promise<EstadoDoDia>
   /** Uma sugestão do painel do caderno de erros: rever (todas ou só uma matéria) ou simulado só dos erros. */
   cadernoAcao: (que: 'rever' | 'simulado' | { materia: string; rotulo: string }) => void
   /** O histórico já foi lido do aparelho. */
@@ -407,6 +410,7 @@ export const useAssistente = create<State>((set, get) => {
         ir('prova-pronta')
       } catch (e) { dizErro('Não consegui adicionar: ' + erroTexto(e)); set({ ocupado: false }) }
     },
+    estadoDoDia: async () => { await get().atualizarCaderno(); return estadoDoDiaDe(montarPainel(entradaPainel())) },
     atualizarCaderno: async () => { try { set({ eventos: await lerEventos() }) } catch { /* sem eventos: vale o progresso agregado */ } },
     cadernoAcao: (que) => {
       if (que === 'rever') { voce('Rever o caderno'); iniciarPedido('treinar', { erros: true }) }
