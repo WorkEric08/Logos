@@ -3,6 +3,8 @@
 //  2) a página não rola sozinha;
 //  3) o campo em foco pode ser levado acima do teclado rolando;
 //  4) fechou o teclado, tudo volta ao lugar.
+// ÚNICA EXCEÇÃO (2026-11-16, pedido do dono): a caixa de mensagem do chat do assistente (campo + botão de enviar) fica presa no pé e sobe com o
+//    teclado, logo acima dele, como nos apps de mensagem; ela tem a sua própria regra (regraCaixaDoChat em _teclado.mjs).
 // O teclado é simulado como o Android o entrega ao app: a variável CSS --teclado (ver services/teclado.ts e MainActivity.java).
 // Toda tela ou campo novo entra na lista CENARIOS abaixo (e em scripts/campos-de-texto.json, que src/teclado-campos.test.ts confere).
 // Precisa do app em http://localhost:4173/. Uso: node scripts/e2e-teclado.mjs [url]
@@ -10,7 +12,7 @@ import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { esperarMovimento, irPara, novoContexto } from './_ctx.mjs'
 import { cartao, conjuntoPadrao, idBaralho, semearCards } from './_cards-seed.mjs'
-import { PERFIS_TECLADO, regraTeclado } from './_teclado.mjs'
+import { PERFIS_TECLADO, regraCaixaDoChat, regraTeclado } from './_teclado.mjs'
 import { TEXTO_RESUMO, pdfGabarito, pdfProva } from './_pdf-prova.mjs'
 
 const { chromium } = createRequire(join(process.cwd(), 'package.json'))('playwright')
@@ -34,7 +36,7 @@ const CENARIOS = [
   { campo: '#cf', rotulo: 'Editor · editar cartão · Frente', ir: async (p) => { await abrirBaralho(p); await p.locator('.fcedit').first().click(); await p.waitForSelector('#cf'); await p.waitForTimeout(350) }, focar: (p) => foco(p, '#cf') },
   { campo: 'anotação', rotulo: 'Treinar · Anotação da questão', ir: async (p) => { await irPara(p, 'Treinar'); await p.click('text=Começar'); await p.waitForSelector('.sheet'); await p.locator('.alt').first().click(); await p.locator('.nota summary').click(); await p.waitForSelector('.nota textarea') }, focar: (p) => foco(p, '.nota textarea') },
   { campo: 'anotação', rotulo: 'Simulado · Anotação da questão', ir: async (p) => { await p.locator('.tile', { hasText: 'Simulado de 70' }).click(); await p.waitForSelector('.sheet'); await p.locator('.nota summary').click(); await p.waitForSelector('.nota textarea') }, focar: (p) => foco(p, '.nota textarea') },
-  { campo: '#as-msg', rotulo: 'Assistente · Caixa de mensagem', ir: async (p) => { await abrirAssistente(p); await p.waitForSelector('#as-msg'); await p.waitForSelector('.as-pilula'); await esperarMovimento(p) }, focar: (p) => foco(p, '#as-msg') },
+  { campo: '#as-msg', rotulo: 'Assistente · Caixa de mensagem (EXCEÇÃO: sobe com o teclado, como nos apps de mensagem)', caixaDoChat: true, ir: async (p) => { await abrirAssistente(p); await p.waitForSelector('#as-msg'); await p.waitForSelector('.as-pilula'); await esperarMovimento(p) }, focar: (p) => foco(p, '#as-msg') },
   { campo: '#as-espaco', rotulo: 'Assistente · Nome do espaço', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-pilula[data-acao="espaco"]').click(); await p.locator('.btn', { hasText: 'Novo espaço' }).click(); await p.waitForSelector('#as-espaco') }, focar: (p) => foco(p, '#as-espaco') },
   { campo: '#as-chave', rotulo: 'Assistente · Chave da IA', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-pilula[data-acao="ia"]').click(); await p.waitForSelector('#as-chave') }, focar: (p) => foco(p, '#as-chave') },
   { campo: '#as-baralho', rotulo: 'Assistente · Nome do baralho (prévia dos cartões)', ir: async (p) => { await abrirAssistente(p); await p.locator('.as-pilula[data-acao="cartoes"]').click(); await p.setInputFiles('#as-f-resumo', { name: 'resumo.md', mimeType: 'text/markdown', buffer: Buffer.from(TEXTO_RESUMO) }); await p.waitForSelector('#as-baralho') }, focar: (p) => foco(p, '#as-baralho') },
@@ -54,7 +56,7 @@ for (const perfil of PERFIS_TECLADO) {
     for (const c of lista) {
       await p.goto(base); await p.waitForSelector('.folders')
       try { await c.ir(p) } catch (e) { falhas.push(`${c.rotulo}: não consegui chegar à tela (${String(e.message).split('\n')[0]})`); continue }
-      const r = await regraTeclado(p, { kb: perfil.kb, h: perfil.h, focar: c.focar(p) })
+      const r = await (c.caixaDoChat ? regraCaixaDoChat : regraTeclado)(p, { kb: perfil.kb, h: perfil.h, focar: c.focar(p) })
       feitos.push(`${c.rotulo} (${r.botoes} botões)`)
       for (const v of r.violacoes) falhas.push(`${c.rotulo}: ${v}`)
     }

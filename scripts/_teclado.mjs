@@ -131,3 +131,33 @@ export async function regraTeclado(p, { kb, focar, h }) {
   for (const m of voltaram) violacoes.push(`com o teclado fechado o botão “${m.botao}” não voltou ao lugar (${m.antes} → ${m.depois})`)
   return { violacoes, botoes: await p.evaluate(() => window.__botoes.size) }
 }
+
+// ───────── EXCEÇÃO À REGRA: a caixa de mensagem do chat do assistente (2026-11-16, pedido do dono) ─────────
+// Como nos apps de mensagem, SÓ essa caixa (campo + botão de enviar) fica presa no pé da tela e sobe com o teclado, parando logo acima dele.
+// Os outros campos e botões do app continuam obedecendo a regra acima (regraTeclado). Aqui se confere: a caixa pousa logo acima do teclado
+// (nem por baixo, nem longe), o botão de enviar está à vista, o fim da conversa não fica coberto por ela e, ao fechar o teclado, ela volta ao pé.
+export async function regraCaixaDoChat(p, { kb, h, focar }) {
+  const violacoes = []
+  const medir = () => p.evaluate(() => {
+    const c = document.querySelector('.as-composer'), r = c.getBoundingClientRect()
+    let ant = c.previousElementSibling
+    while (ant?.classList.contains('sr-only')) ant = ant.previousElementSibling
+    const b = c.querySelector('button').getBoundingClientRect()
+    return { top: r.top, bottom: r.bottom, fim: ant ? ant.getBoundingClientRect().bottom : 0, btnTop: b.top, btnBottom: b.bottom }
+  })
+  await p.waitForTimeout(900) // assentar as animações de entrada
+  const antes = await medir()
+  const fimVisivelAntes = antes.fim <= h + 1
+  await focar(); await p.waitForTimeout(250)
+  await p.evaluate((px) => document.documentElement.style.setProperty('--teclado', px + 'px'), kb) // o que o Android faz ao abrir o teclado
+  await p.waitForTimeout(1000) // a rolagem da "câmera" é suave
+  const com = await medir()
+  if (com.bottom > h - kb + 0.5) violacoes.push(`a caixa ficou por baixo do teclado (base ${Math.round(com.bottom)}, o teclado começa em ${h - kb})`)
+  if (com.bottom < h - kb - 16) violacoes.push(`a caixa ficou longe do teclado (base ${Math.round(com.bottom)}, o teclado começa em ${h - kb})`)
+  if (com.btnBottom > h - kb + 0.5 || com.btnTop < 0) violacoes.push('o botão de enviar não ficou à vista, acima do teclado')
+  if (fimVisivelAntes && com.fim > com.top + 1) violacoes.push(`o fim da conversa ficou embaixo da caixa (fim ${Math.round(com.fim)}, caixa a partir de ${Math.round(com.top)})`)
+  await p.evaluate(() => document.documentElement.style.setProperty('--teclado', '0px')); await p.waitForTimeout(500)
+  const fim = await medir()
+  if (fim.bottom < h - 16) violacoes.push(`com o teclado fechado a caixa não voltou ao pé da tela (base ${Math.round(fim.bottom)} de ${h})`)
+  return { violacoes, botoes: 1 }
+}

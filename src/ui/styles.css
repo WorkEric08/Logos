@@ -1,16 +1,16 @@
 /* ───────── Tokens por papel ─────────
    Paleta (referência "Shades of gray", 2026-11-08): cinzas azulados #0A0E15 · #212631 · #373F4E · #4E576A · #667085 no escuro e
-   #FFFFFF · #F0F1F5 · #E0E4EB · #D1D6E0 · #BFC6D4 no claro, com amarelo/laranja (#F0B23C) como cor de destaque.
+   #FFFFFF · #F0F1F5 · #E0E4EB · #D1D6E0 · #BFC6D4 no claro, com laranja (#F97316) como cor de destaque (era amarelo #F0B23C até 2026-11-16).
    SUBSTITUI a paleta anterior (Onyx/Charcoal + Light Azure #BFD8E3). Sem gradiente. Valores de cada tema em --t-*; o bloco comum
    liga aos nomes que as telas leem. A barra de navegação (--rail-*) é escura nos dois temas, como na referência. */
 :root{
   --t-bg:#f0f1f5; --t-panel:#ffffff; --t-card:#ffffff; --t-card2:#f0f1f5; --t-hi:#e0e4eb;
   --t-ink:#0a0e15; --t-muted:#4e576a; --t-faint:#98a1b3;
   --t-line:#d1d6e0; --t-line-strong:#667085;
-  --t-accent:#f0b23c; --t-accent-ink:#0a0e15; --t-accent-text:#8a5a00; --t-accent-soft:#f7e3b7;
+  --t-accent:#f97316; --t-accent-ink:#0a0e15; --t-accent-text:#a93a04; --t-accent-soft:#fde3cc;
   --t-btn:#0a0e15; --t-btn-ink:#ffffff;
   --t-ok:#17794f; --t-ok-soft:#dcf3e8; --t-on-ok:#ffffff; --t-err:#b3322a; --t-err-soft:#f9dfdb; --t-on-err:#ffffff;
-  --t-warn-soft:#fbf1d9; --t-warn-line:#d9a92b; --t-toast-act:#f0b23c;
+  --t-warn-soft:#fbf1d9; --t-warn-line:#d9a92b; --t-toast-act:#f97316;
   --t-shadow:0 1px 2px rgba(10,14,21,.05),0 10px 24px -16px rgba(10,14,21,.25);
   color-scheme:light;
 }
@@ -18,7 +18,7 @@
   --t-bg:#0f131a; --t-panel:#0a0e15; --t-card:#161b24; --t-card2:#1d2330; --t-hi:#2a3140;
   --t-ink:#f0f1f5; --t-muted:#aeb6c7; --t-faint:#667085;
   --t-line:#262d3a; --t-line-strong:#667085;
-  --t-accent:#f0b23c; --t-accent-ink:#0a0e15; --t-accent-text:#f0b23c; --t-accent-soft:#2a3140;
+  --t-accent:#f97316; --t-accent-ink:#0a0e15; --t-accent-text:#f97316; --t-accent-soft:#2a3140;
   --t-btn:#f0f1f5; --t-btn-ink:#0a0e15;
   --t-ok:#52c796; --t-ok-soft:#10281f; --t-on-ok:#04120c; --t-err:#ff8a80; --t-err-soft:#331816; --t-on-err:#1a0504;
   --t-warn-soft:#2b2410; --t-warn-line:#8a6d1d; --t-toast-act:#0a0e15; --t-shadow:none; color-scheme:dark}}
@@ -26,7 +26,7 @@
   --t-bg:#0f131a; --t-panel:#0a0e15; --t-card:#161b24; --t-card2:#1d2330; --t-hi:#2a3140;
   --t-ink:#f0f1f5; --t-muted:#aeb6c7; --t-faint:#667085;
   --t-line:#262d3a; --t-line-strong:#667085;
-  --t-accent:#f0b23c; --t-accent-ink:#0a0e15; --t-accent-text:#f0b23c; --t-accent-soft:#2a3140;
+  --t-accent:#f97316; --t-accent-ink:#0a0e15; --t-accent-text:#f97316; --t-accent-soft:#2a3140;
   --t-btn:#f0f1f5; --t-btn-ink:#0a0e15;
   --t-ok:#52c796; --t-ok-soft:#10281f; --t-on-ok:#04120c; --t-err:#ff8a80; --t-err-soft:#331816; --t-on-err:#1a0504;
   --t-warn-soft:#2b2410; --t-warn-line:#8a6d1d; --t-toast-act:#0a0e15; --t-shadow:none; color-scheme:dark}
@@ -38,7 +38,7 @@
   --btn:var(--t-btn); --btn-ink:var(--t-btn-ink);
   --ok:var(--t-ok); --ok-soft:var(--t-ok-soft); --on-ok:var(--t-on-ok); --err:var(--t-err); --err-soft:var(--t-err-soft); --on-err:var(--t-on-err);
   --warn-soft:var(--t-warn-soft); --warn-line:var(--t-warn-line); --toast-act:var(--t-toast-act); --shadow:var(--t-shadow);
-  --brand:#f0b23c; --brand-ink:#0a0e15;
+  --brand:var(--t-accent); --brand-ink:#0a0e15;
   /* barra de navegação (a mesma nos dois temas) */
   --rail-bg:#0a0e15; --rail-btn:#212631; --rail-btn-hi:#2a3140; --rail-ink:#bfc6d4; --rail-line:#667085;
   --f-ui:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -816,7 +816,10 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-delay:0s!important}}
 
 /* ───────── Assistente: um chat (aba própria). Balões, sugestões em pílulas e, dentro da conversa, o que o assistente pede ───────── */
-.chat-tela{display:flex;flex-direction:column;gap:14px;max-width:760px;padding-bottom:8px}
+.chat-tela{display:flex;flex-direction:column;gap:14px;max-width:760px;flex:1 1 auto;width:100%}
+/* A tela do assistente enche a altura (a caixa de mensagem fica no pé mesmo com a conversa curta) e não tem folga embaixo: a caixa cola na borda */
+.page:has(.chat-tela){display:flex;flex-direction:column;min-height:100%;padding-bottom:0}
+.as-linha{scroll-margin-top:8px}
 .as-chat{display:flex;flex-direction:column;gap:10px}
 .as-linha{display:flex;align-items:flex-end;gap:8px}
 .as-linha.v{justify-content:flex-end}
@@ -826,6 +829,12 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .as-msg.v{background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:6px}
 .as-corpo{display:flex;flex-direction:column;gap:12px}
 .as-sug-lista{display:flex;flex-wrap:wrap;gap:8px;padding-left:36px}
+/* Celular: as sugestões curtas ficam em duplas (duas colunas iguais), as longas ocupam a linha toda; nada encosta na borda (o recuo da tela é o da página) */
+@media (max-width:700px){
+  .as-sug-lista{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .as-sug-lista .as-pilula{display:flex;align-items:center;justify-content:center;text-align:center;overflow-wrap:anywhere;padding:8px 12px}
+  .as-sug-lista .as-pilula.inteira{grid-column:1 / -1}
+}
 .as-pilula{min-height:44px;padding:8px 16px;border-radius:999px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);font:500 14.5px/1.2 var(--f-ui);text-align:left}
 .as-pilula.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
 .as-pilula:active{transform:scale(.98)}
@@ -865,7 +874,7 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 @keyframes as-voa{to{opacity:0;transform:translateX(26px) scale(1.04)}}
 @keyframes as-some{to{opacity:0;transform:scale(.92)}}
 @keyframes as-tremer{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
-@keyframes as-pulsa{0%{box-shadow:0 0 0 0 rgba(240,178,60,.55)}100%{box-shadow:0 0 0 8px rgba(240,178,60,0)}}
+@keyframes as-pulsa{0%{box-shadow:0 0 0 0 rgba(249,115,22,.55)}100%{box-shadow:0 0 0 8px rgba(249,115,22,0)}}
 @keyframes as-brilho{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes as-traco{from{stroke-dashoffset:var(--tam)}to{stroke-dashoffset:0}}
 .as-linha.entra{animation:as-balao .26s var(--ease-out) backwards}
@@ -884,9 +893,13 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .as-sug-lista.saindo{pointer-events:none}
 .as-sug-lista.saindo .as-pilula{animation:as-some .17s var(--ease-out) forwards;animation-delay:0s}
 .as-sug-lista.saindo .as-pilula.escolhida{animation:as-voa .17s var(--ease-out) forwards}
-.as-composer{display:flex;gap:8px;align-items:stretch;padding-left:36px;animation:fc-entra .26s var(--ease-out) backwards}
-.as-composer .campo{flex:1;min-width:0;border-radius:999px;padding:11px 18px}
-.as-composer .btn{border-radius:999px;min-height:48px;padding:0 20px}
+/* A caixa de mensagem (como nos apps de mensagem): presa no pé da tela e, com o teclado aberto, logo acima dele (--teclado é a altura dele; o espaço que
+   ele cobre vem do espaçador no fim do .scroll-y). O campo cresce com o texto (a altura vem do JS) e o botão de enviar, só ícone, fica fixo à direita na base. */
+.as-composer{position:sticky;bottom:var(--teclado,0px);z-index:2;display:flex;gap:8px;align-items:flex-end;margin-top:auto;padding:8px 0 10px;background:var(--bg);animation:fc-entra .26s var(--ease-out) backwards}
+.as-composer .campo{flex:1;min-width:0;min-height:48px;max-height:144px;resize:none;overflow-y:auto;border-radius:24px;padding:11px 18px;line-height:23px;background:var(--card);border-color:var(--line-strong)}
+.as-composer .as-enviar{flex:none;width:48px;height:48px;min-height:48px;padding:0;border-radius:50%;background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.as-composer .as-enviar[disabled]{background:var(--hi);color:var(--muted);border-color:var(--hi)}
+@media (hover:hover){.as-composer .as-enviar:not([disabled]):hover{opacity:.88}}
 .as-lendo .bar{position:relative;overflow:hidden;margin-top:10px}
 .as-brilho i{position:relative;overflow:hidden;display:block}
 .as-brilho i::after,.as-esqueleto i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:as-brilho 1.2s linear infinite}
@@ -917,7 +930,7 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .as-achado{border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:10px 12px;animation:fc-entra .26s var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 70ms)}
 .as-achado-fonte{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;overflow-wrap:anywhere}
 .as-achado p{margin:0;font-size:14.5px;line-height:1.5;overflow-wrap:anywhere}
-.as-achado mark{background:var(--accent-soft,#f7e3b7);color:var(--ink);border-radius:3px;padding:0 2px}
+.as-achado mark{background:var(--accent-soft,#fde3cc);color:var(--ink);border-radius:3px;padding:0 2px}
 .as-mat{justify-content:space-between}
 .as-mat-info{display:grid;gap:2px;min-width:0;flex:1}
 .as-mat-info small{color:var(--muted);font-size:12.5px}

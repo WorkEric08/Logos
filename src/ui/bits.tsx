@@ -1,7 +1,7 @@
 import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
-export type IconName = 'home' | 'train' | 'chart' | 'sliders' | 'check' | 'x' | 'doc' | 'back' | 'clock' | 'repeat' | 'flag' | 'note' | 'cards' | 'trash' | 'plus' | 'forward' | 'chat'
+export type IconName = 'home' | 'train' | 'chart' | 'sliders' | 'check' | 'x' | 'doc' | 'back' | 'clock' | 'repeat' | 'flag' | 'note' | 'cards' | 'trash' | 'plus' | 'forward' | 'chat' | 'send'
 
 const PATHS: Record<IconName, string> = {
   home: 'M3.5 11 12 3.8 20.5 11M5.5 9.5V20h5v-5.5h3V20h5V9.5',
@@ -20,6 +20,7 @@ const PATHS: Record<IconName, string> = {
   plus: 'M12 5v14M5 12h14',
   forward: 'M9 5l7 7-7 7',
   chat: 'M5.5 4.5h13A1.5 1.5 0 0 1 20 6v9a1.5 1.5 0 0 1-1.5 1.5H11L7 20v-3.5H5.5A1.5 1.5 0 0 1 4 15V6a1.5 1.5 0 0 1 1.5-1.5zM8 9h8M8 12h5',
+  send: 'M21.5 2.5 10.5 13.5M21.5 2.5l-7 19-4-8-8-4z',
   repeat: 'M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4',
 }
 

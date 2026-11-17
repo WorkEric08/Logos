@@ -2,6 +2,7 @@
 // Tudo respeita "reduzir movimento" do aparelho: sem animação, sem espera, tudo aparece de uma vez (e o app segue igual). Durações em core/ritmo.ts.
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { DURACAO_SAIDA, PAUSA_ENTRE_FALAS, atrasoDeFala, valorContagem } from '../core/ritmo'
+import { disposicaoPilulas } from '../core/pilulas'
 import type { Msg } from '../store/assistente'
 
 const consulta = () => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null)
@@ -97,10 +98,11 @@ export function Pilulas({ itens, rotuloGrupo = 'Sugestões' }: { itens: readonly
     setEscolhida(it.id)
     setTimeout(() => { it.run(); setEscolhida(null) }, DURACAO_SAIDA)
   }
+  const largura = disposicaoPilulas(itens.map((it) => it.rotulo)) // no celular: as curtas em duplas, as longas na linha toda
   return (
     <div className={`as-sug-lista${escolhida ? ' saindo' : ''}`} role="group" aria-label={rotuloGrupo}>
       {itens.map((it, i) => (
-        <button key={it.id} className={`as-pilula${it.pri ? ' pri' : ''}${escolhida === it.id ? ' escolhida' : ''}`} style={{ '--i': i } as React.CSSProperties} data-acao={it.acao} data-sug={it.acao ? undefined : it.id} onClick={() => toque(it)}>{it.rotulo}</button>
+        <button key={it.id} className={`as-pilula ${largura[i]}${it.pri ? ' pri' : ''}${escolhida === it.id ? ' escolhida' : ''}`} style={{ '--i': i } as React.CSSProperties} data-acao={it.acao} data-sug={it.acao ? undefined : it.id} onClick={() => toque(it)}>{it.rotulo}</button>
       ))}
     </div>
   )

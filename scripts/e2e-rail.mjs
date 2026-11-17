@@ -62,7 +62,7 @@ const centro = (p, sel) => p.locator(sel).first().evaluate((e) => { const r = e.
   const cortes = await p.locator('.rail-lb').evaluateAll((es) => es.map((e) => { const r = e.getBoundingClientRect(), n = e.closest('.nav').getBoundingClientRect(); return e.scrollWidth <= e.clientWidth + 1 && r.left >= n.left - 0.5 && r.right <= n.right + 0.5 }))
   ok('nenhum rótulo cortado (inclui "Desempenho")', cortes.every(Boolean))
   const cor = await p.evaluate(() => { const e = document.querySelector('.rail-item[aria-current="page"] .rail-ico'); return { bg: getComputedStyle(e).backgroundColor, ponto: getComputedStyle(e.closest('.rail-item'), '::after').content, atual: e.closest('.rail-item').innerText.trim() } })
-  ok('item ativo (Início) em amarelo/laranja, com ponto e aria-current', cor.bg === 'rgb(240, 178, 60)' && cor.ponto !== 'none' && cor.atual === 'Início', JSON.stringify(cor))
+  ok('item ativo (Início) em laranja, com ponto e aria-current', cor.bg === 'rgb(249, 115, 22)' && cor.ponto !== 'none' && cor.atual === 'Início', JSON.stringify(cor))
   ok('a seta aponta para recolher (esquerda)', /matrix\(1/.test(await p.locator('.rail-seta .icon').evaluate((e) => getComputedStyle(e).transform)) || (await p.locator('.rail-seta .icon').evaluate((e) => getComputedStyle(e).transform)) === 'none')
   await p.screenshot({ path: 'docs/verificacao-capturas/rail-360-aberta-sobreposta.png' })
 
@@ -293,7 +293,7 @@ const centro = (p, sel) => p.locator(sel).first().evaluate((e) => { const r = e.
   const lev = await p.evaluate(() => ({ movendo: !!document.querySelector('.rail-alca[data-movendo]'), guias: document.querySelectorAll('.rail-guias i').length }))
   ok('segurar a aba por ~0,4 s a "levanta" e mostra as guias das duas bordas', lev.movendo && lev.guias === 2, JSON.stringify(lev))
   const est = await p.evaluate(() => { const g = getComputedStyle(document.querySelector('.rail-guias i')), v = getComputedStyle(document.querySelector('.rail-alca[data-movendo] .rail-alca-vis')); return { guiaCor: g.backgroundColor, guiaLarg: g.width, contorno: v.boxShadow } })
-  ok('enquanto move: guias das bordas CINZA e FINAS (2 px) e contorno da aba cinza fino (nada amarelo)', est.guiaCor === 'rgb(102, 112, 133)' && est.guiaLarg === '2px' && est.contorno.includes('rgb(102, 112, 133) 0px 0px 0px 1px') && !/240, 178, 60/.test(est.contorno + est.guiaCor), JSON.stringify(est))
+  ok('enquanto move: guias das bordas CINZA e FINAS (2 px) e contorno da aba cinza fino (nada laranja)', est.guiaCor === 'rgb(102, 112, 133)' && est.guiaLarg === '2px' && est.contorno.includes('rgb(102, 112, 133) 0px 0px 0px 1px') && !/249, 115, 22/.test(est.contorno + est.guiaCor), JSON.stringify(est))
   await p.mouse.up(); await espera(p)
   ok('segurar e soltar no mesmo lugar não abre a barra (o clique do fim é ignorado) e não muda nada', (await emRepouso(p)) && (await lado()) === 'esq' && !(await p.locator('.rail-alca[data-movendo]').count()))
 
@@ -382,7 +382,7 @@ const centro = (p, sel) => p.locator(sel).first().evaluate((e) => { const r = e.
   const p = await ctx.newPage(); await abrir(p)
   await p.click('.rail-alca'); await espera(p)
   const c = await p.evaluate(() => ({ barra: getComputedStyle(document.querySelector('.nav.rail')).backgroundColor, folha: getComputedStyle(document.querySelector('.scroll-y')).backgroundColor, ativo: getComputedStyle(document.querySelector('.rail-item[aria-current] .rail-ico')).backgroundColor }))
-  ok('tema claro: barra escura sobreposta, folha clara por baixo e destaque amarelo/laranja', c.barra === 'rgb(10, 14, 21)' && c.folha === 'rgb(240, 241, 245)' && c.ativo === 'rgb(240, 178, 60)', JSON.stringify(c))
+  ok('tema claro: barra escura sobreposta, folha clara por baixo e destaque laranja', c.barra === 'rgb(10, 14, 21)' && c.folha === 'rgb(240, 241, 245)' && c.ativo === 'rgb(249, 115, 22)', JSON.stringify(c))
   await p.screenshot({ path: 'docs/verificacao-capturas/rail-360-aberta-clara.png' })
   await ctx.close()
 }

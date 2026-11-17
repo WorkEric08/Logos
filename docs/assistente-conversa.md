@@ -19,7 +19,7 @@ O desenho da conversa do assistente (aba **Assistente**). O catálogo das açõe
 | Assistente | Balão à esquerda, com avatar (ícone de conversa). Erro: balão avermelhado que treme uma vez. Sucesso: balão verde-claro |
 | Pessoa | Balão à direita, cor de destaque |
 | Sugestões | Pílulas no fim da conversa; as "principais" (por exemplo, as duas opções de uma dúvida) vêm destacadas |
-| Caixa de mensagem | Campo + "Enviar" logo abaixo da última fala (Enter envia). Aparece nos estados de menu (início e depois de concluir uma tarefa) e enquanto o assistente espera uma resposta. As sugestões abaixo dela se filtram enquanto a pessoa digita |
+| Caixa de mensagem | Presa no pé da tela, como nos apps de mensagem: campo que cresce com o texto (até 5 linhas) + botão redondo só com o ícone de enviar, fixo à direita (Enter também envia; sem emoji). Aparece nos estados de menu (início e depois de concluir uma tarefa) e enquanto o assistente espera uma resposta. As sugestões acima dela se filtram enquanto a pessoa digita |
 | O que o assistente pede | Painel dentro da conversa (escolher arquivos, nome do espaço, prévia…), com "Voltar/Cancelar" |
 
 ## O que a pessoa pode escrever (e como é entendido)
@@ -72,7 +72,17 @@ Só `transform` e `opacity`. Testado em `scripts/e2e-assistente-movimento.mjs` (
 
 ## A caixa de mensagem e a regra do teclado
 
-A caixa **não fica presa no pé da tela** (isso a deixaria atrás do teclado). Ela vem logo abaixo da última fala, e a tela mostra a fala mais recente no alto: assim o campo fica acima do teclado sem nada se mexer. A regra do app (nenhum botão aparece acima do teclado; a página não rola ao abrir o teclado) está coberta no cenário `#as-msg` de `scripts/e2e-teclado.mjs`, nos 4 celulares.
+**Exceção à regra do teclado (2026-11-16, pedido do dono):** a caixa é a ÚNICA coisa do app que sobe com o teclado. Como nos apps de mensagem (WhatsApp), ela fica **presa no pé da tela** (`position:sticky; bottom: var(--teclado)`, `.as-composer`) e, com o teclado aberto, pousa **logo acima dele**, de onde quer que a pessoa toque. O resto do app continua só coberto pelo teclado (regra de `CLAUDE.md`).
+- **Campo:** `<textarea>` de uma linha que cresce com o texto até 144 px (5 linhas), depois rola por dentro; a altura vem do JS (layout, não animação). Sem ícone de emoji. Enter envia (uma linha só: quebras viram espaço); o teclado do celular que só insere a quebra também envia.
+- **Botão:** redondo, só o ícone de enviar (avião), **fixo à direita e alinhado à base do campo** (acompanha o campo quando ele cresce), laranja com texto escuro; apagado enquanto não há texto. Tocar nele **não tira o foco** do campo: o teclado continua aberto.
+- **A "câmera" com o teclado** (`core/rolagem.ts` + `services/teclado.ts` `aoMudarTeclado`): quando o teclado abre ou o campo cresce e a caixa passaria a cobrir o fim da conversa, a tela rola só o necessário (suave; sem rolar com "reduzir movimento") para o fim ficar acima da caixa. **Só rola se a pessoa estava vendo o fim da conversa**: quem subiu para reler algo fica onde estava (a caixa sobe sozinha, presa acima do teclado).
+- **Teste:** `regraCaixaDoChat` em `scripts/_teclado.mjs` (usada no cenário `#as-msg` de `scripts/e2e-teclado.mjs`, nos 4 celulares) e `scripts/e2e-assistente-layout.mjs`.
+
+## Para onde a tela olha (2026-11-16)
+Quando o assistente responde, a tela vai para o **início da resposta dele** (a primeira fala da última sequência dele; `inicioDaResposta` em `core/rolagem.ts`), com as sugestões logo abaixo, para ler de cima para baixo mesmo nas respostas de vários balões e nas listas longas de prévia. Enquanto a resposta não chega, a fala da pessoa fica no alto. Se a pessoa rolou a tela por conta própria, a câmera não a puxa de volta (só volta a agir numa resposta nova). A posição vem do layout (`offsetTop`), não da tela: a fala que entra anima (desliza e cresce) e mediria uns pixels fora do lugar.
+
+## Sugestões no celular (2026-11-16)
+As sugestões **curtas** (até 24 letras, `core/pilulas.ts`) ficam **em duplas**, lado a lado em duas colunas iguais; as longas ocupam a linha toda; a curta que sobrasse sozinha numa linha também ocupa a linha (sem buraco). Nada é reordenado e nada encosta no recuo das laterais. Só abaixo de 700 px de largura; em tela larga continuam em fila que quebra linha.
 
 ## Respostas com achados (F1)
 A resposta de uma pergunta é um balão do assistente **com os achados dentro**: até 3 cartões com o tipo (Material, Questão, Cartão), a fonte e o trecho com a palavra em destaque; entram em cascata (70 ms entre eles). Detalhes e números da busca em `docs/assistente.md`.

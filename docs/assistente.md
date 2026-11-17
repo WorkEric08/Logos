@@ -131,7 +131,7 @@ Camada nova **pura**, em `src/core/dialogo/` (sem DOM, banco nem estado): `entid
 - **Medido**: `src/core/dialogo/corpus.test.ts` (87 frases reais com ação, detalhes e o que falta perguntar) e `dialogo.test.ts` (77 casos: matéria, quantidade, provas, motor e sugestões); `scripts/e2e-assistente-dialogo.mjs` no navegador. **Regra:** mexeu em `conversa.ts` ou `entidades.ts`? Rode `npx vitest run src/core/dialogo` e não piore nenhuma frase.
 
 ## Caixa de mensagem e a regra do teclado
-A caixa de mensagem existe e obedece à regra do teclado: fica logo abaixo da última fala (nunca presa no pé da tela). Detalhes em `docs/assistente-conversa.md`.
+A caixa de mensagem é a **exceção** à regra do teclado (pedido do dono, 2026-11-16): fica presa no pé da tela e sobe logo acima do teclado, como nos apps de mensagem (campo que cresce, botão só com ícone à direita). A tela olha para o início da resposta do assistente e as sugestões curtas ficam em duplas no celular. Detalhes em `docs/assistente-conversa.md`.
 
 ## Não verificado
 F6: o painel e o plano usam estimativas de tempo minhas (30 s por cartão, 2 min por questão) e uma meta de 20 questões por dia; se não combinam com o seu ritmo, diga os seus números e eu ajusto as constantes de `src/core/dia.ts`. Não foi visto num celular real.

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ACOES } from '../core/assistente'
 import { cadernoDoEspaco, resumirCaderno } from '../core/caderno'
 import { ROTULO_TIPO_QUESTAO } from '../core/questoes/gerar'
@@ -14,7 +14,9 @@ import { useAssistente } from '../store/assistente'
 import { useEspacos } from '../store/espacos'
 import { IaPainel } from './AssistenteIA'
 import { Icon, Top } from './bits'
-import { Cena, Pilulas, useContagem, useFalas, useFechar, type ItemPilula } from './movimentoChat'
+import { Cena, Pilulas, reduzMovimento, useContagem, useFalas, useFechar, type ItemPilula } from './movimentoChat'
+import { inicioDaResposta, quantoRolar } from '../core/rolagem'
+import { alturaDoTeclado, aoMudarTeclado } from '../services/teclado'
 
 const LETRAS: Letter[] = ['A', 'B', 'C', 'D', 'E']
 const resumo = (t: string, n = 110) => (t.length <= n ? t : t.slice(0, n - 1).trimEnd() + '…')
@@ -165,16 +167,68 @@ function Limpar() {
   return <Pilulas itens={itens} rotuloGrupo="Confirmar" />
 }
 
-/** A caixa de mensagem: escrever um pedido ("importar prova") tem o mesmo efeito de tocar na sugestão. Enter envia. Fica logo abaixo da última fala (nunca presa no
- *  pé da tela), então o teclado do celular só a cobre se a pessoa rolar a conversa: a regra do teclado do app. */
+/** A caixa de mensagem, como nos apps de mensagem: fica presa no pé da tela (acima do teclado quando ele abre), o campo cresce conforme se escreve
+ *  (até 5 linhas, depois rola por dentro) e o botão de enviar é só um ícone, fixo à direita, que acompanha a base do campo. Escrever um pedido
+ *  ("importar prova") tem o mesmo efeito de tocar na sugestão. Enter envia (sem quebra de linha: os pedidos são de uma linha só).
+ *  EXCEÇÃO CONSCIENTE à regra do teclado (2026-11-16, pedido do dono): só esta caixa sobe com o teclado; o resto do app segue só coberto por ele. */
+const ALTURA_MAX_CAMPO = 144 // 5 linhas
+
+/** O fim da conversa (a última coisa antes da caixa) não pode ficar embaixo dela: rola o que falta, mas só se a pessoa estava vendo o fim. */
+function manterFimVisivel(caixa: HTMLElement, tecladoAntes: number) {
+  const rolo = caixa.closest<HTMLElement>('.scroll-y')
+  let anterior = caixa.previousElementSibling
+  while (anterior?.classList.contains('sr-only')) anterior = anterior.previousElementSibling // (o aviso só para leitor de tela não conta)
+  if (!rolo || !anterior) return
+  const px = quantoRolar({
+    fimDoConteudo: anterior.getBoundingClientRect().bottom,
+    topoDaCaixa: caixa.getBoundingClientRect().top,
+    baseVisivelAntes: rolo.getBoundingClientRect().bottom - tecladoAntes,
+  })
+  if (px > 0) rolo.scrollBy({ top: px, behavior: reduzMovimento() ? 'auto' : 'smooth' })
+}
 function Composer() {
   const { enviar, digitar } = useAssistente.getState()
   const txt = useAssistente((s) => s.rascunho)
   const pergunta = useAssistente((s) => s.etapa === 'pergunta')
+  const campo = useRef<HTMLTextAreaElement>(null)
+  // a altura segue o texto (layout, não animação): encolhe para medir e depois cresce até o necessário
+  useLayoutEffect(() => {
+    const e = campo.current
+    if (!e) return
+    e.style.height = 'auto'
+    e.style.height = `${Math.min(e.scrollHeight + 2, ALTURA_MAX_CAMPO)}px`
+  }, [txt])
+  const mandar = (t: string) => { if (t.trim()) enviar(t) }
+  const caixa = useRef<HTMLFormElement>(null)
+  // a "câmera": o teclado abriu ou o campo cresceu e a caixa passou a cobrir o fim da conversa → rola só o necessário (se a pessoa estava no fim dela)
+  useEffect(() => {
+    const e = caixa.current
+    if (!e) return
+    const parar = aoMudarTeclado((kb, antes) => { if (kb > antes) manterFimVisivel(e, antes) })
+    let altura = e.offsetHeight
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => {
+      const h = e.offsetHeight
+      if (h > altura && altura > 0) manterFimVisivel(e, alturaDoTeclado())
+      altura = h
+    })
+    ro?.observe(e)
+    return () => { parar(); ro?.disconnect() }
+  }, [])
   return (
-    <form className="as-composer" onSubmit={(e) => { e.preventDefault(); if (txt.trim()) enviar(txt) }}>
-      <input id="as-msg" className="campo" value={txt} maxLength={200} onChange={(e) => digitar(e.target.value)} autoComplete="off" enterKeyHint="send" aria-label="Mensagem para o assistente" placeholder={pergunta ? 'Escreva a resposta ou toque numa opção' : 'Escreva um pedido, ex.: "simulado de matemática"'} />
-      <button type="submit" className="btn pri" disabled={!txt.trim()}>Enviar</button>
+    <form ref={caixa} className="as-composer" onSubmit={(e) => { e.preventDefault(); mandar(txt) }}>
+      <textarea
+        ref={campo} id="as-msg" className="campo" rows={1} value={txt} maxLength={200} autoComplete="off" enterKeyHint="send"
+        aria-label="Mensagem para o assistente" placeholder={pergunta ? 'Escreva a resposta…' : 'Escreva um pedido…'}
+        onChange={(e) => {
+          const ne = e.nativeEvent as InputEvent
+          // teclado do celular que não manda a tecla Enter (só insere a quebra): vale como enviar; texto colado com quebras vira uma linha
+          if (ne.inputType === 'insertLineBreak') { mandar(e.target.value.replace(/\s*\n\s*/g, ' ')); return }
+          digitar(e.target.value.replace(/\s*\n\s*/g, ' '))
+        }}
+        onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); mandar(txt) } }}
+      />
+      {/* onMouseDown: tocar em enviar não tira o foco do campo (o teclado continua aberto, como nos apps de mensagem) */}
+      <button type="submit" className="btn pri as-enviar" aria-label="Enviar" disabled={!txt.trim()} onMouseDown={(e) => e.preventDefault()}><Icon n="send" size={22} /></button>
     </form>
   )
 }
@@ -467,7 +521,7 @@ function Conversa({ iniciais, falas }: { iniciais: number; falas: { visiveis: nu
   return (
     <div className="as-chat" role="log" aria-live="polite" aria-label="Conversa com o assistente">
       {msgs.slice(0, falas.visiveis).map((x, i) => (
-        <div key={x.id} className={`as-linha ${x.de}${i >= iniciais ? ' entra' : ''}`}>
+        <div key={x.id} data-id={x.id} className={`as-linha ${x.de}${i >= iniciais ? ' entra' : ''}`}>
           {x.de === 'a' && <span className="as-avatar" aria-hidden="true"><Icon n="chat" size={16} /></span>}
           <div className="as-balao">
             <p className={`as-msg ${x.de}${x.tipo ? ' ' + x.tipo : ''}`}>{x.texto}</p>
@@ -504,10 +558,35 @@ function Chat() {
   const tela = useRef<HTMLDivElement>(null)
   const iniciais = useRef(useAssistente.getState().vistas).current // as que já estavam mostradas ao entrar na aba não animam de novo
   const falas = useFalas(mensagens, iniciais, (n) => useAssistente.getState().marcarVistas(n))
-  // a tela mostra a fala mais recente no alto, com o que o assistente pede logo abaixo (lista longa de prévia começa pelo começo);
-  // depois do reposicionamento da aba, para não ser desfeito
+  // A câmera: quando o assistente responde, a tela vai para o INÍCIO da resposta dele (a primeira fala da última sequência dele), com o que ele pede
+  // logo abaixo; assim se lê de cima para baixo, também nas respostas de vários balões e nas listas longas de prévia. Enquanto a resposta não chega,
+  // a fala da pessoa fica no alto. Se a pessoa rolou a tela por conta própria, a câmera não a puxa de volta (só volta a agir numa resposta nova).
+  // Depois do reposicionamento da aba, para não ser desfeito.
+  const ultimoAlvo = useRef<number | null>(null)
+  const mexeu = useRef(false)
   useEffect(() => {
-    const id = requestAnimationFrame(() => tela.current?.querySelector('.as-chat > .as-linha:last-child')?.scrollIntoView({ block: 'start' }))
+    const rolo = tela.current?.closest('.scroll-y')
+    if (!rolo) return
+    const f = () => { mexeu.current = true }
+    rolo.addEventListener('touchstart', f, { passive: true }); rolo.addEventListener('wheel', f, { passive: true })
+    return () => { rolo.removeEventListener('touchstart', f); rolo.removeEventListener('wheel', f) }
+  }, [])
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      const rolo = tela.current?.closest<HTMLElement>('.scroll-y')
+      if (!rolo) return
+      const linhas = [...(tela.current?.querySelectorAll<HTMLElement>('.as-chat > .as-linha:not(.as-digitando-linha)') ?? [])]
+      const ini = inicioDaResposta(linhas.map((l) => (l.classList.contains('a') ? 'a' : 'v')))
+      const alvo = ini >= 0 ? linhas[ini] : linhas.at(-1)
+      if (!alvo) return
+      const idAlvo = Number(alvo.dataset.id)
+      if (idAlvo === ultimoAlvo.current && mexeu.current) return // a pessoa já rolou por conta própria nesta resposta
+      ultimoAlvo.current = idAlvo; mexeu.current = false
+      // posição de layout (offsetTop), não a da tela: a fala que entra ainda está animando (desliza e cresce) e mediria uns pixels fora do lugar
+      let y = 0
+      for (let e: HTMLElement | null = alvo; e && e !== rolo; e = e.offsetParent as HTMLElement | null) y += e.offsetTop
+      rolo.scrollTo({ top: Math.max(0, y - 8) })
+    })
     return () => cancelAnimationFrame(id)
   }, [falas.visiveis, falas.digitando, etapa])
   const menu = etapa === 'inicio' || etapa === 'pergunta' || etapa === 'prova-pronta' || etapa === 'cartoes-pronto' || etapa === 'material-pronto'
@@ -516,7 +595,6 @@ function Chat() {
       <Top title="Assistente" sub={`Espaço: ${espaco}`} />
       <div className="chat-tela" ref={tela}>
         <Conversa iniciais={iniciais} falas={falas} />
-        {menu && <Composer />}
         {!falas.falando && (
           <Cena chave={etapa}>
             <div className="as-corpo">
@@ -544,6 +622,7 @@ function Chat() {
           </Cena>
         )}
         {resultado && <p className="sr-only" role="status">{resultado.texto}</p>}
+        {menu && <Composer />}{/* por último: presa no pé da tela, acima do teclado */}
       </div>
     </>
   )
