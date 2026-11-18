@@ -100,6 +100,68 @@ await p.waitForFunction(() => /Nada novo/.test(document.querySelector('.copia')?
 const de2 = await contar()
 ok('restaurar o mesmo arquivo de novo: "Nada novo" e nada duplicado', de2.espacos === 1 && de2.questoes === 2 && de2.materiais === 1 && de2.trechos === 1 && de2.imagens === 1)
 
+// ───── 5b. C-8: o estudo (progresso, histórico, baralhos, cartões) vai na cópia e volta ─────
+const noBanco = (fn, arg) => p.evaluate(async ([corpo, a]) => {
+  const db = await new Promise((ok, no) => { const r = indexedDB.open('treino-bb'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error) })
+  try { return await new Function('db', 'arg', 'return (async () => {' + corpo + '})()')(db, a) } finally { db.close() }
+}, [fn, arg])
+const feito = (tx) => 'await new Promise((ok, no) => { ' + tx + '.oncomplete = ok; ' + tx + '.onerror = () => no(' + tx + '.error) })'
+const semearEstudo = () => noBanco(`
+  const tx = db.transaction(['prog', 'meta', 'decks', 'cards'], 'readwrite')
+  tx.objectStore('prog').put({ id: 'q-estudo-1', n: 3, c: 2, ok: true, last: 'A', t: 9 }); tx.objectStore('prog').put({ id: 'q-estudo-2', n: 1, c: 0, ok: false, last: 'B', t: 5 })
+  tx.objectStore('meta').put({ key: 'hist', value: JSON.stringify({ dias: { '2026-11-17': { n: 10, c: 7 } }, sims: [{ t: 100, p: 55, b: 20, e: 35, c: 40, n: 70, ok: true }] }) })
+  tx.objectStore('meta').put({ key: 'marks', value: JSON.stringify({ 'q-estudo-1': { r: true, a: 'rever o gabarito', t: 50 } }) })
+  tx.objectStore('decks').put({ id: 'b-estudo', nome: 'Siglas do estudo', criado: 1 })
+  for (const id of ['c-1', 'c-2']) tx.objectStore('cards').put({ id, b: 'b-estudo', f: 'Frente ' + id, v: 'Verso ' + id, estado: 'novo', criado: 2, ult: 0, due: 0, ef: 2.5, iv: 0, lapsos: 0, reps: 0 })
+  ` + "" + feito('tx'))
+const apagarEstudo = () => noBanco(`
+  const tx = db.transaction(['prog', 'meta', 'decks', 'cards'], 'readwrite')
+  tx.objectStore('prog').clear(); tx.objectStore('decks').clear(); tx.objectStore('cards').clear(); tx.objectStore('meta').delete('hist'); tx.objectStore('meta').delete('marks')
+  ` + feito('tx'))
+const contarEstudo = () => noBanco(`
+  const tx = db.transaction(['prog', 'meta', 'decks', 'cards']), r = {}
+  for (const n of ['prog', 'decks', 'cards']) await new Promise((ok) => { const q = tx.objectStore(n).count(); q.onsuccess = () => { r[n] = q.result; ok() } })
+  const h = await new Promise((ok) => { const q = tx.objectStore('meta').get('hist'); q.onsuccess = () => ok(q.result) })
+  r.hist = h ? JSON.parse(h.value) : null
+  const m = await new Promise((ok) => { const q = tx.objectStore('meta').get('marks'); q.onsuccess = () => ok(q.result) })
+  r.marks = m ? JSON.parse(m.value) : null
+  return r`)
+await semearEstudo(); await recarregar()
+const tEstudo = await texto()
+ok('com estudo: o cartão conta baralhos, cartões, progresso e simulados', /1 baralho, 2 cartões, progresso em 2 questões, 1 dia de estudo, 1 questão marcada ou anotada e 1 simulado/.test(tEstudo), tEstudo.replace(/\s+/g, ' ').slice(0, 300))
+const [baixou2] = await Promise.all([p.waitForEvent('download', { timeout: 8000 }), p.locator('.copia .btn', { hasText: 'Salvar cópia' }).click()])
+const arquivo2 = await baixou2.createReadStream().then(async (st) => { const partes = []; for await (const c of st) partes.push(c); return Buffer.concat(partes) })
+const j2 = JSON.parse(arquivo2.toString('utf8'))
+ok('o arquivo (versão 2) leva progresso, histórico, baralhos e cartões', j2.versao === 2 && Object.keys(j2.estudo.prog).length === 2 && j2.estudo.hist.sims.length === 1 && j2.estudo.baralhos.length === 1 && j2.estudo.cartoes.length === 2)
+await apagarEstudo(); await recarregar()
+const semEstudo = await contarEstudo()
+ok('(preparo) o estudo foi apagado do aparelho', semEstudo.prog === 0 && semEstudo.decks === 0 && semEstudo.cards === 0 && !semEstudo.hist)
+await p.setInputFiles('#copia-arquivo', { name: baixou2.suggestedFilename(), mimeType: 'application/json', buffer: arquivo2 })
+await p.waitForFunction(() => /Restaurei/.test(document.querySelector('.copia')?.innerText ?? ''), null, { timeout: 8000 })
+const tRest = await texto()
+ok('restaurar diz o que voltou do estudo', /Restaurei 1 baralho, 2 cartões, progresso em 2 questões, 1 dia de estudo, 1 questão marcada ou anotada e 1 simulado/.test(tRest), tRest.replace(/\s+/g, ' ').slice(0, 320))
+await p.waitForTimeout(600)
+const voltaEstudo = await contarEstudo()
+ok('o banco tem o estudo de volta (progresso, baralho, cartões e histórico)', voltaEstudo.prog === 2 && voltaEstudo.decks === 1 && voltaEstudo.cards === 2 && voltaEstudo.hist?.sims?.length === 1 && voltaEstudo.hist?.dias?.['2026-11-17']?.n === 10 && voltaEstudo.marks?.['q-estudo-1']?.a === 'rever o gabarito', JSON.stringify(voltaEstudo))
+await recarregar()
+const aposRecarga = await contarEstudo()
+ok('depois de recarregar o app o estudo continua lá (não foi desfeito por ninguém)', aposRecarga.prog === 2 && aposRecarga.decks === 1 && aposRecarga.cards === 2)
+await p.setInputFiles('#copia-arquivo', { name: 'de-novo-2.json', mimeType: 'application/json', buffer: arquivo2 })
+await p.waitForFunction(() => /Nada novo/.test(document.querySelector('.copia')?.innerText ?? ''), null, { timeout: 8000 })
+const de3 = await contarEstudo()
+ok('restaurar o mesmo arquivo de novo: nada duplicado no estudo', de3.prog === 2 && de3.decks === 1 && de3.cards === 2 && de3.hist?.sims?.length === 1)
+
+// ───── 5c. F-18: o Desfazer do aviso tira TUDO o que a restauração do estudo trouxe (progresso, cartões, marcações) ─────
+await apagarEstudo(); await recarregar()
+await p.setInputFiles('#copia-arquivo', { name: 'para-desfazer.json', mimeType: 'application/json', buffer: arquivo2 })
+await p.waitForSelector('.toast >> text=Estudo restaurado.', { timeout: 8000 })
+ok('o aviso "Estudo restaurado." tem Desfazer', (await p.locator('.toast', { hasText: 'Estudo restaurado.' }).getByRole('button', { name: 'Desfazer' }).count()) === 1)
+await p.locator('.toast').getByRole('button', { name: 'Desfazer' }).click(); await p.waitForTimeout(900)
+const desfeito = await contarEstudo()
+ok('Desfazer tira progresso, histórico, baralho, cartões e marcações que a restauração trouxe', desfeito.prog === 0 && desfeito.decks === 0 && desfeito.cards === 0 && Object.keys(desfeito.marks ?? {}).length === 0 && (desfeito.hist?.sims?.length ?? 0) === 0, JSON.stringify(desfeito))
+await p.setInputFiles('#copia-arquivo', { name: 'de-novo-3.json', mimeType: 'application/json', buffer: arquivo2 })
+await p.waitForFunction(() => /Restaurei/.test(document.querySelector('.copia')?.innerText ?? ''), null, { timeout: 8000 })
+
 // ───── 6. arquivo errado ─────
 await p.setInputFiles('#copia-arquivo', { name: 'outro.json', mimeType: 'application/json', buffer: Buffer.from('{"foo":1}') })
 await p.waitForFunction(() => /não é uma cópia do Logos/.test(document.querySelector('.copia [role=alert]')?.innerText ?? ''), null, { timeout: 5000 })

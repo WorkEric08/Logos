@@ -186,6 +186,16 @@ describe('assistente: desfazer, histórico e limpar (F2)', () => {
     estado().enviar('desfazer'); await vi.waitFor(() => expect(estado().materiais).toHaveLength(1))
     await estado().perguntar('o que é Copom?'); expect(fala().achados?.some((a) => a.tipo === 'material')).toBe(true)
   })
+  it('F-12: "Desfazer: criar o espaço" deixa de valer depois que o espaço trocou (não apaga o espaço de outro uso)', async () => {
+    const { useEspacos } = await import('./espacos')
+    await useEspacos.getState().iniciar()
+    await estado().criarEspaco('Teste', false)
+    const id = useEspacos.getState().ativo
+    expect(estado().desfazivel).toMatch(/criar o espaço "Teste"/)
+    await useEspacos.getState().ativar('bb')
+    estado().desfazer(); await vi.waitFor(() => expect(fala().texto).toMatch(/Não consegui desfazer: você já trocou de espaço/))
+    expect(useEspacos.getState().lista.some((e) => e.id === id)).toBe(true) // o espaço continua lá
+  })
   it('só a última coisa se desfaz (desfazer duas vezes: a segunda não tem o que desfazer)', async () => {
     await estado().guardarMaterial(arquivo('Moeda.md', TEXTO))
     estado().enviar('desfazer'); await vi.waitFor(() => expect(fala().texto).toMatch(/Desfiz/))
@@ -363,6 +373,27 @@ describe('assistente: questões geradas do material (F4)', () => {
     estado().voltarAoInicio(); estado().enviar('gerar questões do material'); await vi.waitFor(() => expect(estado().etapa).toBe('questoes-previa'))
     await estado().confirmarGeradas()
     expect(app.BANK.filter((q) => q.ger)).toHaveLength(total); expect(fala().texto).toMatch(/2 questões entraram .* \(\d+ já estavam/)
+  })
+  it('C-9: "Desfazer" depois de gerar tira só as questões geradas; vale só enquanto não foram estudadas e antes de um treino', async () => {
+    await espacoComMaterial()
+    const antes = app.BANK.length
+    estado().enviar('gerar questões do material'); await vi.waitFor(() => expect(estado().etapa).toBe('questoes-previa'))
+    await estado().confirmarGeradas()
+    expect(estado().desfazivel).toBe('adicionar as questões geradas'); expect(app.BANK.length).toBeGreaterThan(antes)
+    estado().desfazer(); await vi.waitFor(() => expect(fala().texto).toMatch(/Desfiz: adicionar as questões geradas/))
+    expect(app.BANK.length).toBe(antes); expect(estado().materiais).toHaveLength(1) // o material continua
+    // de novo; agora a pessoa responde uma delas: desfazer recusa e nada some
+    estado().voltarAoInicio(); estado().enviar('gerar questões do material'); await vi.waitFor(() => expect(estado().etapa).toBe('questoes-previa'))
+    await estado().confirmarGeradas(); const total = app.BANK.length
+    const id = app.BANK.find((q) => q.ger)!.id
+    app.useApp.setState({ prog: { [id]: { n: 1, c: 1, ok: true, last: 'A', t: 1 } } })
+    estado().desfazer(); await vi.waitFor(() => expect(fala().texto).toMatch(/Não consegui desfazer: você já respondeu/))
+    expect(app.BANK.length).toBe(total)
+    // e começar um treino encerra o desfazer
+    app.useApp.setState({ prog: {} }); await espacoComMaterial(); estado().voltarAoInicio(); estado().enviar('gerar questões do material'); await vi.waitFor(() => expect(estado().etapa).toBe('questoes-previa'))
+    await estado().confirmarGeradas(); expect(estado().desfazivel).toBe('adicionar as questões geradas')
+    app.useApp.getState().startCustom(app.BANK.slice(0, 2).map((q) => q.id), false)
+    expect(estado().desfazivel).toBeNull()
   })
   it('as geradas nunca entram no simulado do edital', async () => {
     await espacoComMaterial(true) // espaço com as questões do BB + as suas

@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { ALL_SUBJECTS, SOURCE_KEYS, SUBJECT, shortSource } from '../core/subjects'
 import { REGRAS, SIMULADO_PLAN } from '../core/scoring'
-import { baseDaProva, filterPool, opcoesQtd, qtdEfetiva, totals } from '../core/filters'
+import { baseDaProva, filterPool, opcoesQtd, qtdEfetiva, rotuloErros, totals } from '../core/filters'
 import { contar as contarCards } from '../core/cards'
 import { formatarDuracao } from '../core/cronometro'
 import { diaDe, diasDoMes, sequencia } from '../core/historico'
@@ -16,6 +16,8 @@ import { TreinoDoPlano } from './TreinoDoPlano'
 import { ICONES, descreverAba, type Icones } from '../core/aba'
 
 import { BANK, TF, useApp } from '../store/app'
+import { useEspacos } from '../store/espacos'
+import { useAssistente } from '../store/assistente'
 import { Aside, Badge, Hr, Icon, Ring, Top } from './bits'
 import { Provas } from './Provas'
 import type { ProgressMap, Subject } from '../core/types'
@@ -25,12 +27,25 @@ const accTxt = (a: number | null) => (a == null ? '–' : `${a}%`)
 const pts = (n: number) => String(n).replace('.', ',')
 const f1 = (n: number) => n.toFixed(1).replace('.', ',')
 
+/** Espaço de estudo sem nenhuma questão (recém-criado): em vez de telas de treino vazias e botões que só dão aviso, diz em que espaço a pessoa está e leva a importar uma prova. */
+function EspacoVazio() {
+  const nome = useEspacos((s) => s.lista.find((e) => e.id === s.ativo)?.nome ?? '')
+  const importar = () => { useApp.getState().setTab('assistente'); void useAssistente.getState().abrirAba().then(() => useAssistente.getState().escolher('prova')) }
+  return (
+    <div className="card" role="status">
+      <h3>Este espaço ainda não tem questões</h3>
+      <p className="note">Você está no espaço “{nome}”. Importe uma prova em PDF (e o gabarito) para treinar, fazer simulado e ver seu desempenho aqui. Seus cartões continuam na aba Cards.</p>
+      <div className="row" style={{ marginTop: 10 }}><button className="btn pri" onClick={importar}>Importar uma prova</button></div>
+    </div>
+  )
+}
+
 /** Cartão de matéria (Início no monitor, Desempenho no celular): % de acerto, vistas e para rever, e o peso na prova. Tocar abre o Treinar já filtrado por ela. */
 function CartaoMateria({ m, prog }: { m: Subject; prog: ProgressMap }) {
-  const { setMatFilter, setTab } = useApp.getState()
+  const { setMatFilter, setFilter, setTab } = useApp.getState()
   const l = BANK.filter((q) => q.m === m.n), t = totals(l, prog)
   return (
-    <button className="folder" onClick={() => { setMatFilter(m.n); setTab('treinar') }}>
+    <button className="folder" onClick={() => { setFilter('ano', ''); setFilter('status', ''); setMatFilter(m.n); setTab('treinar') }}>
       <span className="ftop"><Badge m={m.n} /><span className="fpc">{accTxt(t.acc)}<small>acerto</small></span></span>
       <span className="fnm">{m.s}</span>
       <span className="fsub">
@@ -49,6 +64,7 @@ export function Inicio() {
   const cartoes = useCards((s) => s.cartoes), ajustesCards = useCards((s) => s.ajustes)
   const CC = contarCards(cartoes, ajustesCards, Date.now())
   const abrirProva = (s: string) => { setMatFilter(''); setFilter('status', ''); setFilter('ano', s); setTab('treinar') } // abre a prova inteira: sem matéria nem situação sobrando de antes
+  if (!BANK.length) return <div className="split"><div className="col"><Top title="Início" /><EspacoVazio /></div></div>
   return (
     <>
       <div className="split ini">
@@ -58,7 +74,7 @@ export function Inicio() {
             <button className="tile" onClick={startByWeight}><Icon n="train" /><b>Treino rápido</b><span>10 questões, mais das matérias que mais caem</span></button>
             <button className="tile" onClick={() => setTab('cartoes')}><Icon n="cards" /><b>Cards de hoje</b><span>{CC.total === 0 ? 'Crie seu primeiro baralho' : CC.hoje ? `${CC.hoje} para estudar` : 'Tudo em dia hoje'}</span></button>
             <button className="tile" onClick={startSimulado}><Icon n="clock" /><b>Simulado de {SIMULADO_PLAN.reduce((a, [, n]) => a + n, 0)}</b><span>{REGRAS ? 'Prova completa, com nota e regras do edital' : 'Questões de todas as matérias, na proporção do espaço'}</span></button>
-            <button className="tile" onClick={startErrors} disabled={!T.wrong}><Icon n="repeat" /><b>Rever erros ({T.wrong})</b><span>{T.wrong ? 'Só o que você errou por último' : 'Nenhum erro ainda'}</span></button>
+            <button className="tile" onClick={startErrors} disabled={!T.wrong}><Icon n="repeat" /><b>Rever erros ({rotuloErros(T.wrong)})</b><span>{T.wrong ? 'Só o que você errou por último' : 'Nenhum erro ainda'}</span></button>
           </div>
           <Provas aoAbrir={abrirProva} />
           <div className="late wide-only">{/* monitor: as matérias moram aqui, abaixo das pastas dos bancos; no celular continuam no Desempenho */}
@@ -108,6 +124,7 @@ export function Treinar() {
   const f = useApp((s) => s.filters)
   const marks = useApp((s) => s.marks)
   const { setFilter, setMatFilter, startFromFilters } = useApp.getState()
+  if (!BANK.length) return <div className="split"><div className="col"><Top title="Treinar" /><EspacoVazio /></div></div>
   const pool = filterPool(BANK, f, prog, marks)
   // Os filtros se adaptam à prova escolhida: matérias, temas, contagens e quantidades vêm só das questões dela (sem prova: do banco todo).
   const base = baseDaProva(BANK, f.ano)
@@ -174,7 +191,7 @@ export function Treinar() {
           <dl className="sum wide-only">{resumo.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
           <Hr className="wide-only" />
           <p className="count wide-only"><b>{n}</b>{n === 1 ? 'questão' : 'questões'} neste treino</p>
-          <button className="btn pri" onClick={startFromFilters} disabled={!n}>Começar · {n} questões</button>
+          <button className="btn pri" onClick={() => startFromFilters()} disabled={!n}>Começar · {n} questões</button>
         </Aside>
       </div>
     </>
@@ -188,6 +205,7 @@ export function Desempenho() {
   const hist = useApp((s) => s.hist)
   const [sel, setSel] = useState<number | null>(null) // barra tocada/sob o mouse: o texto do dia aparece acima do gráfico
   const { startErrors } = useApp.getState()
+  if (!BANK.length) return <div className="split"><div className="col"><Top title="Desempenho" /><EspacoVazio /></div></div>
   const T = totals(BANK, prog)
   const grupos: Record<string, typeof BANK> = {}
   BANK.forEach((q) => { (grupos[`${q.m}|${q.t}`] ??= []).push(q) })
@@ -285,7 +303,7 @@ export function Desempenho() {
             <Hr />
             <dl className="sum">{resumo.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
             <Hr />
-            <button className="btn pri go-btn" onClick={startErrors} disabled={!T.wrong}>Rever erros · {T.wrong}</button>
+            <button className="btn pri go-btn" onClick={startErrors} disabled={!T.wrong}>Rever erros · {rotuloErros(T.wrong)}</button>
           </div>
         </Aside>
       </div>

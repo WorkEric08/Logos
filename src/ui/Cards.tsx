@@ -53,6 +53,7 @@ function Home({ abrir }: { abrir: (t: Tela) => void }) {
   const baralhos = useCards((s) => s.baralhos), cartoes = useCards((s) => s.cartoes), ajustes = useCards((s) => s.ajustes), hist = useCards((s) => s.hist)
   const { novoBaralho, setLimite } = useCards.getState()
   const [criando, setCriando] = useState(false), [nome, setNome] = useState('')
+  useBackLayer(criando, () => { setCriando(false); setNome('') }, true) // o formulário "Novo baralho" é uma camada leve: o voltar o cancela (como o botão Cancelar) em vez de sair da aba
   const agora = Date.now()
   const C = contar(cartoes, ajustes, agora)
   const respHoje = hist.dias[diaDe(agora)] ?? { n: 0, c: 0 }
@@ -144,6 +145,8 @@ function TelaBaralho({ id, voltar, abrir }: { id: string; voltar: () => void; ab
   const baralho = useCards((s) => s.baralhos.find((b) => b.id === id)), todos = useCards((s) => s.cartoes), ajustes = useCards((s) => s.ajustes)
   const { renomear, excluirBaralho, excluirCartao } = useCards.getState()
   const [busca, setBusca] = useState(''), [renomeando, setRenomeando] = useState(false), [nome, setNome] = useState(''), [ask, setAsk] = useState(false), [limite, setLimite] = useState(100)
+  useBackLayer(renomeando, () => setRenomeando(false), true) // Renomear e a pergunta de excluir: o voltar fecha só o formulário/pergunta, não o baralho
+  useBackLayer(ask, () => setAsk(false), true)
   const [saindo, setSaindo] = useState<string | null>(null) // cartão que está sumindo (a animação termina e só então é excluído)
   const [entrada, setEntrada] = useState(true) // as linhas entram em cascata só quando a tela abre, não a cada letra da busca
   useEffect(() => { const t = setTimeout(() => setEntrada(false), 900); return () => clearTimeout(t) }, [])

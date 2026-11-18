@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import bank from '../data/bank.json'
 import type { Letter, ProgressMap, Question } from '../core/types'
-import { DEFAULT_FILTERS, baseDaProva, filterPool, recordAnswer, type Filters } from '../core/filters'
+import { DEFAULT_FILTERS, LIMITE_ERROS, baseDaProva, filterPool, recordAnswer, type Filters } from '../core/filters'
 import { pick, shuffle, themeFrequency } from '../core/weights'
 import { SIMULADO_PLAN, scoreSimulado } from '../core/scoring'
 import { HIST_VAZIO, alternarMarca, registrarResposta, registrarSimulado, salvarNota, type Hist, type Marks } from '../core/historico'
@@ -33,6 +33,14 @@ export type Tab = 'inicio' | 'treinar' | 'cartoes' | 'assistente' | 'desempenho'
 export interface Session {
   ids: string[]; i: number; ans: Record<string, Letter>
   sim: boolean; done: boolean; review: boolean; counted: boolean
+  /** Simulado do espaço (plano de matérias e nota do edital): só ele entra na lista "Simulados" do Desempenho. Os montados pelo assistente não. */
+  edital?: boolean
+  /** De onde veio o treino (para o "Mais…" do resultado repetir o mesmo tipo): filtros do Treinar, treino por peso ou rever erros. Sem isso (montado pelo assistente) não há "Mais…". */
+  origem?: 'filtros' | 'peso' | 'erros'
+  /** Aba de onde a sessão começou, quando foi o Treinar ou o Assistente: sair (ou o voltar) leva de volta a ela. De qualquer outra aba (Início, Cards, Desempenho…) sai-se para o Início. */
+  origemAba?: 'treinar' | 'assistente'
+  /** Os filtros do Treinar no momento em que o treino começou (só com origem 'filtros'). */
+  filtros?: Filters
   cron: Cron // cronômetro escondido do simulado (não aparece na prova; o tempo vai para o resultado e o histórico)
   dur?: number // segundos gastos, definido ao entregar o simulado
 }
@@ -51,10 +59,13 @@ interface State {
   setTab: (t: Tab) => void
   setFilter: <K extends keyof Filters>(k: K, v: Filters[K]) => void
   setMatFilter: (m: string) => void
-  startFromFilters: () => void
+  /** Treino do Treinar. `f` = outros filtros (o "Mais como este" do resultado); `fora` = questões que não devem repetir (as do treino que acabou, se sobrar outras). */
+  startFromFilters: (f?: Filters, fora?: string[]) => void
   startByWeight: () => void
   startSimulado: () => void
   startErrors: () => void
+  /** O "Mais…" do resultado de um treino: outra sessão do mesmo tipo (mesmos filtros, mais por peso ou mais erros). */
+  maisDoMesmo: () => void
   /** Começa uma sessão com estas questões (ex.: simulado de uma matéria montado pelo assistente). */
   startCustom: (ids: string[], sim: boolean) => void
   leave: () => void
@@ -71,7 +82,8 @@ interface State {
   jump: (i: number) => void
   finish: () => void
   backToResult: () => void
-  restore: (p: ProgressMap, extra?: { hist?: Hist | null; marks?: Marks | null }) => Promise<void>
+  /** `silencioso`: não mostra o aviso "Progresso restaurado." (quem chama mostra o seu); devolve a função que desfaz esta troca. */
+  restore: (p: ProgressMap, extra?: { hist?: Hist | null; marks?: Marks | null; silencioso?: boolean }) => Promise<() => void>
   toggleMark: (id: string) => void
   setNote: (id: string, text: string) => void
   flushMarks: () => void
@@ -83,6 +95,9 @@ interface State {
   clearToast: () => void
 }
 
+/** Para onde sair da sessão: a aba de origem (Treinar ou Assistente) ou o Início. */
+export const destinoDaSessao = (s: Session | null): 'inicio' | 'treinar' | 'assistente' => s?.origemAba ?? 'inicio'
+
 let toastId = 0
 let marksTimer: ReturnType<typeof setTimeout> | undefined
 /** Id deste aparelho para o registro de eventos de sincronização. Vazio = a preparação falhou: o app segue só com o progresso de sempre (sem eventos). */
@@ -90,9 +105,10 @@ let aparelho = ''
 const newSession = (ids: string[], sim = false): Session => ({ ids, i: 0, ans: {}, sim, done: false, review: false, counted: false, cron: iniciarCron(Date.now()) })
 
 export const useApp = create<State>((set, get) => {
-  const begin = (ids: string[], sim = false) => {
+  const begin = (ids: string[], sim = false, extra: Partial<Session> = {}) => {
     if (!ids.length) { get().showToast(AVISOS.semQuestoes); return }
-    set({ session: newSession(ids, sim), saida: null })
+    const t = get().tab
+    set({ session: { ...newSession(ids, sim), ...(t === 'treinar' || t === 'assistente' ? { origemAba: t } : {}), ...extra }, saida: null })
   }
   const commit = (id: string, letter: Letter) => {
     const q = BY_ID[id]
@@ -140,31 +156,40 @@ export const useApp = create<State>((set, get) => {
       return { filters }
     }),
     setMatFilter: (m) => set((s) => ({ filters: { ...s.filters, mat: m, tema: '' } })),
-    startFromFilters: () => {
-      const { filters: f, prog, marks } = get()
-      const pool = filterPool(BANK, f, prog, marks)
+    startFromFilters: (outros, fora) => {
+      const { filters: f0, prog, marks } = get()
+      const f = outros ?? f0
+      let pool = filterPool(BANK, f, prog, marks)
+      if (fora?.length) { const novas = pool.filter((q) => !fora.includes(q.id)); if (novas.length) pool = novas } // "mais": não repete o que acabou de fazer, se houver outras
       const n = f.qtd === 0 ? pool.length : Math.min(f.qtd, pool.length)
       const list = f.ordem === 'peso' ? pick(pool, n, TF, prog)
         : f.ordem === 'prova' ? pool.slice().sort((a, b) => a.y - b.y || a.n - b.n).slice(0, n)
         : shuffle(pool).slice(0, n)
-      begin(list.map((q) => q.id))
+      begin(list.map((q) => q.id), false, { origem: 'filtros', filtros: f })
     },
-    startByWeight: () => begin(pick(BANK, 10, TF, get().prog).map((q) => q.id)),
+    startByWeight: () => begin(pick(BANK, 10, TF, get().prog).map((q) => q.id), false, { origem: 'peso' }),
     startSimulado: () => {
       const { prog } = get()
       const ids = SIMULADO_PLAN.flatMap(([m, n]) =>
         pick(BANK.filter((q) => q.m === m && !q.ger), n, TF, prog).sort((a, b) => a.y - b.y || a.n - b.n).map((q) => q.id)) // o simulado do edital só tem questão de prova: nunca as geradas
-      begin(ids, true)
+      begin(ids, true, { edital: true })
     },
     startCustom: (ids, sim) => begin(ids, sim),
-    startErrors: () => begin(shuffle(BANK.filter((q) => get().prog[q.id]?.ok === false)).slice(0, 20).map((q) => q.id)),
-    leave: () => set({ session: null, tab: 'inicio', saida: null }),
+    startErrors: () => begin(shuffle(BANK.filter((q) => get().prog[q.id]?.ok === false)).slice(0, LIMITE_ERROS).map((q) => q.id), false, { origem: 'erros' }),
+    maisDoMesmo: () => {
+      const s = get().session; if (!s) return
+      if (s.sim) { if (s.edital) get().startSimulado(); return }
+      if (s.origem === 'filtros' && s.filtros) get().startFromFilters(s.filtros, s.ids)
+      else if (s.origem === 'peso') get().startByWeight()
+      else if (s.origem === 'erros') get().startErrors()
+    },
+    leave: () => set({ session: null, tab: destinoDaSessao(get().session), saida: null }),
     irPara: (t) => {
       const s = get().session
       if (s?.sim && !s.done) set({ saida: { destino: t } }) // simulado em andamento: pergunta antes de encerrar
       else { set((x) => ({ reinicio: x.reinicio + 1 })); get().setTab(t) }
     },
-    sair: () => get().irPara('inicio'),
+    sair: () => get().irPara(destinoDaSessao(get().session)),
     confirmarSaida: () => { const q = get().saida; if (q) get().setTab(q.destino) },
     cancelarSaida: () => set({ saida: null }),
     pausarCron: () => { const s = get().session; if (s?.sim && !s.done) set({ session: { ...s, cron: pausarCron(s.cron, Date.now()) } }) },
@@ -173,6 +198,7 @@ export const useApp = create<State>((set, get) => {
       const s = get().session; if (!s) return
       const id = s.ids[s.i]
       if (s.sim && !s.done) { set({ session: { ...s, ans: { ...s.ans, [id]: l } } }); return }
+      if (s.sim) return // simulado entregue: a questão em branco não pode ser respondida na revisão (a nota já fechou); só mostra o gabarito
       if (s.ans[id]) return
       commit(id, l)
       set({ session: { ...s, ans: { ...s.ans, [id]: l } } })
@@ -187,8 +213,12 @@ export const useApp = create<State>((set, get) => {
         for (const id of s.ids) if (s.ans[id]) commit(id, s.ans[id])
         const L = s.ids.map((id) => BY_ID[id]), r = scoreSimulado(L, s.ans)
         const sim = { t: Date.now(), p: Math.round(r.points * 100) / 100, b: r.basic, e: r.specific, c: L.filter((q) => s.ans[q.id] === q.g).length, n: L.length, ok: r.approved, d: dur }
-        const hist = registrarSimulado(get().hist, sim)
-        set({ hist }); if (aparelho) void gravarSimulado(hist, simulado(aparelho, sim)); else void saveHist(hist)
+        // Só o simulado do espaço (o de `startSimulado`) entra na lista de "Simulados" (nota de 100, mínimo, passou/não passou). Um simulado parcial montado
+        // pelo assistente (ex.: 20 questões de Matemática) é contado em respostas e progresso, mas a nota dele não é comparável: viraria "Não passou" à toa.
+        if (s.edital) {
+          const hist = registrarSimulado(get().hist, sim)
+          set({ hist }); if (aparelho) void gravarSimulado(hist, simulado(aparelho, sim)); else void saveHist(hist)
+        }
       }
       set({ session: { ...s, counted: true, done: true, review: false, cron: pausarCron(s.cron, Date.now()), ...(dur !== undefined ? { dur } : {}) } })
     },
@@ -201,12 +231,14 @@ export const useApp = create<State>((set, get) => {
       if (extra?.hist) await saveHist(hist)
       if (extra?.marks) await saveMarks(marks)
       if (aparelho) await refazerEventosDoAparelho(aparelho, baseDe(aparelho, Date.now(), p, hist)) // os eventos deste aparelho viram uma base do que foi restaurado
-      get().showToast(AVISOS.progressoRestaurado, { label: 'Desfazer', run: () => {
+      const desfazer = () => {
         set({ prog: before, hist: histAntes, marks: marksAntes }); void replaceAll(before)
         if (extra?.hist) void saveHist(histAntes)
         if (extra?.marks) void saveMarks(marksAntes)
         if (aparelho) void refazerEventosDoAparelho(aparelho, baseDe(aparelho, Date.now(), before, histAntes))
-      } })
+      }
+      if (!extra?.silencioso) get().showToast(AVISOS.progressoRestaurado, { label: 'Desfazer', run: desfazer })
+      return desfazer
     },
     // "Zerar" apaga o progresso e a evolução; as marcações e anotações são trabalho seu e ficam.
     resetAll: async () => {

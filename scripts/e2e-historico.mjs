@@ -73,7 +73,7 @@ ok('apagar o texto e desmarcar: a questão sai das marcadas (sobra 1)', (await n
 // ---- 4. simulado entregue vira histórico
 await irPara(p, 'Início'); await p.locator('.acts .act', { hasText: 'Simulado' }).click(); await p.waitForSelector('.sheet')
 for (let i = 0; i < 69; i++) { if (i < 3) await p.locator('.alt').first().click(); await p.click('.foot .pri') }
-await p.click('text=Entregar prova'); await p.waitForSelector('.scorecard')
+await p.click('text=Entregar prova'); await p.getByRole('button', { name: 'Entregar', exact: true }).click({ timeout: 2500 }).catch(() => {}); await p.waitForSelector('.scorecard')
 await irPara(p, 'Desempenho')
 ok('simulado entregue aparece em Simulados (nota e "Não passou")', (await p.locator('.simlist li').count()) === 1 && /Não passou/.test(await p.locator('.simlist li').innerText()), (await p.locator('.simlist li').innerText()).replace(/\n/g, ' '))
 await p.screenshot({ path: 'docs/verificacao-capturas/historico-simulado-1440-dark.png', fullPage: false })

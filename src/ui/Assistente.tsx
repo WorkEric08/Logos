@@ -9,6 +9,7 @@ import type { TrechoDestacado } from '../core/busca/trecho'
 import { ROTULO_TIPO_CARTAO } from '../core/cartoes/tipos'
 import type { Achado } from '../services/busca/consultar'
 import { BANK, useApp } from '../store/app'
+import { montarQuestoes } from '../core/importar/montar'
 import { iaLigada } from '../services/importar/ia'
 import { useAssistente } from '../store/assistente'
 import { useCards } from '../store/cards'
@@ -18,6 +19,7 @@ import { AVISOS } from '../core/avisos'
 import { useEspacos } from '../store/espacos'
 import { IaPainel } from './AssistenteIA'
 import { Icon, Top } from './bits'
+import { useBackLayer } from './useBackLayer'
 import { ConfirmarAcao } from './ConfirmarAcao'
 import { Cena, Pilulas, reduzMovimento, useContagem, useFalas, useFechar, type ItemPilula } from './movimentoChat'
 import { inicioDaResposta, quantoRolar } from '../core/rolagem'
@@ -173,13 +175,13 @@ function PlanoPainel() {
   useAssistente((s) => s.planoAtivo); useAssistente((s) => s.eventos); useCards((s) => s.hist); useCards((s) => s.cartoes)
   const { planoAcao, voltarAoInicio, statusPlano } = useAssistente.getState()
   const st = statusPlano()
-  if (!st) return <Pilulas itens={[{ id: 'plano-outro', rotulo: 'Montar um plano', pri: true, run: () => planoAcao('outro') }, { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio }]} rotuloGrupo="Plano de estudo" /> // (o plano foi descartado ou passou do prazo)
+  if (!st) return <Pilulas itens={[{ id: 'plano-outro', rotulo: 'Montar um plano', pri: true, run: () => planoAcao('outro') }, { id: 'mais', rotulo: 'Voltar', run: voltarAoInicio }]} rotuloGrupo="Plano de estudo" /> // (o plano foi descartado ou passou do prazo)
   const q = st.questoesFaltam.length
   const itens: ItemPilula[] = [
     ...(st.fase === 'cartoes' ? [{ id: 'plano-cartoes', rotulo: `${st.cartoesFeitos > 0 ? 'Continuar os cartões' : 'Começar pelos cartões'} (${st.cartoesFaltam})`, pri: true, run: () => planoAcao('cartoes') }] : []),
     ...(q > 0 ? [{ id: 'plano-questoes', rotulo: st.questoesFeitas > 0 ? `Continuar as questões (${q})` : `Fazer as ${q} questões`, pri: st.fase === 'questoes', run: () => planoAcao('questoes') }] : []),
     { id: 'plano-outro', rotulo: st.fase === 'fim' ? 'Montar outro plano' : 'Outro tempo', pri: st.fase === 'fim', run: () => planoAcao('outro') },
-    { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio },
+    { id: 'mais', rotulo: 'Voltar', run: voltarAoInicio },
   ]
   return <Pilulas itens={itens} rotuloGrupo="Plano de estudo" />
 }
@@ -336,6 +338,14 @@ function PreviaProva() {
   const prontas = p.escolhidas.filter((n) => { const q = lista.find((x) => x.numero === n); return q && n in respostas && respostas[n] !== null && q.alternativas[respostas[n] as Letter] })
   const visiveis = todas ? lista : lista.slice(0, 30)
   const semResposta = p.escolhidas.length - prontas.length
+  // reimportar a mesma prova: as que já estão neste espaço (mesmo conteúdo = mesmo id) não duplicam; a prévia avisa antes de "Adicionar"
+  const jaEstao = (() => {
+    try {
+      const mont = montarQuestoes(lista, respostas, { ...p.prep.meta, rotulo: p.rotulo.trim() || p.prep.meta.rotulo }, new Set(p.escolhidas))
+      const ids = new Set(BANK.map((q) => q.id))
+      return mont.questoes.filter((q) => ids.has(q.id)).length
+    } catch { return 0 }
+  })()
   return (
     <div className="as-painel">
       <div className="card">
@@ -345,7 +355,7 @@ function PreviaProva() {
         <div className="chips" role="group" aria-label="Quais questões guardam imagem">
           {([['figuras', 'Só com figura ou tabela'], ['todas', 'Todas'], ['nenhuma', 'Nenhuma']] as const).map(([v, r]) => <button key={v} className="chip" aria-pressed={p.imagens === v} onClick={() => s.setImagens(v)}>{r}</button>)}
         </div>
-        <p className="note" role="status">{prontas.length} de {lista.length} prontas para entrar{semResposta ? ` · ${semResposta} sem resposta (marque abaixo)` : ''}.</p>
+        <p className="note" role="status">{prontas.length} de {lista.length} prontas para entrar{semResposta ? ` · ${semResposta} sem resposta (marque abaixo)` : ''}{jaEstao ? ` · ${jaEstao} já ${jaEstao === 1 ? 'está' : 'estão'} neste espaço (não duplicam)` : ''}.</p>
       </div>
       <ul className="as-qs">
         {visiveis.map((q, idx) => {
@@ -393,7 +403,12 @@ function Pronto({ treinar }: { treinar: boolean }) {
   const n = useContagem(resultado?.n ?? 0)
   const ir = (t: 'treinar' | 'cartoes') => useApp.getState().setTab(t)
   const itens: ItemPilula[] = [
-    treinar ? { id: 'treinar', rotulo: 'Treinar agora', pri: true, run: () => ir('treinar') } : { id: 'cartoes', rotulo: 'Ver os cartões', pri: true, run: () => ir('cartoes') },
+    treinar ? { id: 'treinar', rotulo: 'Treinar agora', pri: true, run: () => {
+      // abre o Treinar já na prova que acabou de entrar (como tocar numa prova no Início); com os filtros de antes ela podia nem aparecer
+      const u = useAssistente.getState().ultimaProva, { setMatFilter, setFilter } = useApp.getState()
+      if (u) { setMatFilter(''); setFilter('status', ''); setFilter('ano', u.chave) }
+      ir('treinar')
+    } } : { id: 'cartoes', rotulo: 'Ver os cartões', pri: true, run: () => ir('cartoes') },
     ...(treinar ? [{ id: 'outra', rotulo: 'Importar outra prova', run: () => escolher('prova') }] : []),
     { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio },
     ...pilulasExtras().filter((x) => x.id === 'desfazer'),
@@ -593,6 +608,13 @@ function Chat() {
   const etapa = useAssistente((s) => s.etapa)
   const mensagens = useAssistente((s) => s.mensagens)
   const resultado = useAssistente((s) => s.resultado)
+  const ocupado = useAssistente((s) => s.ocupado)
+  // O painel aberto na conversa (prévia, materiais, espaços, pergunta…) é uma camada: o voltar do aparelho o fecha e volta às sugestões, em vez de sair da aba.
+  // Não vale enquanto o assistente lê ou grava algo (cancelar no meio deixaria a tarefa terminar por trás).
+  // Prévia (prova, cartões, questões geradas): tem marcações e gabaritos corrigidos à mão; o voltar pergunta antes de descartar.
+  const previa = etapa === 'prova-previa' || etapa === 'cartoes-previa' || etapa === 'questoes-previa'
+  const [descartando, setDescartando] = useState(false)
+  useBackLayer(etapa !== 'inicio' && etapa !== 'lendo' && !ocupado, () => { if (previa) setDescartando(true); else useAssistente.getState().voltarAoInicio() }, true) // leve: não cobre a tela, então não trava o deslize que abre a barra
   const espaco = useEspacos((s) => s.lista.find((e) => e.id === s.ativo)?.nome ?? '')
   const tela = useRef<HTMLDivElement>(null)
   const iniciais = useRef(useAssistente.getState().vistas).current // as que já estavam mostradas ao entrar na aba não animam de novo
@@ -661,6 +683,7 @@ function Chat() {
           </Cena>
         )}
         {resultado && <p className="sr-only" role="status">{resultado.texto}</p>}
+        {descartando && previa && <ConfirmarAcao titulo="Descartar esta prévia?" texto="Nada foi adicionado ainda. As questões ou cartões que você marcou, desmarcou ou corrigiu aqui se perdem." confirmar="Descartar" onCancelar={() => setDescartando(false)} onConfirmar={() => { setDescartando(false); useAssistente.getState().voltarAoInicio() }} />}
         {menu && <Composer />}{/* por último: presa no pé da tela, acima do teclado */}
       </div>
     </>

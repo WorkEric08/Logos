@@ -253,6 +253,55 @@ describe('simulado: cronômetro escondido e saída com confirmação', () => {
     expect(s.session).toBeNull(); expect(s.saida).toBeNull(); expect(s.tab).toBe('desempenho')
     expect(s.hist.sims).toHaveLength(0); expect(s.prog).toEqual({}); expect(Object.keys(s.hist.dias)).toHaveLength(0)
   })
+  it('simulado parcial (montado pelo assistente) conta as respostas mas NÃO entra na lista de simulados (F-corretor C-1)', () => {
+    const ids = BANK.slice(30, 50).map((q) => q.id)
+    useApp.getState().startCustom(ids, true)
+    expect(useApp.getState().session!.edital).toBeUndefined()
+    useApp.getState().answer('A'); useApp.getState().finish()
+    const h = useApp.getState().hist
+    expect(h.sims).toHaveLength(0); expect(Object.values(h.dias)[0]?.n).toBe(1)
+    useApp.getState().leave(); useApp.getState().startSimulado()
+    expect(useApp.getState().session!.edital).toBe(true)
+  })
+  it('F-05: em simulado entregue, a questão em branco não pode ser respondida na revisão (nada entra no progresso nem no dia)', () => {
+    useApp.getState().startSimulado(); useApp.getState().finish()
+    useApp.getState().jump(2); useApp.getState().answer('A')
+    const s = useApp.getState()
+    expect(s.session!.ans).toEqual({}); expect(s.prog).toEqual({}); expect(Object.keys(s.hist.dias)).toHaveLength(0)
+  })
+  it('F-01: "Mais…" do resultado repete o tipo de treino (filtros do Treinar, por peso, erros) e não existe no que o assistente montou', () => {
+    useApp.setState({ filters: { mat: '', tema: '', ano: '', status: '', qtd: 10, ordem: 'peso' } })
+    useApp.getState().setMatFilter('Estatística'); useApp.getState().startFromFilters()
+    const antes = useApp.getState().session!
+    expect(antes.origem).toBe('filtros')
+    useApp.getState().maisDoMesmo()
+    const depois = useApp.getState().session!
+    expect(depois.ids.every((id) => BY_ID[id].m === 'Estatística')).toBe(true) // era a matéria do treino, não "por peso" no banco todo
+    expect(depois.ids.some((id) => antes.ids.includes(id))).toBe(false) // há outras questões de Estatística: não repete as que acabou de fazer
+    useApp.getState().leave(); useApp.getState().setMatFilter('')
+    useApp.getState().startByWeight(); expect(useApp.getState().session!.origem).toBe('peso')
+    useApp.getState().leave(); useApp.getState().startCustom(BANK.slice(0, 5).map((q) => q.id), false)
+    expect(useApp.getState().session!.origem).toBeUndefined()
+    const mesma = useApp.getState().session
+    useApp.getState().maisDoMesmo(); expect(useApp.getState().session).toBe(mesma) // sem origem: não faz nada
+  })
+  it('F-02: sair de um treino começado em Treinar ou no Assistente volta a essa aba; do Início (ou outra aba) volta ao Início', () => {
+    const ids = BANK.slice(0, 3).map((q) => q.id)
+    for (const aba of ['treinar', 'assistente'] as const) {
+      useApp.setState({ tab: aba }); useApp.getState().startCustom(ids, false)
+      expect(useApp.getState().session!.origemAba).toBe(aba)
+      useApp.getState().sair(); expect(useApp.getState().session).toBeNull(); expect(useApp.getState().tab).toBe(aba)
+      useApp.setState({ tab: aba }); useApp.getState().startCustom(ids, false); useApp.getState().leave(); expect(useApp.getState().tab).toBe(aba)
+    }
+    useApp.setState({ tab: 'cartoes' }); useApp.getState().startCustom(ids, false)
+    expect(useApp.getState().session!.origemAba).toBeUndefined(); useApp.getState().sair(); expect(useApp.getState().tab).toBe('inicio')
+    useApp.setState({ tab: 'inicio' }); useApp.getState().startByWeight(); useApp.getState().sair(); expect(useApp.getState().tab).toBe('inicio')
+  })
+  it('F-02: simulado do Assistente em andamento: Sair pergunta e Encerrar volta ao Assistente', () => {
+    useApp.setState({ tab: 'assistente' }); useApp.getState().startCustom(BANK.slice(0, 3).map((q) => q.id), true)
+    useApp.getState().sair(); expect(useApp.getState().saida).toEqual({ destino: 'assistente' })
+    useApp.getState().confirmarSaida(); expect(useApp.getState().tab).toBe('assistente'); expect(useApp.getState().session).toBeNull()
+  })
   it('simulado já entregue (resultado ou revisão): sair não pergunta', () => {
     useApp.getState().startSimulado(); useApp.getState().finish()
     useApp.getState().jump(3) // revendo uma questão

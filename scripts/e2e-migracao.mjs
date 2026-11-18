@@ -96,7 +96,7 @@ await p.waitForSelector('.cartao')
 await p.goto(BASE); await p.waitForSelector('.folders'); await p.locator('.acts .act', { hasText: 'Simulado' }).click()
 await p.waitForSelector('.sheet')
 for (let i = 0; i < 69; i++) { await p.locator('.alt').nth(i % 5).click(); await p.click('.foot .pri') }
-await p.locator('.alt').nth(0).click(); await p.click('text=Entregar prova'); await p.waitForSelector('.score')
+await p.locator('.alt').nth(0).click(); await p.click('text=Entregar prova'); await p.getByRole('button', { name: 'Entregar', exact: true }).click({ timeout: 2500 }).catch(() => {}); await p.waitForSelector('.score')
 await p.goto(BASE); await p.waitForSelector('.folders')
 const antes = comoMapa(await lerBanco(p))
 const idsAntes = Object.keys(antes)

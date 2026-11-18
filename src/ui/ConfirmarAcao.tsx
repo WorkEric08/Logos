@@ -9,6 +9,8 @@ interface Props {
   confirmar: string
   onConfirmar: () => void
   onCancelar: () => void
+  /** Rótulo do botão seguro (o que recebe o foco). Padrão "Cancelar". */
+  cancelar?: string
 }
 
 /**
@@ -16,7 +18,7 @@ interface Props {
  * com foco, Esc e o botão voltar do celular (que fecha só o aviso). O botão seguro ("Cancelar") recebe o foco, para um toque sem querer não apagar.
  * Mesmo desenho do aviso de encerrar o simulado (ConfirmarSaida): `.dialogo-veu` + `.dialogo`.
  */
-export function ConfirmarAcao({ titulo, texto, confirmar, onConfirmar, onCancelar }: Props) {
+export function ConfirmarAcao({ titulo, texto, confirmar, onConfirmar, onCancelar, cancelar: rotuloCancelar = 'Cancelar' }: Props) {
   const seguro = useRef<HTMLButtonElement>(null)
   const cancelar = useRef(onCancelar); cancelar.current = onCancelar
   useBackLayer(true, onCancelar)
@@ -33,7 +35,7 @@ export function ConfirmarAcao({ titulo, texto, confirmar, onConfirmar, onCancela
         <h2 id="ca-t">{titulo}</h2>
         <p id="ca-d">{texto}</p>
         <div className="row">
-          <button ref={seguro} type="button" className="btn pri" onClick={onCancelar}>Cancelar</button>
+          <button ref={seguro} type="button" className="btn pri" onClick={onCancelar}>{rotuloCancelar}</button>
           <button type="button" className="btn warn" onClick={onConfirmar}>{confirmar}</button>
         </div>
       </div>

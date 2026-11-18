@@ -4,7 +4,7 @@ import idMap from '../data/id-map.json'
 import type { Question } from './types'
 import { pick, themeFrequency, weight } from './weights'
 import { scoreSimulado, SIMULADO_PLAN } from './scoring'
-import { filterPool, DEFAULT_FILTERS, baseDaProva, opcoesQtd, parseBackup, qtdEfetiva, recordAnswer } from './filters'
+import { filterPool, DEFAULT_FILTERS, baseDaProva, LIMITE_ERROS, opcoesQtd, rotuloErros, parseBackup, qtdEfetiva, recordAnswer } from './filters'
 import { migrarProgresso, type MapaIds } from './migracao'
 import { SOURCES } from './subjects'
 
@@ -168,5 +168,13 @@ describe('filtros adaptados à prova (Treinar)', () => {
     const banco = [q('a', 'p1'), q('b', 'p2'), q('c', 'p1')]
     expect(baseDaProva(banco, 'p1').map((x) => x.id)).toEqual(['a', 'c'])
     expect(baseDaProva(banco, '')).toHaveLength(3)
+  })
+})
+
+describe('rótulo de "Rever erros"', () => {
+  it('diz quantas questões a sessão leva quando há mais erros que o limite', () => {
+    expect(LIMITE_ERROS).toBe(20)
+    expect(rotuloErros(0)).toBe('0'); expect(rotuloErros(7)).toBe('7'); expect(rotuloErros(20)).toBe('20')
+    expect(rotuloErros(45)).toBe('20 de 45')
   })
 })

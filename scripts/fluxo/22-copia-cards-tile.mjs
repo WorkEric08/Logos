@@ -1,0 +1,15 @@
+// Mais > Cópia de segurança (sem dados, restaurar arquivo inválido) e Início > "Cards de hoje" sem baralho
+import { abrirApp, irPara, onde, texto, toast, foto } from './_base.mjs'
+const out = (...a) => console.log(...a)
+const { p, erros, fechar } = await abrirApp({}); p.setDefaultTimeout(10000)
+await irPara(p, 'Mais'); await p.waitForTimeout(500)
+const card = p.locator('.card.copia')
+out('Cópia: Salvar desabilitado sem dados?', await p.getByRole('button', { name: 'Salvar cópia' }).isDisabled())
+out('texto da cópia:', (await card.innerText()).replace(/\n/g, ' | '))
+await p.setInputFiles('#copia-arquivo', { name: 'lixo.json', mimeType: 'application/json', buffer: Buffer.from('isto não é json') })
+await p.waitForTimeout(800); out('restaurar lixo →', (await card.locator('[role=alert],[role=status]').allInnerTexts()).join(' / '))
+await p.setInputFiles('#copia-arquivo', { name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('{"v":1}') })
+await p.waitForTimeout(800); out('restaurar json estranho →', (await card.locator('[role=alert],[role=status]').allInnerTexts()).join(' / '))
+await foto(p, 'mais-copia')
+await irPara(p, 'Início'); await p.locator('.tile', { hasText: 'Cards de hoje' }).click(); await p.waitForTimeout(500); out('Cards de hoje (sem baralho) →', await onde(p))
+out('erros', erros); await fechar()

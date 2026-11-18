@@ -8,7 +8,7 @@ import { REGRAS_BB, definirRegras } from '../core/scoring'
 import { BB_EXTRA, BB_SOURCES, BB_SUBJECTS, definirMaterias } from '../core/subjects'
 import { ID_ESPACO_BB, espacoVazio, juntarQuestoes, materiasDasQuestoes, planoSimulado, type Banco, type Espaco } from '../core/espaco'
 import type { Question, Subject } from '../core/types'
-import { apagarEspaco, gravarEspacoAtivoId, lerEspaco, lerEspacoAtivoId, listarEspacos, salvarEspaco, type EspacoRow } from '../services/db'
+import { apagarEspaco, gravarEspacoAtivoId, lerEspaco, lerEspacoAtivoId, listarEspacos, removerQuestoesDoEspaco, salvarEspaco, type EspacoRow } from '../services/db'
 import { BB_BANK, BB_BASES, definirBanco, useApp } from './app'
 
 export interface ResumoEspaco { id: string; nome: string; n: number; embutido?: boolean }
@@ -58,7 +58,9 @@ interface State {
   renomear: (id: string, nome: string) => Promise<void>
   apagar: (id: string) => Promise<void>
   /** Junta questões importadas ao espaço ativo (só espaço criado pela pessoa) e o reaplica. Devolve quantas entraram e quantas já existiam. */
-  adicionar: (novas: Question[], extra?: { fontes?: Record<string, string>; bases?: Record<string, string>; bancos?: Banco[] }) => Promise<{ adicionadas: number; repetidas: number }>
+  adicionar: (novas: Question[], extra?: { fontes?: Record<string, string>; bases?: Record<string, string>; bancos?: Banco[] }) => Promise<{ adicionadas: number; repetidas: number; ids: string[]; antes: EspacoRow }>
+  /** Desfaz uma importação (C-9): tira do espaço SÓ as questões que ela trouxe (`ids`) e devolve a linha do espaço ao que era (`antes`). O resto do espaço não muda. */
+  retirar: (espacoId: string, ids: string[], antes: EspacoRow) => Promise<void>
 }
 
 const novoId = () => 'e' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36).padStart(2, '0')
@@ -136,7 +138,13 @@ export const useEspacos = create<State>((set, get) => {
       await salvarEspaco(row, novas)
       trocar(montarEspaco(row, juntas.questoes))
       set({ lista: await recarregarLista() })
-      return { adicionadas: juntas.adicionadas, repetidas: juntas.repetidas }
+      const jaTinha = new Set(d.questoes.map((q) => q.id))
+      return { adicionadas: juntas.adicionadas, repetidas: juntas.repetidas, ids: [...new Set(novas.map((q) => q.id))].filter((qid) => !jaTinha.has(qid)), antes: d.row }
+    },
+    retirar: async (espacoId, ids, antes) => {
+      await removerQuestoesDoEspaco(ids, antes)
+      if (get().ativo === espacoId) { const d = await lerEspaco(espacoId); if (d) trocar(montarEspaco(d.row, d.questoes)) }
+      set({ lista: await recarregarLista() })
     },
   }
 })

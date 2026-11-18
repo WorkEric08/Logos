@@ -67,7 +67,7 @@ const n1 = somaN(d)
 // ---- simulado entregue: 1 evento de simulado + 1 por resposta ----
 await irPara(p, 'Início'); await p.locator('.acts .act', { hasText: 'Simulado' }).click(); await p.waitForSelector('.sheet')
 for (let i = 0; i < 69; i++) { if (i < 2) await p.locator('.alt').first().click(); await p.click('.foot .pri') }
-await p.click('text=Entregar prova'); await p.waitForSelector('.scorecard'); await espera(); d = await banco()
+await p.click('text=Entregar prova'); await p.getByRole('button', { name: 'Entregar', exact: true }).click({ timeout: 2500 }).catch(() => {}); await p.waitForSelector('.scorecard'); await espera(); d = await banco()
 ok('simulado entregue = 1 evento de simulado e 2 de resposta (as respondidas)', tipos(d).s === 1 && tipos(d).r === 5 && somaN(d) === n1 + 2, `${JSON.stringify(tipos(d))}`)
 await recarrega(); d = await banco()
 ok('conferência ok depois do simulado', conferencia(d)?.ok === true && !conferencia(d)?.curou, JSON.stringify(conferencia(d)))

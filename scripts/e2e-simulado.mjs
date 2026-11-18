@@ -18,7 +18,7 @@ const voltar = () => p.evaluate(() => history.back())
 const hidden = (v) => p.evaluate((v) => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => v }); document.dispatchEvent(new Event('visibilitychange')) }, v)
 const entregar = async (n = 3) => {
   for (let i = 0; i < 69; i++) { if (i < n) await p.locator('.alt').first().click(); await p.click('.foot .pri') }
-  await p.click('text=Entregar prova'); await p.waitForSelector('.scorecard')
+  await p.click('text=Entregar prova'); await p.getByRole('button', { name: 'Entregar', exact: true }).click({ timeout: 2500 }).catch(() => {}); await p.waitForSelector('.scorecard')
 }
 
 await p.goto(base); await p.waitForSelector('.folders')
@@ -98,6 +98,21 @@ await p.click('.btn >> text=Sair'); await p.waitForSelector('.dialogo')
 const caixa = await p.evaluate(() => { const r = (s) => document.querySelector(s).getBoundingClientRect(); const d = r('.dialogo'); const bs = [...document.querySelectorAll('.dialogo .btn')].map((e) => e.getBoundingClientRect()); return { dentro: d.left >= 0 && d.right <= innerWidth && d.top >= 0 && d.bottom <= innerHeight, botoes: bs.every((x) => x.left >= 0 && x.right <= innerWidth && x.bottom <= innerHeight && x.height >= 44), lateral: document.documentElement.scrollWidth - innerWidth } })
 ok('320×568: o aviso cabe, os dois botões ≥ 44 px estão visíveis e não há rolagem lateral', caixa.dentro && caixa.botoes && caixa.lateral <= 0, JSON.stringify(caixa))
 await p.screenshot({ path: 'docs/verificacao-capturas/simulado-aviso-320-dark.png' })
+
+// ---- 10. Entregar com questões em branco pergunta antes (F-04); sem branco entrega direto
+await p.setViewportSize({ width: 1440, height: 900 })
+await p.goto(base); await p.waitForSelector('.folders'); await iniciar()
+for (let i = 0; i < 69; i++) { if (i < 2) await p.locator('.alt').first().click(); await p.click('.foot .pri') }
+await p.click('text=Entregar prova'); await p.waitForSelector('.dialogo')
+const av = p.locator('.dialogo')
+ok('entregar com 68 em branco: aviso “Entregar mesmo assim?” com a contagem', /Entregar mesmo assim/.test(await av.locator('h2').innerText()) && /68 questões em branco/.test(await av.innerText()), (await av.innerText()).slice(0, 90))
+ok('o foco inicial é “Voltar à prova” (o botão seguro)', (await p.evaluate(() => document.activeElement?.textContent)) === 'Voltar à prova')
+await p.keyboard.press('Escape'); await p.waitForTimeout(150)
+ok('Esc fecha só o aviso: continua na última questão e nada foi entregue', (await av.count()) === 0 && (await p.locator('.sheet').count()) === 1 && (await p.locator('.scorecard').count()) === 0)
+await p.click('text=Entregar prova'); await p.waitForSelector('.dialogo'); await p.getByRole('button', { name: 'Voltar à prova' }).click(); await p.waitForTimeout(150)
+ok('“Voltar à prova” fecha o aviso e mantém a prova', (await av.count()) === 0 && (await p.locator('.sheet').count()) === 1)
+await p.click('text=Entregar prova'); await p.getByRole('button', { name: 'Entregar', exact: true }).click(); await p.waitForSelector('.scorecard')
+ok('“Entregar” no aviso entrega (resultado com a nota)', (await p.locator('.scorecard').count()) === 1)
 
 ok('sem erros de script no console', erros.length === 0, erros.join(' | '))
 console.log(out.join('\n')); await b.close()

@@ -80,6 +80,66 @@ describe('cópia de segurança: ida e volta', () => {
     expect((await db.listarEspacos()).map((x) => x.nome).sort()).toEqual(['Direito', 'Outro espaço'])
     expect((await db.lerEspaco('outro'))?.questoes.map((q) => q.id)).toEqual(['q9'])
   })
+  // C-8: o estudo (progresso, histórico, baralhos, cartões) vai na cópia e volta
+  const baralho = { id: 'b1', nome: 'Siglas', criado: 1 }
+  const cartao = (id: string) => ({ id, b: 'b1', f: 'Frente ' + id, v: 'Verso ' + id, estado: 'novo' as const, criado: 2, ult: 0, due: 0, ef: 2.5, iv: 0, lapsos: 0, reps: 0 })
+  const prog = { q1: { n: 3, c: 2, ok: true as const, last: 'A' as const, t: 9 }, q2: { n: 1, c: 0, ok: false as const, last: 'B' as const, t: 5 } }
+  const hist = { dias: { '2026-11-17': { n: 10, c: 7 } }, sims: [{ t: 100, p: 55, b: 20, e: 35, c: 40, n: 70, ok: true }] }
+  const histCards = { dias: { '2026-11-16': { n: 4, c: 3 } }, sims: [] }
+  const marks = { q1: { r: true, a: 'rever o gabarito', t: 50 } }
+  async function estudar() {
+    await db.saveBaralho(baralho as never); await db.saveCartoes([cartao('c1'), cartao('c2')] as never)
+    await db.replaceAll(prog); await db.saveHist(hist); await db.saveFcHist(histCards); await db.saveMarks(marks)
+  }
+  it('C-8 ida e volta: salva com o estudo, apaga tudo, restaura e confere baralhos, cartões, progresso e histórico', async () => {
+    await popular(); await estudar()
+    const r = await cp.salvarCopia(1); if (!r.ok) throw new Error(r.erro)
+    expect(r.estudo).toEqual({ baralhos: 1, cartoes: 2, questoesVistas: 2, diasEstudados: 1, simulados: 1, marcacoes: 1 })
+    const arquivo = entregues[0].texto
+    expect(JSON.parse(arquivo).versao).toBe(2)
+    await apagarTudo()
+    expect((await db.loadCards()).cartoes).toHaveLength(0); expect(await db.loadAll()).toMatchObject({ prog: {}, hist: { dias: {}, sims: [] } })
+    const rest = await cp.restaurarCopia(arquivo)
+    if (!rest.ok) throw new Error(rest.erro)
+    expect(rest.estudo.novos).toEqual({ baralhos: 1, cartoes: 2, questoesVistas: 2, diasEstudados: 1, simulados: 1, marcacoes: 1 })
+    expect(rest.estudo).toMatchObject({ mudouProgresso: true, mudouCards: true, prog, hist })
+    const cards = await db.loadCards()
+    expect(cards.baralhos.map((b) => b.id)).toEqual(['b1']); expect(cards.cartoes.map((c) => c.id).sort()).toEqual(['c1', 'c2']); expect(cards.hist).toEqual(histCards)
+    // (o progresso e o histórico juntados são aplicados por quem chama, pela loja: aqui conferimos o que ela receberia)
+    await db.replaceAll(rest.estudo.prog); await db.saveHist(rest.estudo.hist)
+    const volta = await db.loadAll(); expect(volta.prog).toEqual(prog); expect(volta.hist).toEqual(hist)
+    expect(volta.marks).toEqual(marks) // F-17: a marcação e a anotação voltaram (o service as grava direto)
+  })
+  it('F-18: o desfazer da restauração tira baralhos, cartões, histórico dos cards e marcações que ela acrescentou (e só eles)', async () => {
+    await popular(); await estudar(); await cp.salvarCopia(1); const arquivo = entregues[0].texto
+    await apagarTudo()
+    await db.saveBaralho({ id: 'meu', nome: 'Meu baralho', criado: 1 } as never); await db.saveCartoes([cartao('meu1')].map((c) => ({ ...c, b: 'meu' })) as never) // o que a pessoa já tinha
+    const r = await cp.restaurarCopia(arquivo)
+    if (!r.ok) throw new Error(r.erro)
+    expect((await db.loadCards()).cartoes.map((c) => c.id).sort()).toEqual(['c1', 'c2', 'meu1']); expect((await db.loadAll()).marks).toEqual(marks)
+    await r.estudo.desfazer()
+    const c = await db.loadCards()
+    expect(c.baralhos.map((b) => b.id)).toEqual(['meu']); expect(c.cartoes.map((x) => x.id)).toEqual(['meu1']); expect(c.hist).toEqual({ dias: {}, sims: [] })
+    expect((await db.loadAll()).marks).toEqual({})
+  })
+  it('C-8 restaurar de novo não muda nada, e num aparelho com estudo MAIOR nada diminui', async () => {
+    await popular(); await estudar(); await cp.salvarCopia(1); const arquivo = entregues[0].texto
+    const de_novo = await cp.restaurarCopia(arquivo)
+    expect(de_novo).toMatchObject({ ok: true, estudo: { mudouProgresso: false, mudouCards: false, novos: { baralhos: 0, cartoes: 0, questoesVistas: 0, diasEstudados: 0, simulados: 0, marcacoes: 0 } } })
+    // o aparelho estudou mais depois da cópia: a restauração não diminui nada
+    await db.replaceAll({ ...prog, q1: { ...prog.q1, n: 9, c: 8 } }); await db.saveHist({ ...hist, dias: { '2026-11-17': { n: 50, c: 40 } } })
+    const r = await cp.restaurarCopia(arquivo)
+    if (!r.ok) throw new Error(r.erro)
+    expect(r.estudo.prog.q1.n).toBe(9); expect(r.estudo.hist.dias['2026-11-17']).toEqual({ n: 50, c: 40 }); expect(r.estudo.mudouProgresso).toBe(false)
+  })
+  it('C-8 cópia antiga (versão 1, sem o estudo) restaura como antes, sem mexer no estudo do aparelho', async () => {
+    await popular(); await cp.salvarCopia(1)
+    const velha = { ...JSON.parse(entregues[0].texto), versao: 1 }; delete velha.estudo
+    await estudar()
+    const r = await cp.restaurarCopia(JSON.stringify(velha))
+    expect(r).toMatchObject({ ok: true, estudo: { mudouProgresso: false, mudouCards: false } })
+    expect((await db.loadCards()).cartoes).toHaveLength(2); expect((await db.loadAll()).prog).toEqual(prog)
+  })
   it('arquivo que não é uma cópia: erro claro e nada muda', async () => {
     await popular()
     const r = await cp.restaurarCopia('{"qualquer":"coisa"}')

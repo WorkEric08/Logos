@@ -103,7 +103,7 @@ async function ctxPagina(opcoes) {
   await p.locator('.foot .btn', { hasText: 'Voltar ao resultado' }).click(); await p.waitForSelector('.cartao')
   ok('"Voltar ao resultado": a tela volta pela esquerda', (await p.locator('.page.fc-tela.recua').count()) === 1)
   await esperarFim(p)
-  await p.locator('.foot .btn', { hasText: 'Início' }).click(); await p.waitForSelector('.provas .folder')
+  await p.locator('.foot .btn', { hasText: 'Treinar' }).click(); await p.waitForSelector('.filters') // o treino começou em Treinar (F-02): o botão do pé leva de volta a ele
   await esperarFim(p)
 
   // 6. Desempenho: barras, anel, progresso

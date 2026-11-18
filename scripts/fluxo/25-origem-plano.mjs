@@ -1,0 +1,16 @@
+// F-02 extra: origem em treino do plano (assistente) e "Continuar o treino" (Treinar); resultado do treino do assistente
+import { abrirApp, irPara, onde, voltar } from './_base.mjs'
+const out = (...a) => console.log(...a)
+const { p, erros, fechar } = await abrirApp({ ctxExtra: { reducedMotion: 'reduce' } }); p.setDefaultTimeout(12000)
+await irPara(p, 'Assistente'); await p.waitForTimeout(1500)
+await p.getByRole('button', { name: 'Painel do dia e plano de estudo', exact: true }).click(); await p.waitForTimeout(1500)
+await p.getByRole('button', { name: /Montar o plano/ }).click(); await p.waitForTimeout(1800)
+await p.getByRole('button', { name: /Fazer as .* questões/ }).click(); await p.waitForSelector('.sheet')
+await p.locator('.alt:not([disabled])').first().click(); await p.locator('.foot .btn.pri').click(); await p.locator('.btn', { hasText: 'Sair' }).click(); await p.waitForTimeout(600)
+out('plano (origem Assistente) > Sair →', await onde(p))
+await irPara(p, 'Treinar'); await p.getByRole('button', { name: /Continuar o treino/ }).click(); await p.waitForSelector('.sheet')
+await p.locator('.btn', { hasText: 'Sair' }).click(); await p.waitForTimeout(600)
+out('Treinar > Continuar o treino > Sair →', await onde(p))
+await p.getByRole('button', { name: /Continuar o treino/ }).click(); await p.waitForSelector('.sheet'); await voltar(p)
+out('…voltar do aparelho →', await onde(p))
+out('erros', erros); await fechar()

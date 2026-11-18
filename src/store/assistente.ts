@@ -26,7 +26,7 @@ import { pick } from '../core/weights'
 import type { Letter } from '../core/types'
 import { anexarImagens, paragrafosDoArquivo, prepararProva, type ProvaPreparada } from '../services/importar/arquivos'
 import { consultar, type Achado } from '../services/busca/consultar'
-import { apagarMaterial, gravarConversa, gravarPlanoGuardado, lerConversa, lerEventos, lerPlanoGuardado, limparConversaSalva, listarMateriais, salvarMaterial, trechosDoMaterial } from '../services/db'
+import { apagarMaterial, gravarConversa, gravarPlanoGuardado, lerConversa, lerEventos, lerPlanoGuardado, limparConversaSalva, listarMateriais, salvarMaterial, trechosDoMaterial, type EspacoRow } from '../services/db'
 import { lerChave, lerModelo, mensagemErroIA, relerComIA } from '../services/importar/ia'
 import { recortarQuestao } from '../services/importar/recorte'
 import { BANK, TF, useApp } from './app'
@@ -177,6 +177,8 @@ const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um :
 const NAO_ENTENDI = 'Não entendi esse pedido. Tente, por exemplo: "importar prova", "criar cartões", "o que é Copom?", "montar simulado" ou "meus espaços". Ou toque numa sugestão.'
 /** O que "Desfazer" faz agora (só a última coisa; some ao fazer outra). */
 let acaoDesfazer: (() => Promise<void>) | null = null
+/** O desfazer guardado é o de uma importação de questões (some quando a pessoa começa um treino: aí as questões passam a ser estudadas). */
+let desfazDaImportacao = false
 let gravadas = 0
 /** O histórico guardado já foi lido nesta abertura do app? */
 let historicoLido = false
@@ -198,7 +200,18 @@ export const useAssistente = create<State>((set, get) => {
   const inicio = () => set({ etapa: 'inicio', sugestoes: {}, relendo: null, previa: null, cartoes: null, resultado: null, depois: null, progresso: null, ocupado: false, desambiguar: [], pendente: null })
   /** O caderno de erros de agora, do espaço ativo (refeito a cada uso: é barato e nunca fica velho). */
   const caderno = (): Caderno => cadernoDoEspaco(get().eventos, useApp.getState().prog, BANK)
-  const definirDesfazer = (rotulo: string, fn: () => Promise<void>) => { acaoDesfazer = fn; set({ desfazivel: rotulo }) }
+  const definirDesfazer = (rotulo: string, fn: () => Promise<void>, daImportacao = false) => { acaoDesfazer = fn; desfazDaImportacao = daImportacao; set({ desfazivel: rotulo }) }
+  /** "Desfazer" de uma importação de questões (prova ou geradas): tira SÓ o que aquela ação trouxe. Só vale enquanto fizer sentido: no mesmo espaço e enquanto nenhuma dessas questões foi estudada. */
+  const desfazerImportacao = (espacoId: string, r: { adicionadas: number; ids: string[]; antes: EspacoRow }, rotulo: string) => {
+    if (!r.adicionadas) { acaoDesfazer = null; desfazDaImportacao = false; set({ desfazivel: null }); return } // nada entrou (já estavam): não há o que desfazer
+    definirDesfazer(rotulo, async () => {
+      if (useEspacos.getState().ativo !== espacoId) throw new Error('você já trocou de espaço. Para tirar essas questões, entre no espaço de novo.')
+      const prog = useApp.getState().prog
+      if (r.ids.some((id) => (prog[id]?.n ?? 0) > 0)) throw new Error('você já respondeu algumas dessas questões e o progresso ficaria sem elas. Para tirá-las, apague o espaço em "Meus espaços".')
+      await useEspacos.getState().retirar(espacoId, r.ids, r.antes)
+    }, true)
+  }
+  /** O "desfazer" vale só para a ÚLTIMA coisa: quando o espaço ganha questões (importar, gerar) o de "criar o espaço" deixa de valer (senão um toque apagava as questões e o estudo). */
 
   /** O que o assistente sabe do espaço ativo e da conversa: a base para entender "de matemática", "bb 2021", "essa prova". */
   const contexto = (): Contexto => {
@@ -270,7 +283,7 @@ export const useAssistente = create<State>((set, get) => {
   /** "Me lembre às 20h" / "desligar o lembrete": liga, muda a hora ou desliga o lembrete diário (a permissão de notificação é pedida aqui, na 1ª vez que liga). */
   const aplicarLembrete = async (p: Pedido) => {
     const L = useLembrete.getState()
-    if (!L.disponivel) { diz('O lembrete diário só funciona no aplicativo do Android: o navegador não consegue avisar com o app fechado. No aplicativo é só pedir de novo, por exemplo "me lembre às 20h".'); return }
+    if (!L.disponivel) { diz(SEM_LEMBRETE); return }
     try {
       if (p.desligar) {
         if (!L.config.ativo) { diz('O lembrete diário já está desligado.'); return }
@@ -285,6 +298,7 @@ export const useAssistente = create<State>((set, get) => {
     } catch { dizErro('Não consegui mexer no lembrete agora. Tente de novo mais tarde.') }
   }
 
+  const SEM_LEMBRETE = 'O lembrete diário só funciona no aplicativo do Android: o navegador não consegue avisar com o app fechado. No aplicativo é só pedir de novo, por exemplo "me lembre às 20h".'
   /** Monta e começa o simulado/treino pedido (tudo o que faltava já foi respondido). */
   const executarPedido = (p: Pedido) => {
     const { prog, startSimulado, startCustom } = useApp.getState()
@@ -372,7 +386,10 @@ export const useAssistente = create<State>((set, get) => {
   const mostrarAjuda = () => diz(['Eu sei fazer isto, tudo aqui no seu aparelho:', ...ACOES.map((a) => `• ${a.rotulo}: ${a.resumo}`), 'Toque numa sugestão ou escreva o que quer (por exemplo: "importar prova").'].join('\n'))
 
   const executar = (id: IdAcao, e: Entidades = {}, texto = '') => {
-    if (id === 'lembrete') { avancar(pedidoDe('lembrete', e)); return }
+    if (id === 'lembrete') {
+      if (!useLembrete.getState().disponivel) { diz(SEM_LEMBRETE); return } // no navegador diz já na 1ª resposta, sem perguntar um horário que não vai valer
+      avancar(pedidoDe('lembrete', e)); return
+    }
     if (id === 'plano') {
       // sem o tempo: mostra o dia e pergunta quanto tempo a pessoa tem; com o tempo: monta o plano. Se já há um plano em andamento, o painel mostra ONDE ELE ESTÁ (continuar ou outro tempo)
       const ativo = planoDeHoje(), st = ativo ? statusAgora() : null
@@ -440,6 +457,8 @@ export const useAssistente = create<State>((set, get) => {
     else inicio()
   }
 
+  // começar um treino ou simulado encerra o "Desfazer" de uma importação: as questões passam a ser estudadas
+  useApp.subscribe((s, p) => { if (!p.session && s.session && desfazDaImportacao) { acaoDesfazer = null; desfazDaImportacao = false; set({ desfazivel: null }) } })
   // a pessoa saiu do treino do plano (terminou ou saiu no meio): se sobrou questão, o treino fica salvo, no mínimo, pelo tempo que elas levam; e deixa de estar "dentro"
   useApp.subscribe((s, p) => {
     if (!(p.session && !s.session) || !get().sessaoDoPlano) return
@@ -534,6 +553,7 @@ export const useAssistente = create<State>((set, get) => {
         const m = g.geracao.meta
         voce(`Adicionar ${plural(lista.length, 'questão', 'questões')}`)
         const r = await useEspacos.getState().adicionar(lista, { fontes: { [m.chave]: m.rotulo }, bancos: [{ id: m.bancoId, nome: m.bancoNome }] })
+        desfazerImportacao(espacoAtivo(), r, 'adicionar as questões geradas')
         const texto = `${plural(r.adicionadas, 'questão entrou', 'questões entraram')} em "${m.rotulo.split(' · ')[0]}"${r.repetidas ? ` (${plural(r.repetidas, 'já estava', 'já estavam')}: não duplicou)` : ''}`
         dizOk(`${texto}. Treine na aba Treinar: elas aparecem como uma prova própria e pesam metade das de prova real no sorteio.`)
         set({ ocupado: false, geradas: null, ultimaProva: { chave: m.chave, rotulo: m.rotulo }, resultado: { texto, treinar: true, n: r.adicionadas } })
@@ -647,7 +667,9 @@ export const useAssistente = create<State>((set, get) => {
         const depois = get().depois
         const antes = espacoAtivo()
         const id = await useEspacos.getState().criar(nome, usaBB)
-        definirDesfazer(`criar o espaço "${nome.trim() || 'Meu espaço'}"`, async () => { await useEspacos.getState().apagar(id); if (antes !== 'bb') await useEspacos.getState().ativar(antes) })
+        definirDesfazer(`criar o espaço "${nome.trim() || 'Meu espaço'}"`, async () => {
+          if (useEspacos.getState().ativo !== id) throw new Error('você já trocou de espaço. Para apagar este, use "Meus espaços".') // só desfaz enquanto é o espaço de agora
+          await useEspacos.getState().apagar(id); if (antes !== 'bb') await useEspacos.getState().ativar(antes) })
         voce(`Criar o espaço "${nome.trim() || 'Meu espaço'}"${usaBB ? ' com as questões do BB' : ''}`)
         dizOk('Espaço criado e ativo.')
         set({ ocupado: false }); continuarDepoisDoEspaco(depois)
@@ -690,6 +712,7 @@ export const useAssistente = create<State>((set, get) => {
         const espaco = useEspacos.getState().ativo
         const comImg = await anexarImagens(p.prep, mont.questoes, espaco, p.imagens, progresso)
         const r = await useEspacos.getState().adicionar(comImg.questoes, { fontes: { [meta.chave]: meta.rotulo }, bases: mont.bases, bancos: [{ id: meta.bancoId, nome: meta.bancoNome }] })
+        desfazerImportacao(espaco, r, 'importar a prova')
         const partes = [`${plural(r.adicionadas, 'questão entrou', 'questões entraram')} em "${meta.rotulo}"`]
         if (r.repetidas) partes.push(`${plural(r.repetidas, 'já estava', 'já estavam')} (não duplicou)`)
         if (mont.ignoradas.length) partes.push(`${plural(mont.ignoradas.length, 'ficou de fora', 'ficaram de fora')}: ${mont.ignoradas.slice(0, 6).map((x) => `Q${x.numero} (${x.motivo})`).join(', ')}${mont.ignoradas.length > 6 ? '…' : ''}`)

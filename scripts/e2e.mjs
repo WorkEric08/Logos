@@ -11,13 +11,13 @@ await p.goto(base); await p.waitForSelector('.stats')
 ok('abre com 1168', (await p.textContent('.stats')).includes('1168'))
 // voltar: abrir treino -> voltar fecha sessão
 await irPara(p, 'Treinar'); await p.click('text=Começar'); await p.waitForSelector('.sheet')
-await p.goBack(); await p.waitForSelector('.stats')
+await p.goBack(); await p.waitForSelector('text=nos filtros'); await p.goBack(); await p.waitForSelector('.stats') // o treino começou em Treinar (F-02): o 1º voltar volta ao Treinar, o 2º ao Início
 ok('voltar fecha a sessão', true)
 // rodapé da questão: o "Anterior" desativado (1ª questão) é SÓLIDO como o "Próxima": sem opacidade, sem transparência
 await irPara(p, 'Treinar'); await p.click('text=Começar'); await p.waitForSelector('.sheet')
 const ant = await p.locator('.foot .btn >> text=Anterior').evaluate((e) => { const c = getComputedStyle(e); return { dis: e.disabled, op: c.opacity, bg: c.backgroundColor } })
 ok('"Anterior" desativado é sólido (opacidade 1, fundo opaco)', ant.dis && ant.op === '1' && !/rgba\(.*,\s*0(\.\d+)?\)$/.test(ant.bg), JSON.stringify(ant))
-await p.goBack(); await p.waitForSelector('.stats')
+await p.goBack(); await p.waitForSelector('text=nos filtros'); await p.goBack(); await p.waitForSelector('.stats') // o treino começou em Treinar (F-02): o 1º voltar volta ao Treinar, o 2º ao Início
 // aba -> voltar vai ao início
 await irPara(p, 'Treinar'); await p.waitForSelector('text=nos filtros')
 await p.goBack(); await p.waitForSelector('.stats')
@@ -35,7 +35,7 @@ ok('progresso persiste (IndexedDB)', !(await p.textContent('.stats')).startsWith
 // simulado
 await p.click('text=Simulado de 70'); await p.waitForSelector('.sheet')
 for (let i = 0; i < 69; i++) { await p.click('.alt >> nth=1'); await p.click('.foot .pri') }
-await p.click('.alt >> nth=1'); await p.click('text=Entregar prova'); await p.waitForSelector('.score')
+await p.click('.alt >> nth=1'); await p.click('text=Entregar prova'); await p.getByRole('button', { name: 'Entregar', exact: true }).click({ timeout: 2500 }).catch(() => {}); await p.waitForSelector('.score')
 ok('simulado entrega com 70 células', (await p.locator('.cell').count()) === 70)
 await p.click('.cell >> nth=3'); await p.waitForSelector('.fb'); ok('revisão mostra gabarito', true)
 // zerar + desfazer

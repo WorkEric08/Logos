@@ -290,6 +290,9 @@ export const apagarEspaco = (id: string) =>
     await db.trechos.where('e').equals(id).delete(); await db.materiais.where('e').equals(id).delete()
     await db.espacos.delete(id); versaoMat++
   })
+/** Desfazer uma importação: tira SÓ as questões (e as imagens delas) que aquela importação trouxe e devolve o espaço ao que era (fontes, bancos, matérias). O resto do espaço fica. */
+export const removerQuestoesDoEspaco = (ids: string[], rowAntes: EspacoRow) =>
+  db.transaction('rw', db.espacos, db.questoes, db.imagens, async () => { await db.questoes.bulkDelete(ids); await db.imagens.bulkDelete(ids); await db.espacos.put(rowAntes) })
 export const gravarImagem = (id: string, e: string, blob: Blob) => db.imagens.put({ id, e, blob })
 
 // ---------- cópia de segurança do que só existe neste aparelho (core/copia.ts) ----------
@@ -309,6 +312,11 @@ export const acrescentarConteudoDoAparelho = (c: ConteudoDoAparelho) =>
     await db.espacos.bulkPut(c.espacos); await db.questoes.bulkPut(c.questoes); await db.imagens.bulkPut(c.imagens)
     await db.materiais.bulkPut(c.materiais); await db.trechos.bulkPut(c.trechos); versaoMat++
   })
+/** Restaurar uma cópia: ACRESCENTA baralhos e cartões que faltam (nunca troca nem apaga os que existem), com o carimbo da sincronização na mesma transação. */
+export const acrescentarCartoes = (baralhos: Baralho[], cartoes: Cartao[]) => avisa(db.transaction('rw', db.decks, db.cards, db.sinc, async () => {
+  await db.decks.bulkPut(baralhos); await db.cards.bulkPut(cartoes)
+  await marcar([...baralhos.map((b) => chaveBaralho(b.id)), ...cartoes.map((c) => chaveCartao(c.id))])
+}))
 const CHAVE_ULTIMA_COPIA = 'copia:ultima'
 export const lerUltimaCopia = async (): Promise<number | null> => { const v = Number((await db.meta.get(CHAVE_ULTIMA_COPIA))?.value); return Number.isFinite(v) && v > 0 ? v : null }
 export const gravarUltimaCopia = (em: number) => db.meta.put({ key: CHAVE_ULTIMA_COPIA, value: String(em) })

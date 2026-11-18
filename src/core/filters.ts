@@ -56,3 +56,8 @@ export const opcoesQtd = (total: number): number[] => [...QTD_PADRAO.filter((v) 
 export const qtdEfetiva = (qtd: number, total: number): number => (qtd === 0 || qtd >= total ? 0 : qtd)
 /** Questões de uma prova (ou do banco todo, com `prova` vazio): a base de onde os filtros do Treinar tiram suas contagens. */
 export const baseDaProva = (bank: Question[], prova: string): Question[] => (prova ? bank.filter((q) => q.s === prova) : bank)
+
+/** "Rever erros" começa uma sessão com no máximo 20 questões erradas. */
+export const LIMITE_ERROS = 20
+/** O texto do número nos botões "Rever erros": com mais erros que o limite diz quantas questões a sessão leva ("20 de 45"). */
+export const rotuloErros = (n: number): string => (n > LIMITE_ERROS ? `${LIMITE_ERROS} de ${n}` : String(n))

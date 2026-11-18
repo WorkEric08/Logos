@@ -7,13 +7,14 @@ import { versoComMaterial } from '../core/cartoes/material'
 import { REGRAS, scoreSimulado } from '../core/scoring'
 import { useUrlImagem } from './useUrlImagem'
 import { formatarDuracao } from '../core/cronometro'
-import { BASES, BY_ID, useApp } from '../store/app'
+import { BASES, BY_ID, destinoDaSessao, useApp } from '../store/app'
 import { useCards } from '../store/cards'
 import type { Question } from '../core/types'
 import { Aside, Hr, Icon, Top, useWide } from './bits'
 import { ehNativo } from '../services/native'
 import { useBackLayer } from './useBackLayer'
 import { aoTocarNoResumo, revelar } from './revelar'
+import { ConfirmarAcao } from './ConfirmarAcao'
 
 const ZOOMS = [1, 1.5, 2, 3]
 /** Imagem em tela cheia, com zoom por botões e rolagem (no APK, onde "abrir em outra aba" não existe). Voltar fecha só ela. */
@@ -108,6 +109,7 @@ export function Questao() {
   const { answer, go, finish, backToResult, sair, toggleMark, setNote, flushMarks } = useApp.getState()
   const q = BY_ID[s.ids[s.i]], n = s.ids.length, a = s.ans[q.id]
   const reveal = !s.sim || s.done || s.review
+  const emBranco = s.sim && s.done && !a // simulado entregue: questão que ficou sem resposta só mostra o gabarito (a nota já fechou; responder agora não vale)
   const wide = useWide()
   // a questão seguinte entra pela direita e a anterior pela esquerda (o pé com Anterior/Próxima não se mexe); decidido em estado para não cortar a animação num re-render
   const [mq, setMq] = useState<{ i: number; dir: 'avanca' | 'recua' | null }>({ i: s.i, dir: null })
@@ -119,6 +121,10 @@ export function Questao() {
   const seen = prog[q.id]?.n ?? 0
   const hasBp = !!q.bp && q.bp !== q.p
   // o quadro "Certo/Errou" aparece embaixo ao responder: a câmera desce para mostrá-lo inteiro (só por causa do toque; ao abrir uma questão já respondida a tela não rola)
+  // "Entregar prova" com questões em branco pergunta antes (entregue é entregue: não dá para responder nem desfazer)
+  const [entregando, setEntregando] = useState(false)
+  const emBrancoNaProva = s.ids.filter((id) => !s.ans[id]).length
+  const entregar = () => { if (s.sim && emBrancoNaProva > 0) setEntregando(true); else finish() }
   const refResultado = useRef<HTMLDivElement>(null), acabouDeResponder = useRef(false)
   useEffect(() => { if (a && acabouDeResponder.current) { acabouDeResponder.current = false; revelar(refResultado.current) } }, [a])
   return (
@@ -150,9 +156,9 @@ export function Questao() {
             {!soImg && <p className="enun">{q.e}</p>}
             <ul className={`alts${soImg ? ' letras' : ''}`}>
               {(Object.entries(q.o) as [keyof typeof q.o, string][]).map(([l, t]) => {
-                const cls = reveal && a ? (l === q.g ? 'ok' : l === a ? 'err' : 'dim') : ''
+                const cls = reveal && a ? (l === q.g ? 'ok' : l === a ? 'err' : 'dim') : emBranco ? (l === q.g ? 'ok' : 'dim') : ''
                 return (
-                  <li key={l}><button className={`alt ${cls}`} aria-pressed={a === l} disabled={reveal && !!a} onClick={() => { acabouDeResponder.current = true; answer(l) }}>
+                  <li key={l}><button className={`alt ${cls}`} aria-pressed={a === l} disabled={(reveal && !!a) || emBranco} onClick={() => { acabouDeResponder.current = true; answer(l) }}>
                     <span className="bub">{l}</span>{soImg ? <span className="sr-only">Alternativa {l}</span> : <span className="tx">{t}</span>}
                     {cls === 'ok' && <><span className="mk"><Icon n="check" size={22} /></span><span className="sr-only">Alternativa correta</span></>}
                     {cls === 'err' && <><span className="mk"><Icon n="x" size={22} /></span><span className="sr-only">Sua resposta, errada</span></>}
@@ -165,6 +171,12 @@ export function Questao() {
                 <b className="v">{a === q.g ? 'Certo.' : 'Errou.'} Gabarito: {q.g}</b>
                 <p>{q.a ? `Assunto: ${q.a}` : `Tema: ${q.t}`}{seen > 1 ? ` · você já viu ${seen}×` : ''}</p>
                 {q.ger && q.fonte && <p className="note">Questão gerada do seu material. Do trecho: “{q.fonte}”</p>}
+              </div>
+            )}
+            {emBranco && (
+              <div className="fb err" role="status">
+                <b className="v">Em branco. Gabarito: {q.g}</b>
+                <p>{q.a ? `Assunto: ${q.a}` : `Tema: ${q.t}`} · você não respondeu esta questão na prova</p>
               </div>
             )}
             {reveal && a && <button className="btn small-btn criarcard" onClick={() => criarCartao(q, soImg, mk?.a)}><Icon n="cards" size={18} />Criar flashcard desta questão</button>}
@@ -192,10 +204,12 @@ export function Questao() {
         )}
         <div className="foot sticky">
         <button className="btn" onClick={() => go(-1)} disabled={!s.i}>Anterior</button>
+        {s.review && s.i < n - 1 && <button className="btn" onClick={backToResult}>Resultado</button>}{/* revendo pelo cartão-resposta: o caminho de volta está em toda questão, não só na última */}
         {s.i < n - 1 ? <button className="btn pri" onClick={() => go(1)}>{!s.sim && !a ? 'Pular' : 'Próxima'}</button>
           : s.review ? <button className="btn pri" onClick={backToResult}>Voltar ao resultado</button>
-          : <button className="btn pri" onClick={finish}>{s.sim ? 'Entregar prova' : 'Ver resultado'}</button>}
+          : <button className="btn pri" onClick={entregar}>{s.sim ? 'Entregar prova' : 'Ver resultado'}</button>}
         </div>
+        {entregando && <ConfirmarAcao titulo="Entregar mesmo assim?" texto={`Você deixou ${emBrancoNaProva === 1 ? '1 questão' : `${emBrancoNaProva} questões`} em branco. Depois de entregue, não dá para responder nem desfazer.`} confirmar="Entregar" cancelar="Voltar à prova" onCancelar={() => setEntregando(false)} onConfirmar={() => { setEntregando(false); finish() }} />}
       </div>
     </>
   )
@@ -203,10 +217,12 @@ export function Questao() {
 
 export function Resultado() {
   const s = useApp((st) => st.session)!
-  const { jump, leave, startSimulado, startByWeight } = useApp.getState()
+  const { jump, leave, maisDoMesmo } = useApp.getState()
   const L = s.ids.map((id) => BY_ID[id])
   const r = scoreSimulado(L, s.ans)
   const ok = L.filter((q) => s.ans[q.id] === q.g).length
+  // o "mais" repete o MESMO tipo de sessão (mesmos filtros, por peso, erros ou o simulado do espaço); o que o assistente montou não tem "mais"
+  const rotuloMais = s.sim ? (s.edital ? 'Novo simulado' : null) : s.origem === 'filtros' ? 'Mais como este' : s.origem === 'peso' ? 'Mais 10 por peso' : s.origem === 'erros' ? 'Mais erros' : null
   return (
     <>
       <div className="split">
@@ -248,8 +264,8 @@ export function Resultado() {
             {ALL_SUBJECTS.filter((m) => r.bySubject[m.n]).map((m) => <tr key={m.n}><td>{m.s}</td><td className="n">{r.bySubject[m.n].c}/{r.bySubject[m.n].n}</td></tr>)}
           </tbody></table></div>
         </Aside>
-        <div className="foot sticky"><button className="btn" onClick={leave}>Início</button>
-        <button className="btn pri" onClick={s.sim ? startSimulado : startByWeight}>{s.sim ? 'Novo simulado' : 'Mais 10 por peso'}</button></div>
+        <div className="foot sticky"><button className="btn" onClick={leave}>{{ inicio: 'Início', treinar: 'Treinar', assistente: 'Assistente' }[destinoDaSessao(s)]}</button>
+        {rotuloMais && <button className="btn pri" onClick={maisDoMesmo}>{rotuloMais}</button>}</div>
       </div>
     </>
   )

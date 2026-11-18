@@ -36,11 +36,20 @@ describe('espaços de estudo', () => {
     await esp.useEspacos.getState().criar('Direito', false)
     const novas = [q('u1', 'Direito Penal'), q('u2', 'Direito Penal', 'dir-2024', 2), q('u3', 'Civil', 'dir-2024', 3)]
     const r1 = await esp.useEspacos.getState().adicionar(novas, { fontes: { 'dir-2024': 'Direito 2024' }, bancos: [{ id: 'dir', nome: 'Direito' }] })
-    expect(r1).toEqual({ adicionadas: 3, repetidas: 0 })
+    expect(r1).toMatchObject({ adicionadas: 3, repetidas: 0, ids: ['u1', 'u2', 'u3'] })
     expect(app.BANK).toHaveLength(3); expect(subj.ALL_SUBJECTS.map((m) => m.n).sort()).toEqual(['Civil', 'Direito Penal']); expect(subj.SOURCES['dir-2024']).toBe('Direito 2024')
     expect(sc.SIMULADO_PLAN.reduce((a, [, n]) => a + n, 0)).toBe(3)
-    expect(await esp.useEspacos.getState().adicionar(novas)).toEqual({ adicionadas: 0, repetidas: 3 })
+    expect(await esp.useEspacos.getState().adicionar(novas)).toMatchObject({ adicionadas: 0, repetidas: 3, ids: [] })
     expect(app.BANK).toHaveLength(3)
+  })
+  it('C-9 retirar: tira SÓ as questões da importação e devolve o espaço ao que era; as que já existiam ficam', async () => {
+    await esp.useEspacos.getState().criar('Direito', false)
+    await esp.useEspacos.getState().adicionar([q('u1', 'Direito Penal')], { fontes: { 'dir-2023': 'Direito 2023' }, bancos: [{ id: 'dir', nome: 'Direito' }] })
+    const r = await esp.useEspacos.getState().adicionar([q('u1', 'Direito Penal'), q('u2', 'Civil', 'dir-2025', 2)], { fontes: { 'dir-2025': 'Direito 2025' } })
+    expect(r.ids).toEqual(['u2']); expect(app.BANK.map((x) => x.id).sort()).toEqual(['u1', 'u2'])
+    await esp.useEspacos.getState().retirar(esp.useEspacos.getState().ativo, r.ids, r.antes)
+    expect(app.BANK.map((x) => x.id)).toEqual(['u1']); expect(subj.SOURCES['dir-2025']).toBeUndefined(); expect(subj.SOURCES['dir-2023']).toBe('Direito 2023')
+    expect(esp.useEspacos.getState().lista.find((x) => x.id === esp.useEspacos.getState().ativo)?.n).toBe(1)
   })
 
   it('trocar de espaço restaura o outro por inteiro; o progresso das questões não é tocado', async () => {
