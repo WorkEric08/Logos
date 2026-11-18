@@ -1,7 +1,7 @@
 // O lembrete diário (estado da tela e orquestração). A decisão de quais avisos existem é core/lembrete.ts; o Android é a `PortaNotificacoes`
 // (services/native/notificacoes.ts), injetada para o teste usar uma de mentira. No navegador não há porta: `disponivel` é falso e nada é agendado.
 import { create } from 'zustand'
-import { LEMBRETE_PADRAO, avisoDeTeste, lerConfig, planejarLembretes, proximoAviso, somarMinutos, type Aviso, type ConfigLembrete, type EstadoDoDia } from '../core/lembrete'
+import { LEMBRETE_PADRAO, alternarPeriodo, avisoDeTeste, lerConfig, planejarLembretes, proximoAviso, somarMinutos, type Aviso, type ConfigLembrete, type EstadoDoDia, type IdPeriodo } from '../core/lembrete'
 import { gravarLembreteGuardado, lerLembreteGuardado } from '../services/db'
 import { portaDeNotificacoes, type Permissao, type PortaNotificacoes } from '../services/native/notificacoes'
 import { useAssistente } from './assistente'
@@ -24,6 +24,12 @@ interface State {
   desligar: () => Promise<void>
   definirHora: (hora: number, minuto: number) => Promise<void>
   somarMinutos: (delta: number) => Promise<void>
+  /** Muda o horário SÓ na tela (para o botão apertado e segurado andar de 15 em 15 minutos sem reagendar a cada passo). Termina em `confirmarHora`. */
+  ajustarHora: (delta: number) => void
+  /** Guarda o horário que a tela mostra e refaz a lista de avisos (uma vez). */
+  confirmarHora: () => Promise<void>
+  /** Marca ou desmarca um período (manhã, tarde, noite, madrugada) que avisa de cartões para revisar. */
+  alternarPeriodo: (id: IdPeriodo) => Promise<void>
   testar: () => Promise<void>
   /** Refaz a lista de avisos (chamado ao abrir, ao voltar ao app e quando a pessoa estuda). Uma por vez. */
   replanejar: () => Promise<void>
@@ -80,6 +86,9 @@ export function criarLoja(porta: PortaNotificacoes | null = portaDeNotificacoes(
       desligar: async () => { await gravar({ ...get().config, ativo: false }); set({ nota: null }); await replanejar() },
       definirHora: async (hora, minuto) => { await gravar({ ...get().config, hora, minuto }); await replanejar() },
       somarMinutos: async (delta) => { await gravar(somarMinutos(get().config, delta)); await replanejar() },
+      ajustarHora: (delta) => set({ config: somarMinutos(get().config, delta) }),
+      confirmarHora: async () => { await gravar(get().config); await replanejar() },
+      alternarPeriodo: async (id) => { await gravar(alternarPeriodo(get().config, id)); await replanejar() },
       testar: async () => {
         if (!porta || get().ocupado) return
         set({ ocupado: true, nota: null })

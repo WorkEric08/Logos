@@ -8,7 +8,7 @@ import { chaveBaralho, chaveCartao, chaveMarca, CHAVE_AJUSTES, CHAVE_HIST_CARDS,
 import { derivar, tempoDe, type EvBase, type EvResposta, type EvSimulado, type EvZerar, type Evento } from '../core/sync/eventos'
 
 /** Uma fala da conversa do assistente como fica guardada (para o histórico voltar na próxima abertura do app). */
-export interface MensagemSalva { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok' | 'painel'; achados?: unknown[] }
+export interface MensagemSalva { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok' | 'painel' | 'plano'; achados?: unknown[] }
 
 /** Espaço de estudo criado pela pessoa (as questões ficam na tabela `questoes`, ligadas por `e`). */
 export interface EspacoRow { id: string; nome: string; criado: number; fontes: Record<string, string>; bases: Record<string, string>; materias: Subject[]; extras: Subject[]; bancos: Banco[]; simulado: RegrasSimulado | null
@@ -89,6 +89,9 @@ export async function replaceAll(prog: ProgressMap) {
 export const saveTema = (value: string) => db.meta.put({ key: 'tema', value })
 /** Lembrete diário: fica só neste aparelho (a permissão e o alarme também são do aparelho), na tabela meta: o esquema do banco não muda. */
 export const lerLembreteGuardado = () => lerJson('lembrete')
+/** O plano de estudo em andamento (assistente): fica só neste aparelho, na tabela meta: o esquema do banco não muda. */
+export const lerPlanoGuardado = () => lerJson('plano:ativo')
+export const gravarPlanoGuardado = (p: unknown) => db.meta.put({ key: 'plano:ativo', value: JSON.stringify(p) })
 export const gravarLembreteGuardado = (c: unknown) => db.meta.put({ key: 'lembrete', value: JSON.stringify(c) })
 export const saveHist = (h: Hist) => db.meta.put({ key: 'hist', value: JSON.stringify(h) })
 /** Marcações: grava e carimba só o que mudou (uma chave por questão), para a sincronização enviar só isso. */

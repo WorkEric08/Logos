@@ -72,7 +72,9 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .scroll-y{position:relative;flex:1;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:none;scrollbar-width:none;background:var(--bg); /* x oculto: a tela que desliza (translateX) não gera rolagem lateral no meio da animação */
   padding-left:max(16px,var(--sal));padding-right:max(16px,var(--sar))}
 /* Teclado aberto: um espaçador no FIM do conteúdo (não padding do .scroll-y: o position:sticky respeita o padding do contêiner e subiria os botões do pé para cima do teclado). */
-.scroll-y::after{content:"";display:block;height:var(--teclado,0px)}
+.scroll-y::after{content:"";display:block;height:0}
+/* O espaçador só existe com um campo de texto em foco (2026-11-17): se o valor de --teclado ficar velho (o Android não avisou que o teclado fechou), a tela não ganha um vazio rolável no fim. */
+:root:has(input:focus,textarea:focus,select:focus,[contenteditable]:focus) .scroll-y::after{height:var(--teclado,0px)}
 .scroll-y::-webkit-scrollbar{display:none}
 .page{max-width:760px;margin:0 auto;padding:20px 0 28px}
 .icon{flex:none;display:block}
@@ -344,6 +346,7 @@ figure.pg{margin:12px 0 0}
 /* ───────── Aviso ───────── */
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + var(--sab) + 14px);background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:5px;font-size:14px;z-index:60;width:max-content;max-width:calc(100vw - 16px);white-space:nowrap;display:flex;gap:16px;align-items:center;animation:tin 380ms var(--ease-out);box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
 .toast button{border:0;background:none;color:var(--toast-act);font-weight:700;min-height:36px;padding:0 6px}
+.toast.longo{white-space:normal;text-align:center;width:min(calc(100vw - 32px),360px);line-height:1.4;justify-content:center}
 @keyframes tin{from{opacity:0;transform:translate(-50%,12px)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
@@ -750,7 +753,7 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 @media (prefers-reduced-motion:reduce){.rail-itens[data-reordenando] .rail-item:not([data-arrastando]){transition:none}}
 
 /* ───────── Aviso “encerrar o simulado?” (ConfirmarSaida.tsx) ───────── */
-.dialogo-veu{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;padding:calc(var(--sat) + 16px) 16px calc(var(--sab) + 16px);background:rgba(0,0,0,.6);overscroll-behavior:none}
+.dialogo-veu{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;padding:calc(var(--sat) + 16px) 16px calc(var(--sab) + 16px);background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);overscroll-behavior:none} /* desfoque como o da barra de navegação aberta (.rail-veu) */
 .dialogo{width:100%;max-width:420px;max-height:100%;overflow:auto;padding:20px}
 .dialogo h2{margin:0 0 8px;font:600 20px/1.25 var(--f-ui)}
 .dialogo p{margin:0 0 16px;color:var(--muted);font-size:14.5px;line-height:1.5}
@@ -871,7 +874,6 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .as-sug-alts{list-style:none;margin:6px 0;padding:0;font-size:13.5px;display:grid;gap:3px}
 .as-esp{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .as-esp-i{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.as-conf{display:inline-flex;gap:6px}
 
 /* ───────── Movimento do chat (entrada → conversa → saída) ─────────
    Só transform e opacity. "Reduzir movimento": nada anima nem espera (regra global acima) e os efeitos que repetem (brilho) são desligados aqui. */
@@ -902,15 +904,23 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .as-sug-lista.saindo .as-pilula.escolhida{animation:as-voa .17s var(--ease-out) forwards}
 /* A caixa de mensagem (como nos apps de mensagem): presa no pé da tela e, com o teclado aberto, logo acima dele (--teclado é a altura dele; o espaço que
    ele cobre vem do espaçador no fim do .scroll-y). O campo cresce com o texto (a altura vem do JS) e o botão de enviar, só ícone, fica fixo à direita na base. */
-.as-composer{position:sticky;bottom:var(--teclado,0px);z-index:2;display:flex;gap:8px;align-items:flex-end;margin-top:auto;padding:8px 0 10px;background:var(--bg);animation:fc-entra .26s var(--ease-out) backwards}
+.as-composer{position:sticky;bottom:var(--teclado,0px);z-index:2;display:flex;gap:8px;align-items:flex-end;margin-top:auto;padding:8px 0 10px;background:var(--bg);animation:fc-entra .26s var(--ease-out) backwards;transition:bottom .25s var(--ease-out)} /* a caixa ACOMPANHA o teclado: sobe e desce deslizando, não de um salto (o Android avisa a altura de uma vez; a transição suaviza; "reduzir movimento" desliga na regra global) */
 .as-composer .campo{flex:1;min-width:0;min-height:48px;max-height:144px;resize:none;overflow-y:auto;border-radius:24px;padding:11px 18px;line-height:23px;background:var(--card);border-color:var(--line-strong)}
-.as-composer .as-enviar{flex:none;width:48px;height:48px;min-height:48px;padding:0;border-radius:50%;background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.as-composer .as-enviar[disabled]{background:var(--hi);color:var(--muted);border-color:var(--hi)}
-@media (hover:hover){.as-composer .as-enviar:not([disabled]):hover{opacity:.88}}
+/* Uma linha só, sempre cinza (2026-11-17): em foco não há contorno laranja nem segunda linha por fora; a borda continua a mesma cinza. */
+.as-composer .campo:focus,.as-composer .campo:focus-visible{outline:none;box-shadow:none;border-color:var(--line-strong)}
+/* Enviar: só o ÍCONE do avião de papel é laranja; o botão em si não tem fundo nem borda (o alvo de toque segue 48 px). Sem texto, apagado enquanto não há o que enviar. */
+.as-composer .as-enviar{flex:none;width:48px;height:48px;min-height:48px;padding:0;border-radius:50%;background:transparent;color:var(--accent);border-color:transparent;transition:color .15s,transform .12s}
+.as-composer .as-enviar[disabled]{background:transparent;color:var(--muted);border-color:transparent;opacity:.55}
+.as-composer .as-enviar:not([disabled]):active{transform:scale(.9)}
+.as-composer .as-enviar:focus-visible{outline:none}
+@media (hover:hover){.as-composer .as-enviar:not([disabled]):hover{background:transparent;opacity:.8}}
 /* Lembrete diário (em "Mais"): o horário com os botões de 15 em 15 minutos e atalhos para os horários comuns */
 .lemb-hora{display:flex;align-items:center;gap:10px}
-.lemb-hora .btn{flex:none;width:56px;font-size:24px;line-height:1;padding:0}
+.lemb-hora .btn{flex:none;width:56px;font-size:24px;line-height:1;padding:0;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none} /* apertar e segurar repete o passo: sem seleção de texto nem menu de toque longo */
 .lemb-rel{flex:1;min-width:0;text-align:center;font:600 34px/1.3 var(--f-num);letter-spacing:.02em}
+.as-tempo{display:grid;gap:10px;margin-top:8px;padding:14px;animation:fc-entra .24s var(--ease-out) backwards}
+.as-tempo .row{display:flex;gap:10px;flex-wrap:wrap}
+.as-tempo .row .btn{flex:1 1 150px}
 .lemb-rapidos{margin-top:12px}
 .lemb-rapidos .chip{min-height:44px}
 .as-lendo .bar{position:relative;overflow:hidden;margin-top:10px}

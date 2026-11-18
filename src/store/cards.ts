@@ -13,6 +13,9 @@ export interface Foto { cartao: Cartao; hist: Hist; ajustes: Ajustes }
 
 interface State {
   pronto: boolean; baralhos: Baralho[]; cartoes: Cartao[]; ajustes: Ajustes; hist: Hist
+  /** O assistente pediu para abrir direto o estudo (plano de estudo): a tela dos Cards lê isto ao abrir e limpa. */
+  pedidoEstudo: boolean
+  pedirEstudo: (v: boolean) => void
   load: () => Promise<void>
   novoBaralho: (nome: string) => string | null
   renomear: (id: string, nome: string) => boolean
@@ -32,7 +35,7 @@ const aviso = (t: string, acao?: { label: string; run: () => void }) => useApp.g
 const semPar = (nome: string) => nome.trim().replace(/\s+/g, ' ').slice(0, NOME_MAX).toLocaleLowerCase('pt-BR')
 
 export const useCards = create<State>((set, get) => ({
-  pronto: false, baralhos: [], cartoes: [], ajustes: AJUSTES_PADRAO, hist: HIST_VAZIO,
+  pronto: false, baralhos: [], cartoes: [], ajustes: AJUSTES_PADRAO, hist: HIST_VAZIO, pedidoEstudo: false, pedirEstudo: (v) => set({ pedidoEstudo: v }),
   load: async () => {
     try { const d = await loadCards(); set({ ...d, pronto: true }) } catch { set({ pronto: true }); aviso(AVISOS.cardsNaoAbriu) }
   },

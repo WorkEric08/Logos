@@ -2,8 +2,10 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { DIA, LIMITES_NOVOS, NOTAS, TAM_MAX, contar, diaDe, meiaNoite, montarFila, rotulosDasNotas, type Cartao, type Nota } from '../core/cards'
 import { sequencia } from '../core/historico'
 import { useCards, type Foto } from '../store/cards'
+import { useAssistente } from '../store/assistente'
 import { Aside, Hr, Icon, Ring, Top } from './bits'
 import { useBackLayer } from './useBackLayer'
+import { aoAparecer } from './revelar'
 
 type Tela = { t: 'home' } | { t: 'baralho'; id: string } | { t: 'editor'; b: string; id?: string } | { t: 'estudo'; b?: string }
 /** Foca o campo ao abrir SEM rolar a tela (o autoFocus normal rola até o campo e a tela “pula”). Função estável: roda só ao montar. */
@@ -22,7 +24,9 @@ const rotuloEstado = (c: Cartao, agora: number) => {
  *  e deslizam (entra pela direita, volta pela esquerda). */
 export function Cartoes() {
   const pronto = useCards((s) => s.pronto)
-  const [pilha, setPilha] = useState<Tela[]>([{ t: 'home' }])
+  // o assistente pode pedir que o estudo já abra (plano de estudo); o pedido é lido aqui (sem mudar nada ao ler) e limpo logo depois
+  const [pilha, setPilha] = useState<Tela[]>(() => (useCards.getState().pedidoEstudo ? [{ t: 'home' }, { t: 'estudo' }] : [{ t: 'home' }]))
+  useEffect(() => { if (useCards.getState().pedidoEstudo) useCards.getState().pedirEstudo(false) }, [])
   const [nav, setNav] = useState<{ n: number; dir: 'avanca' | 'recua' | null }>({ n: 0, dir: null }) // dir null = 1ª pintura, sem animar
   const tela = pilha[pilha.length - 1]
   // a rolagem é de cada tela: ao abrir uma sub-tela ela começa no topo; ao voltar, a anterior reaparece onde estava
@@ -206,7 +210,7 @@ function TelaBaralho({ id, voltar, abrir }: { id: string; voltar: () => void; ab
         <div className="sec">Excluir baralho</div>
         <div className="card">
           {!ask ? <div className="row"><button className="btn warn" onClick={() => setAsk(true)}>Excluir este baralho</button></div> : (
-            <div className="fc-entra">
+            <div className="fc-entra" ref={aoAparecer}>
               <p className="note" role="alert">Apaga o baralho e {plural(seus.length, 'cartão', 'cartões')}. Dá para desfazer por alguns segundos.</p>
               <div className="row"><button className="btn warn" onClick={() => { excluirBaralho(id); voltar() }}>Sim, excluir</button><button className="btn" onClick={() => setAsk(false)}>Cancelar</button></div>
             </div>
@@ -329,6 +333,13 @@ function Estudo({ b, voltar }: { b?: string; voltar: () => void }) {
   const ultimaNota = useRef(0) // um toque duplo logo depois de avaliar não pode virar o próximo cartão sem querer
   const raiz = useRef<HTMLDivElement>(null)
   useTextoQueCabe(raiz, [atual?.id, feitos, fila.length])
+  // plano de estudo: quando os cartões do plano acabam (os que ele pediu foram feitos, ou nada mais vence), a pessoa segue direto para as questões do plano
+  useEffect(() => {
+    const a = useAssistente.getState()
+    if (!a.planoEmCurso) return
+    const s = a.statusPlano()
+    if (s && s.cartoesFaltam === 0) a.concluirCartoesDoPlano()
+  }, [feitos])
 
   const nota = (n: Nota) => {
     if (!atual) return

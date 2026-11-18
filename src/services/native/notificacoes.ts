@@ -27,6 +27,7 @@ const comoPermissao = (v: string): Permissao => (v === 'granted' ? 'granted' : v
 export const paraOPlugin = (a: Aviso) => ({
   id: a.id, title: a.titulo, body: a.corpo, channelId: CANAL_LEMBRETE, autoCancel: true,
   schedule: { at: new Date(a.em), allowWhileIdle: true }, isExactNotification: false,
+  extra: { destino: a.tipo === 'cartoes' ? 'cartoes' : 'assistente' }, // para onde o toque leva: o aviso de cartões abre os Cartões; o de começo, o Assistente
 })
 
 let canalCriado = false
@@ -52,8 +53,8 @@ export const portaCapacitor: PortaNotificacoes = {
 
 export const portaDeNotificacoes = (): PortaNotificacoes | null => (ehNativo() ? portaCapacitor : null)
 
-/** Chama `f` quando a pessoa toca numa notificação (com o app aberto, em segundo plano ou fechado: o plugin guarda o toque até alguém ouvir). */
-export async function aoTocarNaNotificacao(f: () => void): Promise<() => void> {
-  const h = await LocalNotifications.addListener('localNotificationActionPerformed', () => f())
+/** Chama `f` quando a pessoa toca numa notificação (com o app aberto, em segundo plano ou fechado: o plugin guarda o toque até alguém ouvir). `destino` é o que o aviso levava no `extra`. */
+export async function aoTocarNaNotificacao(f: (destino: 'assistente' | 'cartoes') => void): Promise<() => void> {
+  const h = await LocalNotifications.addListener('localNotificationActionPerformed', (e) => f((e?.notification?.extra as { destino?: string } | undefined)?.destino === 'cartoes' ? 'cartoes' : 'assistente'))
   return () => { void h.remove() }
 }

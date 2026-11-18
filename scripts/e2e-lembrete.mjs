@@ -46,6 +46,18 @@ async function celular({ w = 360, h = 780, permissao = 'prompt', pedido = 'grant
   await p.goto(base); await p.waitForSelector('.folders')
   return { ctx, p }
 }
+/** Escreve direto no banco do app (o mesmo treino-bb): a configuração do lembrete e/ou N cartões novos (que contam como "para revisar hoje"). Depois, recarregue a página. */
+const semear = (p, { config, cartoes = 0 }) => p.evaluate(async ({ config, cartoes }) => {
+  const db = await new Promise((ok, no) => { const r = indexedDB.open('treino-bb'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error) })
+  const tx = db.transaction(['meta', 'decks', 'cards'], 'readwrite')
+  if (config) tx.objectStore('meta').put({ key: 'lembrete', value: JSON.stringify(config) })
+  if (cartoes) {
+    tx.objectStore('decks').put({ id: 'b-e2e', nome: 'Baralho e2e', criado: 1 })
+    for (let i = 0; i < cartoes; i++) tx.objectStore('cards').put({ id: 'c-e2e-' + i, b: 'b-e2e', f: 'Frente ' + i, v: 'Verso ' + i, criado: i + 1, estado: 'novo', due: 0, ivl: 0, fac: 2.5, reps: 0, lapsos: 0, ult: 0 })
+  }
+  await new Promise((ok, no) => { tx.oncomplete = ok; tx.onerror = () => no(tx.error) })
+  db.close()
+}, { config, cartoes })
 const abrirMais = async (p) => { await irPara(p, 'Mais'); await p.waitForSelector('.lembrete'); await esperarMovimento(p) }
 const noPlugin = (p, metodo) => chamadas(p).then((c) => c.filter((x) => x.plugin === 'LocalNotifications' && x.method === metodo))
 const agendamentos = async (p) => (await noPlugin(p, 'schedule')).map((c) => c.options.notifications)
@@ -73,60 +85,118 @@ const dia = (iso) => new Date(iso).getDate()
   await ctx.close()
 }
 
-// ───── 3. o caminho feliz ─────
+// ───── 3. o caminho feliz: o horário começa em 00:00 ─────
 {
   const { ctx, p } = await celular({ permissao: 'prompt' }); await abrirMais(p)
   await interruptor(p).click(); await esperarAgendamentos(p, 1)
   ok('ao ligar, pede a permissão (uma vez)', (await noPlugin(p, 'requestPermissions')).length === 1)
   const [lista] = await agendamentos(p)
-  ok('agenda 14 avisos, um por dia, às 19:00', lista.length === 14 && lista.every((n) => hm(n.schedule.at) === '19:00') && dia(lista[0].schedule.at) === 16 && dia(lista[1].schedule.at) === 17, `${lista.length} avisos; 1º ${hm(lista[0].schedule.at)} dia ${dia(lista[0].schedule.at)}`)
-  ok('contrato com o plugin: canal próprio, sem alarme exato, ids diferentes e título certo', lista.every((n) => n.channelId === 'lembrete-diario' && n.isExactNotification === false && n.schedule.allowWhileIdle === true && n.title === 'Hora de estudar') && new Set(lista.map((n) => n.id)).size === 14)
+  ok('o horário começa em 00:00: 13 avisos (o de hoje, 00:00, já passou), um por dia, a partir de amanhã', lista.length === 13 && lista.every((n) => hm(n.schedule.at) === '00:00') && dia(lista[0].schedule.at) === 17 && dia(lista[1].schedule.at) === 18, `${lista.length} avisos; 1º ${hm(lista[0].schedule.at)} dia ${dia(lista[0].schedule.at)}`)
+  ok('contrato com o plugin: canal próprio, sem alarme exato, ids diferentes, título certo e destino "assistente"', lista.every((n) => n.channelId === 'lembrete-diario' && n.isExactNotification === false && n.schedule.allowWhileIdle === true && n.title === 'Hora de estudar' && n.extra?.destino === 'assistente') && new Set(lista.map((n) => n.id)).size === 13)
   const canal = (await noPlugin(p, 'createChannel'))[0]?.options
   ok('cria o canal "Lembrete diário de estudo" (importância alta) antes de agendar', canal?.id === 'lembrete-diario' && canal.importance === 4 && canal.vibration === true)
-  ok('o aviso de hoje diz o que espera; os outros são frases gerais', /Que tal 10 questões novas|Esperando por você/.test(lista[0].body) && lista.slice(1).every((n) => !/\d+ cartões|\d+ questões no caderno/.test(n.body)), lista[0].body)
-  ok('a tela mostra ligado, o próximo aviso e o horário', (await interruptor(p).getAttribute('aria-checked')) === 'true' && /Próximo aviso: hoje às 19:00/.test(await interruptor(p).innerText()) && (await p.locator('.lemb-rel').innerText()) === '19:00')
-  ok('o app ouve o toque na notificação (para abrir o Assistente)', (await chamadas(p)).some((c) => c.plugin === 'LocalNotifications' && c.method === 'addListener' && c.options?.eventName === 'localNotificationActionPerformed'))
+  ok('a tela mostra ligado, o próximo aviso (amanhã às 00:00) e o horário 00:00', (await interruptor(p).getAttribute('aria-checked')) === 'true' && /Próximo aviso: amanhã às 00:00/.test(await interruptor(p).innerText()) && (await p.locator('.lemb-rel').innerText()) === '00:00')
+  ok('o app ouve o toque na notificação (para abrir o Assistente ou os Cartões)', (await chamadas(p)).some((c) => c.plugin === 'LocalNotifications' && c.method === 'addListener' && c.options?.eventName === 'localNotificationActionPerformed'))
+  const texto = async () => (await p.locator('.lemb-rel').innerText())
+  const minutos = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
+  const passos = (de, para) => (((minutos(para) - minutos(de)) % 1440) + 1440) % 1440 / 15 // quantos passos de 15 min para a frente (módulo 24 h)
 
-  // mudar a hora
+  // um toque = um passo de 15 minutos
   await p.locator('.lemb-hora button', { hasText: '+' }).click(); await esperarAgendamentos(p, 2)
-  ok('o botão "+" soma 15 minutos e reagenda (19:15)', (await p.locator('.lemb-rel').innerText()) === '19:15' && hm((await agendamentos(p)).at(-1)[0].schedule.at) === '19:15')
-  await p.locator('.lemb-hora button', { hasText: '−' }).click(); await p.locator('.lemb-hora button', { hasText: '−' }).click(); await esperarAgendamentos(p, 4)
-  ok('o botão "−" volta 15 minutos por toque (19:00 → 18:45)', (await p.locator('.lemb-rel').innerText()) === '18:45')
-  await p.locator('.lemb-rapidos .chip', { hasText: 'Manhã' }).click(); await esperarAgendamentos(p, 5)
+  ok('um toque no "+" soma 15 minutos e reagenda (00:15)', (await texto()) === '00:15' && hm((await agendamentos(p)).at(-1)[0].schedule.at) === '00:15')
+  await p.locator('.lemb-hora button', { hasText: '−' }).click(); await esperarAgendamentos(p, 3)
+  await p.locator('.lemb-hora button', { hasText: '−' }).click(); await esperarAgendamentos(p, 4)
+  ok('dois toques no "−" voltam 30 minutos e dão a volta no relógio (00:15 → 23:45)', (await texto()) === '23:45', await texto())
+
+  // apertar e SEGURAR o "+": anda de 15 em 15 enquanto aperta, e só ao soltar guarda e reagenda (uma vez)
+  const mais = await p.locator('.lemb-hora button', { hasText: '+' }).boundingBox()
+  const antes = await texto(), n0 = (await agendamentos(p)).length
+  await p.mouse.move(mais.x + mais.width / 2, mais.y + mais.height / 2); await p.mouse.down()
+  await p.waitForTimeout(1400)
+  const durante = await texto(), n1 = (await agendamentos(p)).length
+  await p.mouse.up()
+  await esperarAgendamentos(p, n0 + 1); await p.waitForTimeout(500)
+  const depois = await texto(), n2 = (await agendamentos(p)).length
+  ok('segurando o "+": o horário anda de 15 em 15 minutos (vários passos) enquanto aperta', passos(antes, durante) >= 5 && passos(antes, durante) <= 14, `${antes} → ${durante} (${passos(antes, durante)} passos em 1,4 s)`)
+  ok('segurando: NADA é reagendado durante o aperto (só a tela muda)', n1 === n0, `agendamentos antes ${n0}, durante ${n1}`)
+  ok('ao soltar: o horário final é o que a tela mostrava e a lista é refeita UMA vez', depois >= durante && passos(durante, depois) <= 1 && n2 === n0 + 1 && hm((await agendamentos(p)).at(-1)[0].schedule.at) === depois, `soltou em ${durante} → ${depois}; agendamentos ${n0} → ${n2}`)
+
+  // segurar o "−"
+  const menos = await p.locator('.lemb-hora button', { hasText: '−' }).boundingBox()
+  const a2 = await texto(), n3 = (await agendamentos(p)).length
+  await p.mouse.move(menos.x + menos.width / 2, menos.y + menos.height / 2); await p.mouse.down(); await p.waitForTimeout(1100); await p.mouse.up()
+  await esperarAgendamentos(p, n3 + 1)
+  const d2 = await texto()
+  ok('segurando o "−": o horário volta de 15 em 15 minutos (e dá a volta no relógio)', passos(d2, a2) >= 3 && passos(d2, a2) <= 12, `${a2} → ${d2}`)
+
+  // teclado (Enter): um passo por vez, sem repetir
+  const n4 = (await agendamentos(p)).length
+  await p.locator('.lemb-hora button', { hasText: '+' }).focus(); await p.keyboard.press('Enter'); await esperarAgendamentos(p, n4 + 1)
+  ok('pelo teclado (Enter) o "+" anda um passo só', passos(d2, await texto()) === 1, `${d2} → ${await texto()}`)
+  await ctx.close()
+}
+
+// ───── 3b. avisos de cartões por período (com 3 cartões esperando) e o aviso de começo às 21:00 ─────
+{
+  const { ctx, p } = await celular({ permissao: 'granted' })
+  await semear(p, { config: { ativo: false, hora: 21, minuto: 0, periodos: [] }, cartoes: 3 })
+  await p.reload(); await p.waitForSelector('.folders'); await abrirMais(p)
+  ok('desligado: não mostra o horário nem os períodos', (await p.locator('.lemb-hora').count()) === 0 && (await p.locator('.lemb-rapidos').count()) === 0)
+  await interruptor(p).click(); await esperarAgendamentos(p, 1)
+  const [l0] = await agendamentos(p)
+  ok('ligado às 21:00: 14 avisos de começo (o de hoje ainda vem), sem aviso de cartões porque nenhum período está marcado', l0.length === 14 && l0.every((n) => hm(n.schedule.at) === '21:00' && n.extra.destino === 'assistente') && dia(l0[0].schedule.at) === 16)
+  ok('o aviso de hoje diz o que espera; os outros são frases gerais', /Que tal 10 questões novas|Esperando por você/.test(l0[0].body) && l0.slice(1).every((n) => !/\d+ cartões|\d+ questões no caderno/.test(n.body)), l0[0].body)
+  ok('a tela explica: o horário é o aviso de começo e os períodos avisam de cartões para revisar (multisseleção, pode não marcar nenhum)', await (async () => {
+    const t = await p.locator('.lembrete').innerText()
+    return /horário abaixo é o aviso de começo do estudo/.test(t) && /ainda tiver flashcards para revisar/.test(t) && /Marque quantos quiser ou nenhum/.test(t) && /Nenhum período marcado/.test(t)
+  })())
+  const chips = await p.locator('.lemb-rapidos .chip').evaluateAll((e) => e.map((x) => x.textContent))
+  ok('os quatro períodos, nesta ordem e com a faixa de cada um (manhã 06:00–11:59, tarde 12:00–17:59, noite 18:00–23:59, madrugada 00:00–05:59)', JSON.stringify(chips) === JSON.stringify(['Manhã06:00 às 11:59', 'Tarde12:00 às 17:59', 'Noite18:00 às 23:59', 'Madrugada00:00 às 05:59']), JSON.stringify(chips))
+  ok('nenhum período vem marcado de fábrica', (await p.locator('.lemb-rapidos .chip[aria-pressed="true"]').count()) === 0)
+  const cartoesDe = (l) => l.filter((n) => n.extra.destino === 'cartoes')
+
+  await p.locator('.lemb-rapidos .chip', { hasText: 'Tarde' }).click(); await esperarAgendamentos(p, 2)
+  const l1 = (await agendamentos(p)).at(-1), c1 = cartoesDe(l1)
+  ok('marcar "Tarde": um aviso de cartões por dia às 15:00 (hoje e os 13 seguintes), título próprio e destino "cartoes"', c1.length === 14 && c1.every((n) => hm(n.schedule.at) === '15:00' && n.title === 'Cartões para revisar') && l1.length === 28, `${c1.length} de cartões; ${l1.length} no total`)
+  ok('o de hoje diz quantos ("Você ainda tem 3 cartões para revisar hoje.") e os outros dias não dizem número', c1[0].body === 'Você ainda tem 3 cartões para revisar hoje.' && c1.slice(1).every((n) => !/\d/.test(n.body)), c1[0].body)
+  ok('os ids dos avisos de cartões não colidem com os de começo', new Set(l1.map((n) => n.id)).size === l1.length)
+  ok('a tela mostra o período marcado e o resumo', (await p.locator('.lemb-rapidos .chip[aria-pressed="true"]').count()) === 1 && /aviso às 15:00/.test(await p.locator('[data-resumo-periodos]').innerText()))
+
+  await p.locator('.lemb-rapidos .chip', { hasText: 'Madrugada' }).click(); await esperarAgendamentos(p, 3)
+  const l2 = (await agendamentos(p)).at(-1)
+  ok('multisseleção: marcar também "Madrugada" soma os avisos das 02:00 (a de hoje já passou: 13 dias)', cartoesDe(l2).length === 14 + 13 && cartoesDe(l2).filter((n) => hm(n.schedule.at) === '02:00').length === 13 && (await p.locator('.lemb-rapidos .chip[aria-pressed="true"]').count()) === 2)
+  await p.locator('.lemb-rapidos .chip', { hasText: 'Noite' }).click(); await esperarAgendamentos(p, 4)
+  const l3 = (await agendamentos(p)).at(-1)
+  ok('"Noite" (21:00) é a mesma hora do aviso de começo: não repete o aviso naquela hora', cartoesDe(l3).length === 14 + 13 && l3.length === 14 + 27)
+  ok('o próximo aviso mostrado é sempre o de começo do estudo (hoje às 21:00), não o de cartões', /Próximo aviso: hoje às 21:00/.test(await interruptor(p).innerText()))
+
+  // estudar uma questão: o aviso de começo de hoje sai, o de cartões de hoje (ainda há cartão) continua
+  await definirResposta(p, 'LocalNotifications', 'getPending', { notifications: [{ id: 41 }] })
+  await irPara(p, 'Treinar'); await p.click('text=Começar'); await p.waitForSelector('.sheet'); await p.locator('.alt').first().click()
+  const nEst = (await agendamentos(p)).length; await esperarAgendamentos(p, nEst + 1)
+  const l4 = (await agendamentos(p)).at(-1)
+  ok('depois de responder uma questão: o aviso de começo de hoje sai, mas o de cartões de hoje (15:00) fica, porque ainda há cartão', !l4.some((n) => n.extra.destino === 'assistente' && dia(n.schedule.at) === 16) && l4.some((n) => n.extra.destino === 'cartoes' && dia(n.schedule.at) === 16 && hm(n.schedule.at) === '15:00'))
+  ok('e a lista antiga é cancelada antes (id pendente 41 vai ao cancel)', (await noPlugin(p, 'cancel')).some((c) => JSON.stringify(c.options) === JSON.stringify({ notifications: [{ id: 41 }] })))
+
+  // sobrevive a fechar e abrir o app; desmarcar todos
+  await p.reload(); await p.waitForSelector('.folders'); await abrirMais(p)
+  const marcadosDepois = await p.locator('.lemb-rapidos .chip[aria-pressed="true"]').evaluateAll((e) => e.map((x) => x.firstChild.textContent))
+  ok('ao abrir o app de novo: continua ligado e com os mesmos períodos marcados (Tarde, Noite, Madrugada)', (await interruptor(p).getAttribute('aria-checked')) === 'true' && marcadosDepois.join() === 'Tarde,Noite,Madrugada', marcadosDepois.join())
+  for (const nome of ['Tarde', 'Noite', 'Madrugada']) { const n = (await agendamentos(p)).length; await p.locator('.lemb-rapidos .chip', { hasText: nome }).click(); await esperarAgendamentos(p, n + 1) }
   const l5 = (await agendamentos(p)).at(-1)
-  ok('atalho "Manhã" (07:30): como 07:30 de hoje já passou, o primeiro aviso é amanhã', (await p.locator('.lemb-rel').innerText()) === '07:30' && hm(l5[0].schedule.at) === '07:30' && dia(l5[0].schedule.at) === 17 && l5.length === 13, `1º dia ${dia(l5[0].schedule.at)}; ${l5.length} avisos`)
-  ok('o atalho escolhido fica marcado', (await p.locator('.lemb-rapidos .chip[aria-pressed="true"]').count()) === 1)
-  await p.locator('.lemb-rapidos .chip', { hasText: 'Noite' }).click(); await esperarAgendamentos(p, 6)
-  ok('cada troca CANCELA o que estava agendado antes (não acumula): getPending + cancel a cada lista', (await noPlugin(p, 'getPending')).length >= 6)
+  ok('desmarcar todos (não escolher nenhum): sobram só os avisos de começo e o texto diz isso', cartoesDe(l5).length === 0 && /Nenhum período marcado/.test(await p.locator('[data-resumo-periodos]').innerText()))
 
   // enviar um teste
   const antesTeste = (await agendamentos(p)).length
   await p.locator('.lembrete .btn', { hasText: 'Enviar um teste' }).click(); await esperarAgendamentos(p, antesTeste + 1)
   const teste = (await agendamentos(p)).at(-1)
-  ok('"Enviar um teste" agenda UM aviso em 5 segundos, com id negativo e texto de teste', teste.length === 1 && teste[0].id < 0 && /^Teste: /.test(teste[0].body) && Math.abs(new Date(teste[0].schedule.at).getTime() - (AGORA.getTime() + 5000)) < 3000, JSON.stringify(teste[0]).slice(0, 160))
+  ok('"Enviar um teste" agenda UM aviso em 5 segundos, com id negativo e texto de teste', teste.length === 1 && teste[0].id < 0 && /^Teste: /.test(teste[0].body) && Math.abs(new Date(teste[0].schedule.at).getTime() - ((await p.evaluate(() => Date.now())) + 5000)) < 3000, JSON.stringify(teste[0]).slice(0, 160))
   ok('e diz na tela que o aviso chega em 5 segundos', /5 segundos/.test(await p.locator('.lembrete [role=status]').innerText()))
 
-  // estudar tira o aviso de hoje
-  await definirResposta(p, 'LocalNotifications', 'getPending', { notifications: [{ id: 11 }, { id: 12 }] })
-  await p.locator('.lemb-rapidos .chip', { hasText: 'Noite' }).click() // 21:00 (ainda é hoje às 10:00)
-  const antes = (await agendamentos(p)).length; await esperarAgendamentos(p, antes + 1)
-  const hojeAntes = (await agendamentos(p)).at(-1)
-  ok('com a hora de hoje ainda por vir (21:00), o aviso de hoje existe', dia(hojeAntes[0].schedule.at) === 16 && hojeAntes.length === 14, `${hojeAntes.length} avisos; 1º dia ${dia(hojeAntes[0].schedule.at)}`)
-  await irPara(p, 'Treinar'); await p.click('text=Começar'); await p.waitForSelector('.sheet'); await p.locator('.alt').first().click()
-  const n0 = (await agendamentos(p)).length; await esperarAgendamentos(p, n0 + 1)
-  const hojeDepois = (await agendamentos(p)).at(-1)
-  ok('depois de responder uma questão o aviso de hoje SAI da lista (a lista é refeita) e os outros dias ficam', hojeDepois.length === 13 && dia(hojeDepois[0].schedule.at) === 17, `${hojeDepois.length} avisos; 1º dia ${dia(hojeDepois[0].schedule.at)}`)
-  ok('e a lista antiga é cancelada antes (ids pendentes 11 e 12 vão ao cancel)', (await noPlugin(p, 'cancel')).some((c) => JSON.stringify(c.options) === JSON.stringify({ notifications: [{ id: 11 }, { id: 12 }] })))
-
-  // sobrevive a fechar e abrir o app
-  await p.reload(); await p.waitForSelector('.folders')
-  await p.waitForFunction(() => window.__chamadas.some((c) => c.plugin === 'LocalNotifications' && c.method === 'schedule'), null, { timeout: 8000 })
-  await abrirMais(p)
-  ok('ao abrir o app de novo: continua ligado, na mesma hora (21:00), e a lista é refeita sozinha', (await interruptor(p).getAttribute('aria-checked')) === 'true' && (await p.locator('.lemb-rel').innerText()) === '21:00' && (await agendamentos(p)).length >= 1)
   // desligar
   await definirResposta(p, 'LocalNotifications', 'getPending', { notifications: [{ id: 31 }, { id: 32 }] })
-  await interruptor(p).click(); await p.waitForFunction(() => window.__chamadas.some((c) => c.plugin === 'LocalNotifications' && c.method === 'cancel'), null, { timeout: 8000 })
-  ok('desligar cancela tudo e esconde o horário', (await interruptor(p).getAttribute('aria-checked')) === 'false' && (await p.locator('.lemb-hora').count()) === 0)
+  await interruptor(p).click(); await p.waitForFunction(() => window.__chamadas.some((c) => c.plugin === 'LocalNotifications' && c.method === 'cancel' && JSON.stringify(c.options) === '{"notifications":[{"id":31},{"id":32}]}'), null, { timeout: 8000 })
+  ok('desligar cancela tudo e esconde o horário e os períodos', (await interruptor(p).getAttribute('aria-checked')) === 'false' && (await p.locator('.lemb-hora').count()) === 0 && (await p.locator('.lemb-rapidos').count()) === 0)
   await ctx.close()
 }
 

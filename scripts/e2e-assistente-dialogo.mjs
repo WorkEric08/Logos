@@ -22,17 +22,17 @@ const msgs = () => p.locator('.as-msg:not(.as-digitando)').allInnerTexts()
 const ultima = async () => (await msgs()).slice(-1)[0] ?? ''
 const nA = () => p.locator('.as-msg.a:not(.as-digitando)').count()
 const falar = async (fn) => { const antes = await nA(); await fn(); await p.waitForFunction((n) => document.querySelectorAll('.as-msg.a:not(.as-digitando)').length > n, antes, { timeout: 10000 }); await esperarMovimento(p) }
-const escrever = (t) => falar(async () => { await p.fill('#as-msg', t); await p.locator('.as-composer .btn.pri').click() })
-const enviarSemEsperar = async (t) => { await p.fill('#as-msg', t); await p.locator('.as-composer .btn.pri').click() }
+const escrever = (t) => falar(async () => { await p.fill('#as-msg', t); await p.locator('.as-composer .as-enviar').click() })
+const enviarSemEsperar = async (t) => { await p.fill('#as-msg', t); await p.locator('.as-composer .as-enviar').click() }
 const rotulos = () => p.locator('.as-pilula').allInnerTexts()
 const voltarDaSessao = async () => { await irPara(p, 'Assistente'); const enc = p.locator('.btn.warn', { hasText: 'Encerrar' }); if (await enc.count()) await enc.click(); await p.waitForSelector('.chat-tela'); await p.waitForSelector('.as-pilula'); await esperarMovimento(p) }
 
 await p.goto(base); await p.waitForSelector('.folders')
 await abrir()
-ok('abre com 14 sugestões fixas (com Treinar, Caderno de erros, Gerar questões e Painel e plano)', (await p.locator('.as-pilula[data-acao]').count()) === 14 && (await rotulos()).includes('Treinar questões') && (await rotulos()).includes('Caderno de erros'), (await rotulos()).join(' | '))
+ok('abre com 12 sugestões fixas (com Treinar, Caderno de erros, Gerar questões e Painel e plano; sem "Perguntar ao meu material" nem "Ligar a ajuda de IA")', (await p.locator('.as-pilula[data-acao]').count()) === 12 && !(await rotulos()).includes('Perguntar ao meu material') && !(await rotulos()).includes('Ligar a ajuda de IA') && (await rotulos()).includes('Treinar questões') && (await rotulos()).includes('Caderno de erros'), (await rotulos()).join(' | '))
 
 ok('ao abrir a aba o assistente mostra o painel do dia, e a sugestão principal vem à frente das pílulas', /Aqui está o seu dia/.test((await msgs())[1] ?? '') && (await rotulos())[0] === 'Questões novas (10)' && (await rotulos())[1] === 'Simulado da semana', (await rotulos()).slice(0, 3).join(' | '))
-ok('o painel não é uma sugestão a mais na lista fixa: as 14 de sempre continuam', (await p.locator('.as-pilula[data-acao]').count()) === 14)
+ok('o painel não é uma sugestão a mais na lista fixa: as 12 de sempre continuam', (await p.locator('.as-pilula[data-acao]').count()) === 12)
 
 // 1. sugestões enquanto se digita
 await p.fill('#as-msg', 'si')
@@ -46,7 +46,7 @@ await p.waitForTimeout(80)
 ok('texto que não é comando oferece "Procurar … no meu material"', (await rotulos()).some((r) => /Procurar “inflação”/.test(r)), (await rotulos()).join(' | '))
 await falar(() => p.locator('.as-pilula', { hasText: 'Procurar' }).click())
 ok('tocar nela faz a pergunta de verdade (a fala da pessoa e a resposta do assistente)', (await msgs()).some((t) => t === 'inflação') && (await ultima()).length > 0)
-ok('depois de enviar a caixa fica vazia e as sugestões voltam ao normal', (await p.inputValue('#as-msg')) === '' && (await p.locator('.as-pilula[data-acao]').count()) >= 13)
+ok('depois de enviar a caixa fica vazia e as sugestões voltam ao normal', (await p.inputValue('#as-msg')) === '' && (await p.locator('.as-pilula[data-acao]').count()) >= 12)
 
 // 2. pedido completo: não pergunta nada
 await enviarSemEsperar('simulado de matemática com 10 questões')
@@ -65,7 +65,7 @@ ok('escolhida a matéria, pergunta a quantidade (sem repetir a matéria)', (awai
 // 4. ...e escrevendo a resposta
 await escrever('banana')
 ok('resposta sem sentido: repete a pergunta e as opções continuam', /Não entendi essa resposta\. Quantas questões\?/.test(await ultima()) && (await rotulos()).includes('20 questões'))
-await p.fill('#as-msg', 'vinte questões'); await p.locator('.as-composer .btn.pri').click()
+await p.fill('#as-msg', 'vinte questões'); await p.locator('.as-composer .as-enviar').click()
 await p.waitForFunction(() => !document.querySelector('.chat-tela'), null, { timeout: 5000 })
 ok('"vinte questões" escrito vale como a opção tocada: a prova começa', true)
 await voltarDaSessao()
@@ -80,7 +80,7 @@ await escrever('quantas questões de matemática eu tenho?')
 ok('contar por matéria: "quantas questões de matemática eu tenho?"', /\d+ questões de Matemática/.test(await ultima()), await ultima())
 await escrever('quero treinar')
 ok('"quero treinar" pergunta a matéria (sem opção do edital)', /Treinar o quê\?/.test(await ultima()) && !(await rotulos()).some((r) => /edital/.test(r)))
-await p.fill('#as-msg', 'português'); await p.locator('.as-composer .btn.pri').click()
+await p.fill('#as-msg', 'português'); await p.locator('.as-composer .as-enviar').click()
 await p.waitForFunction(() => !document.querySelector('.chat-tela'), null, { timeout: 5000 })
 ok('escrever a matéria começa o treino de 10 questões', true)
 await voltarDaSessao()
@@ -93,9 +93,9 @@ await p.waitForFunction(() => !document.querySelector('.chat-tela'), null, { tim
 ok('"Fazer as questões" começa o treino do plano', (await p.locator('.alt').count()) >= 2)
 await voltarDaSessao()
 await escrever('plano de estudo')
-ok('"plano de estudo" sem o tempo: mostra o dia e pergunta quanto tempo tem, com opções', (await ultima()) === 'Quanto tempo você tem hoje?' && (await rotulos()).includes('30 min') && (await rotulos()).includes('1 hora'))
-await falar(() => p.locator('.as-pilula', { hasText: /^30 min$/ }).click())
-ok('tocar em "30 min" monta o plano de 30 minutos', /^Plano de 30 minutos:/.test(await ultima()))
+ok('"plano de estudo" sem o tempo: mostra o dia e pergunta quanto tempo tem, com o seletor de horas e minutos (00:30) no lugar das opções', (await ultima()) === 'Quanto tempo você tem hoje?' && (await p.locator('.as-tempo .lemb-rel').innerText()) === '00:30' && (await rotulos()).every((r) => !/^(15|30|45) min$/.test(r)))
+await falar(() => p.locator('.as-tempo .btn.pri').click())
+ok('"Montar o plano de 30 min" monta o plano de 30 minutos', /^Plano de 30 minutos:/.test(await ultima()))
 await p.locator('.as-pilula[data-sug="mais"]').click()
 await p.waitForSelector('.as-pilula[data-acao="prova"]')
 
@@ -124,7 +124,7 @@ await voltarDaSessao()
 ok('depois de errar, a pergunta do simulado oferece "Só dos meus erros" e "Simulado da semana"', await (async () => { await falar(() => p.locator('.as-pilula[data-acao="simulado"]').click()); const r = await rotulos(); await p.locator('.as-pilula[data-sug="cancelar"]').click(); return r.some((x) => /^Só dos meus erros \(\d+\)/.test(x)) && r.includes('Simulado da semana') })())
 await escrever('simulado da semana')
 ok('"simulado da semana" pergunta só o tamanho', (await ultima()) === 'Quantas questões?')
-await p.fill('#as-msg', '10'); await p.locator('.as-composer .btn.pri').click()
+await p.fill('#as-msg', '10'); await p.locator('.as-composer .as-enviar').click()
 await p.waitForFunction(() => !document.querySelector('.chat-tela'), null, { timeout: 5000 })
 ok('com o tamanho, a prova da semana começa', true)
 await voltarDaSessao()
@@ -190,7 +190,7 @@ ok('treinar as geradas: depois de responder, a tela mostra que é gerada e o tre
 await voltarDaSessao()
 // volta ao espaço do BB: apaga o espaço de teste (dois toques), para o resto do cenário e para o fim
 await falar(() => p.locator('.as-pilula[data-acao="espaco"]').click())
-await p.locator('button[aria-label^="Apagar o espaço Geradas e2e"]').click(); await p.locator('.btn.warn', { hasText: 'Apagar mesmo' }).click()
+await p.locator('button[aria-label^="Apagar o espaço Geradas e2e"]').click(); await p.locator('.dialogo .btn.warn', { hasText: 'Apagar' }).click() // (a pergunta é um aviso no meio da tela)
 await p.waitForFunction(() => /Espaço: Banco do Brasil/.test(document.body.innerText), null, { timeout: 8000 })
 ok('apagar o espaço de teste volta ao Banco do Brasil', true)
 await p.locator('.foot .btn', { hasText: 'Voltar' }).click()

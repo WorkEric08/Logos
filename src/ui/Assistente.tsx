@@ -11,9 +11,14 @@ import type { Achado } from '../services/busca/consultar'
 import { BANK, useApp } from '../store/app'
 import { iaLigada } from '../services/importar/ia'
 import { useAssistente } from '../store/assistente'
+import { useCards } from '../store/cards'
+import { BotaoRepete } from './BotaoRepete'
+import { MAX_PLANO, MIN_SELETOR, PASSO_SELETOR, horasMinutos, rotuloTempo } from '../core/dia'
+import { AVISOS } from '../core/avisos'
 import { useEspacos } from '../store/espacos'
 import { IaPainel } from './AssistenteIA'
 import { Icon, Top } from './bits'
+import { ConfirmarAcao } from './ConfirmarAcao'
 import { Cena, Pilulas, reduzMovimento, useContagem, useFalas, useFechar, type ItemPilula } from './movimentoChat'
 import { inicioDaResposta, quantoRolar } from '../core/rolagem'
 import { alturaDoTeclado, aoMudarTeclado } from '../services/teclado'
@@ -64,11 +69,44 @@ function Sugestoes() {
   const itens: ItemPilula[] = [
     ...doPainel.map((x, i) => ({ id: 'pn-' + x.id, rotulo: x.rotulo, pri: i === 0, run: () => painelAcao(x) })),
     ...desambiguar.map((id) => ({ id: `d-${id}`, rotulo: ACOES.find((a) => a.id === id)!.sugestao, pri: true, acao: id, run: () => escolher(id) })),
-    ...ACOES.filter((a) => !desambiguar.includes(a.id)).map((a) => ({ id: a.id, rotulo: a.sugestao, acao: a.id, run: () => escolher(a.id) })),
+    ...ACOES.filter((a) => !desambiguar.includes(a.id) && a.naLista !== false).map((a) => ({ id: a.id, rotulo: a.sugestao, acao: a.id, run: () => escolher(a.id) })),
     { id: 'ajuda', rotulo: 'O que você sabe fazer?', acao: 'ajuda', run: ajuda },
     ...pilulasExtras(),
   ]
   return <Pilulas itens={itens} />
+}
+
+/**
+ * "Quanto tempo você tem hoje?" (plano de estudo): o seletor de horas e minutos do lembrete, de 15 em 15 (segurar repete), de 15 minutos a 5 horas. Passar de 5 horas
+ * mostra o recado de descanso no aviso rápido de baixo. Escrever o tempo no chat ("tenho 40 minutos") continua valendo.
+ */
+function SeletorTempo() {
+  const [min, setMin] = useState(30)
+  const atual = useRef(30), avisou = useRef(false)
+  const { responder, cancelarPergunta } = useAssistente.getState()
+  const passo = (d: number) => {
+    if (d > 0 && atual.current >= MAX_PLANO) {
+      if (!avisou.current) { avisou.current = true; useApp.getState().showToast(AVISOS.limiteDoPlano, undefined, true) } // uma vez por aperto (segurar não repete o recado)
+      return
+    }
+    const novo = Math.min(MAX_PLANO, Math.max(MIN_SELETOR, atual.current + d))
+    atual.current = novo; setMin(novo)
+  }
+  const soltou = () => { avisou.current = false }
+  return (
+    <div className="card as-tempo" role="group" aria-label="Tempo de estudo">
+      <div className="lemb-hora">
+        <BotaoRepete rotulo={`${PASSO_SELETOR} minutos a menos`} aoPasso={() => passo(-PASSO_SELETOR)} aoSoltar={soltou} aoTeclado={() => passo(-PASSO_SELETOR)}>−</BotaoRepete>
+        <output className="lemb-rel num" aria-label={`Tempo: ${rotuloTempo(min)}`}>{horasMinutos(min)}</output>
+        <BotaoRepete rotulo={`${PASSO_SELETOR} minutos a mais`} aoPasso={() => passo(PASSO_SELETOR)} aoSoltar={soltou} aoTeclado={() => passo(PASSO_SELETOR)}>+</BotaoRepete>
+      </div>
+      <p className="note">Horas e minutos, de {PASSO_SELETOR} em {PASSO_SELETOR}: toque, ou segure para andar direto. No máximo {rotuloTempo(MAX_PLANO)}.</p>
+      <div className="row">
+        <button type="button" className="btn pri" onClick={() => responder({ rotulo: rotuloTempo(min), valor: min })}>Montar o plano de {rotuloTempo(min)}</button>
+        <button type="button" className="btn" onClick={cancelarPergunta}>Cancelar</button>
+      </div>
+    </div>
+  )
 }
 
 /** A pergunta do assistente para completar um pedido ("De qual matéria?"): as opções são sugestões; escrever a resposta também vale. */
@@ -76,6 +114,7 @@ function Pergunta() {
   const pendente = useAssistente((s) => s.pendente)
   const { responder, cancelarPergunta } = useAssistente.getState()
   if (!pendente) return null
+  if (pendente.slot === 'minutos') return <SeletorTempo />
   const itens: ItemPilula[] = [
     ...pendente.opcoes.map((o, i) => ({ id: 'op-' + String(o.valor), rotulo: o.rotulo, pri: i === 0 && pendente.slot === 'materia' && o.valor === 'edital', run: () => responder(o) })),
     { id: 'cancelar', rotulo: 'Cancelar', run: cancelarPergunta },
@@ -130,13 +169,16 @@ function PreviaQuestoes() {
 
 /** O plano de estudo: o que fazer primeiro (cartões ou questões) e como mudar o tempo. */
 function PlanoPainel() {
-  const plano = useAssistente((s) => s.plano)
-  const { planoAcao, voltarAoInicio } = useAssistente.getState()
-  if (!plano) return null
+  // o andamento é lido na hora (cartões feitos, questões respondidas): as pílulas e qual delas vem em destaque mudam conforme a pessoa avança
+  useAssistente((s) => s.planoAtivo); useAssistente((s) => s.eventos); useCards((s) => s.hist); useCards((s) => s.cartoes)
+  const { planoAcao, voltarAoInicio, statusPlano } = useAssistente.getState()
+  const st = statusPlano()
+  if (!st) return null
+  const q = st.questoesFaltam.length
   const itens: ItemPilula[] = [
-    ...(plano.cartoes ? [{ id: 'plano-cartoes', rotulo: `Começar pelos cartões (${plano.cartoes})`, pri: true, run: () => planoAcao('cartoes') }] : []),
-    ...(plano.questoes.ids.length ? [{ id: 'plano-questoes', rotulo: `Fazer as ${plano.questoes.ids.length} questões`, pri: !plano.cartoes, run: () => planoAcao('questoes') }] : []),
-    { id: 'plano-outro', rotulo: 'Outro tempo', run: () => planoAcao('outro') },
+    ...(st.fase === 'cartoes' ? [{ id: 'plano-cartoes', rotulo: `${st.cartoesFeitos > 0 ? 'Continuar os cartões' : 'Começar pelos cartões'} (${st.cartoesFaltam})`, pri: true, run: () => planoAcao('cartoes') }] : []),
+    ...(q > 0 ? [{ id: 'plano-questoes', rotulo: st.questoesFeitas > 0 ? `Continuar as questões (${q})` : `Fazer as ${q} questões`, pri: st.fase === 'questoes', run: () => planoAcao('questoes') }] : []),
+    { id: 'plano-outro', rotulo: st.fase === 'fim' ? 'Montar outro plano' : 'Outro tempo', pri: st.fase === 'fim', run: () => planoAcao('outro') },
     { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio },
   ]
   return <Pilulas itens={itens} rotuloGrupo="Plano de estudo" />
@@ -204,7 +246,9 @@ function Composer() {
   useEffect(() => {
     const e = caixa.current
     if (!e) return
-    const parar = aoMudarTeclado((kb, antes) => { if (kb > antes) manterFimVisivel(e, antes) })
+    // (a caixa sobe deslizando com o teclado: a conta da câmera espera ela chegar, senão mediria a posição de saída)
+    let espera = 0
+    const parar = aoMudarTeclado((kb, antes) => { if (kb > antes) { clearTimeout(espera); espera = window.setTimeout(() => manterFimVisivel(e, antes), reduzMovimento() ? 0 : 290) } })
     let altura = e.offsetHeight
     const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => {
       const h = e.offsetHeight
@@ -212,7 +256,7 @@ function Composer() {
       altura = h
     })
     ro?.observe(e)
-    return () => { parar(); ro?.disconnect() }
+    return () => { parar(); ro?.disconnect(); clearTimeout(espera) }
   }, [])
   return (
     <form ref={caixa} className="as-composer" onSubmit={(e) => { e.preventDefault(); mandar(txt) }}>
@@ -228,7 +272,7 @@ function Composer() {
         onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); mandar(txt) } }}
       />
       {/* onMouseDown: tocar em enviar não tira o foco do campo (o teclado continua aberto, como nos apps de mensagem) */}
-      <button type="submit" className="btn pri as-enviar" aria-label="Enviar" disabled={!txt.trim()} onMouseDown={(e) => e.preventDefault()}><Icon n="send" size={22} /></button>
+      <button type="submit" className="btn as-enviar" aria-label="Enviar" disabled={!txt.trim()} onMouseDown={(e) => e.preventDefault()}><Icon n="send" size={26} /></button>
     </form>
   )
 }
@@ -396,7 +440,7 @@ function Achados({ achados }: { achados: Achado[] }) {
   )
 }
 
-/** "Meus materiais": o que está guardado neste espaço, com apagar em dois toques e o botão de guardar um novo. */
+/** "Meus materiais": o que está guardado neste espaço, com apagar (pergunta no meio da tela) e o botão de guardar um novo. */
 function Materiais() {
   const fechar = useFechar()
   const { materiais } = useAssistente()
@@ -410,13 +454,12 @@ function Materiais() {
           {materiais.map((m) => (
             <li key={m.id} className="as-esp-i as-mat">
               <span className="as-mat-info"><b>{m.nome}</b><small>{m.trechos} trechos · {Math.round(m.caracteres / 1000)} mil letras · {data(m.criado)}</small></span>
-              {apagando === m.id
-                ? <span className="as-conf"><button className="btn warn small-btn" onClick={() => { setApagando(null); void apagarMaterial(m.id) }}>Apagar mesmo</button><button className="btn small-btn" onClick={() => setApagando(null)}>Não</button></span>
-                : <button className="btn small-btn" aria-label={`Apagar o material ${m.nome}`} onClick={() => setApagando(m.id)}><Icon n="trash" size={16} /></button>}
+              <button className="btn small-btn" aria-label={`Apagar o material ${m.nome}`} onClick={() => setApagando(m.id)}><Icon n="trash" size={16} /></button>
             </li>
           ))}
         </ul>
       )}
+      {(() => { const m = materiais.find((x) => x.id === apagando); return m && <ConfirmarAcao titulo="Apagar este material?" texto={`“${m.nome}” e os ${m.trechos} trechos dele saem deste espaço. Suas questões e seus cartões não são apagados.`} confirmar="Apagar" onCancelar={() => setApagando(null)} onConfirmar={() => { setApagando(null); void apagarMaterial(m.id) }} /> })()}
       <p className="note">Aceita PDF com texto, TXT e MD. O que você guardar fica só neste aparelho e a busca funciona sem internet. Apagar um material não apaga suas questões nem cartões.</p>
       <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button><button className="btn pri" onClick={() => useAssistente.setState({ etapa: 'material-arquivo' })}>Guardar um material</button></div>
     </div>
@@ -439,8 +482,7 @@ function ArquivoMaterial() {
 function ProntoMaterial() {
   const { voltarAoInicio, escolher } = useAssistente.getState()
   const itens: ItemPilula[] = [
-    { id: 'perguntar', rotulo: 'Perguntar ao meu material', pri: true, run: () => escolher('perguntar') },
-    { id: 'gerar-questoes', rotulo: 'Gerar questões deste material', run: () => escolher('questoes') },
+    { id: 'gerar-questoes', rotulo: 'Gerar questões deste material', pri: true, run: () => escolher('questoes') },
     { id: 'guardar-outro', rotulo: 'Guardar outro material', run: () => useAssistente.setState({ etapa: 'material-arquivo' }) },
     { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio },
   ]
@@ -504,12 +546,11 @@ function Espacos() {
         {lista.map((e) => (
           <li key={e.id} className="as-esp-i">
             <button className="chip" aria-pressed={e.id === ativo} onClick={() => void ativar(e.id)}>{e.nome}<small> · {e.n} questões</small></button>
-            {!e.embutido && (apagando === e.id
-              ? <span className="as-conf"><button className="btn warn small-btn" onClick={() => { setApagando(null); void apagar(e.id) }}>Apagar mesmo</button><button className="btn small-btn" onClick={() => setApagando(null)}>Não</button></span>
-              : <button className="btn small-btn" aria-label={`Apagar o espaço ${e.nome}`} onClick={() => setApagando(e.id)}><Icon n="trash" size={16} /></button>)}
+            {!e.embutido && <button className="btn small-btn" aria-label={`Apagar o espaço ${e.nome}`} onClick={() => setApagando(e.id)}><Icon n="trash" size={16} /></button>}
           </li>
         ))}
       </ul>
+      {(() => { const e = lista.find((x) => x.id === apagando); return e && <ConfirmarAcao titulo={`Apagar o espaço “${e.nome}”?`} texto={`Tira as ${e.n} questões e as imagens dele. O seu progresso fica guardado por questão: importar o mesmo arquivo de novo recupera.`} confirmar="Apagar" onCancelar={() => setApagando(null)} onConfirmar={() => { setApagando(null); void apagar(e.id) }} /> })()}
       <p className="note">Apagar um espaço tira as questões e as imagens dele. O seu progresso fica guardado por questão: importar o mesmo arquivo de novo recupera.</p>
       <div className="foot sticky"><button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button><button className="btn pri" onClick={novoEspaco}>Novo espaço</button></div>
     </div>

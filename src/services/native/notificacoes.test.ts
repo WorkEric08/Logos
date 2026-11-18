@@ -18,7 +18,7 @@ vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: () => false }
 
 const { CANAL_LEMBRETE, paraOPlugin, portaCapacitor, portaDeNotificacoes } = await import('./notificacoes')
 
-const aviso = { id: 20_408, em: new Date(2026, 10, 16, 19, 0).getTime(), titulo: 'Hora de estudar', corpo: 'Esperando por você: 3 cartões para revisar.' }
+const aviso = { id: 20_408, em: new Date(2026, 10, 16, 19, 0).getTime(), titulo: 'Hora de estudar', corpo: 'Esperando por você: 3 cartões para revisar.', tipo: 'inicio' as const }
 
 describe('porta das notificações (plugin do Capacitor)', () => {
   it('no navegador não há porta (o navegador não avisa com o app fechado)', () => { expect(portaDeNotificacoes()).toBeNull() })
@@ -26,8 +26,13 @@ describe('porta das notificações (plugin do Capacitor)', () => {
   it('o aviso vai ao plugin com id, texto, canal, hora e SEM alarme exato (não abre a tela "Alarmes e lembretes")', () => {
     expect(paraOPlugin(aviso)).toEqual({
       id: 20_408, title: 'Hora de estudar', body: 'Esperando por você: 3 cartões para revisar.', channelId: CANAL_LEMBRETE, autoCancel: true,
-      schedule: { at: new Date(aviso.em), allowWhileIdle: true }, isExactNotification: false,
+      schedule: { at: new Date(aviso.em), allowWhileIdle: true }, isExactNotification: false, extra: { destino: 'assistente' },
     })
+  })
+
+  it('o aviso de cartões leva o destino "cartoes" (o toque nele abre os Cartões, o de começo abre o Assistente)', () => {
+    expect(paraOPlugin({ ...aviso, tipo: 'cartoes' }).extra).toEqual({ destino: 'cartoes' })
+    expect(paraOPlugin(aviso).extra).toEqual({ destino: 'assistente' })
   })
 
   it('"prompt-with-rationale" do Android conta como "ainda não perguntou"', async () => {

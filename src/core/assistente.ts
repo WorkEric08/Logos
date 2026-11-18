@@ -16,6 +16,8 @@ export interface Acao {
   gera: string
   /** O que NÃO funciona (sem IA) e como o assistente avisa. */
   limites: string
+  /** Aparece como sugestão fixa na tela do assistente? (padrão: sim). Quem fica de fora continua valendo se a pessoa escrever o pedido. */
+  naLista?: boolean
 }
 
 export const ACOES: Acao[] = [
@@ -59,7 +61,7 @@ export const ACOES: Acao[] = [
     resumo: 'Mostra o seu dia (o que já estudou, a sequência, o que está esperando) e monta um plano de estudo para o tempo que você tiver.',
     precisa: 'Nada para ver o painel. Para o plano, o tempo que tem: "tenho 30 minutos", "meia hora", "1 hora".',
     gera: 'Um resumo do dia com uma sugestão principal, e um plano que divide o tempo entre cartões, caderno de erros, matéria fraca e questões novas, com botões para começar.',
-    limites: 'Tudo calculado no aparelho, com o que o app viu você estudar. Plano de 5 a 240 minutos. O painel também aparece sozinho quando você abre a aba (no máximo uma vez a cada 3 horas). Não há lembrete por notificação.',
+    limites: 'Tudo calculado no aparelho, com o que o app viu você estudar. O tempo se escolhe num seletor de horas e minutos (de 15 em 15, até 5 horas) ou escrevendo ("tenho 1 hora"). Depois de montado, o plano é acompanhado: ao voltar ao assistente ele diz quantos cartões e questões ainda faltam e começa pelo que vem agora. O painel também aparece sozinho quando você abre a aba (no máximo uma vez a cada 3 horas).',
   },
   {
     id: 'questoes', rotulo: 'Gerar questões do material', sugestao: 'Gerar questões do meu material',
@@ -76,7 +78,7 @@ export const ACOES: Acao[] = [
     limites: 'Só funciona no aplicativo do Android (o navegador não avisa com o app fechado); na primeira vez o Android pede a permissão de notificações. O aviso chega na hora marcada, com variação de poucos minutos.',
   },
   {
-    id: 'perguntar', rotulo: 'Perguntar ao meu material', sugestao: 'Perguntar ao meu material',
+    id: 'perguntar', rotulo: 'Perguntar ao meu material', sugestao: 'Perguntar ao meu material', naLista: false,
     resumo: 'Procura nos seus materiais, questões e cartões e mostra o trecho certo, com a palavra em destaque e a fonte.',
     precisa: 'Uma pergunta ou palavra, por exemplo: "o que é Copom?", "onde fala de inflação", "juros compostos".',
     gera: 'Até 3 trechos com a palavra destacada e de onde vieram (qual material, qual questão ou cartão).',
@@ -102,7 +104,7 @@ export const ACOES: Acao[] = [
     precisa: 'Nada: só o espaço ativo.', gera: 'Um resumo na conversa.', limites: 'Só mostra números do espaço ativo.',
   },
   {
-    id: 'ia', rotulo: 'Ajuda de IA (opcional)', sugestao: 'Ligar a ajuda de IA',
+    id: 'ia', rotulo: 'Ajuda de IA (opcional)', sugestao: 'Ligar a ajuda de IA', naLista: false,
     resumo: 'Liga uma IA (sua chave da Anthropic) para reler as questões que o leitor não conseguiu entender.',
     precisa: 'Uma chave de API da Anthropic (console.anthropic.com). Fica só neste aparelho.',
     gera: 'Na prévia da prova, as questões com aviso ganham o botão "Reler com IA".',

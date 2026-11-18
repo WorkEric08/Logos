@@ -11,6 +11,7 @@ import { useOrdemRail } from '../store/ordemRail'
 import { useConta } from '../services/sync/conta'
 import { Copia } from './Copia'
 import { Lembrete } from './Lembrete'
+import { aoAparecer } from './revelar'
 import { ICONES, descreverAba, type Icones } from '../core/aba'
 
 import { BANK, TF, useApp } from '../store/app'
@@ -317,7 +318,7 @@ function Conta() {
           <div className="row" style={{ marginTop: 10 }}><button className="btn pri" disabled={ocupado || estado === 'iniciando'} onClick={() => void entrar()}>{ocupado ? 'Entrando…' : 'Entrar com Google'}</button></div>
         </>
       )}
-      {erro && <p className="note" role="alert" data-testid="conta-erro" style={{ color: 'var(--err)' }}>{erro}</p>}
+      {erro && <p key={erro} ref={aoAparecer} className="note" role="alert" data-testid="conta-erro" style={{ color: 'var(--err)' }}>{erro}</p>}
     </div>
   )
 }
@@ -367,10 +368,10 @@ export function Mais() {
             </div>
             <div className="card"><h3>Zerar progresso</h3>
               {!ask ? <div className="row" style={{ marginTop: 10 }}><button className="btn warn" onClick={() => setAsk(true)}>Zerar tudo</button></div> : (
-                <>
+                <div ref={aoAparecer}>
                   <p className="note" role="alert">Apaga o progresso (acertos e erros) e a evolução por dia e por simulado. Suas marcações, anotações e flashcards ficam. Dá para desfazer por alguns segundos.</p>
                   <div className="row" style={{ marginTop: 10 }}><button className="btn warn" onClick={() => { setAsk(false); void resetAll() }}>Sim, zerar</button><button className="btn" onClick={() => setAsk(false)}>Cancelar</button></div>
-                </>
+                </div>
               )}
             </div>
             <div className="card about span"><h3>Sobre este banco</h3>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MODELOS_IA, gravarChave, gravarModelo, iaLigada, lerChave, lerModelo, mensagemErroIA, testarChave } from '../services/importar/ia'
 import { useAssistente } from '../store/assistente'
 import { useFechar } from './movimentoChat'
+import { aoAparecer } from './revelar'
 
 /** Ajuda de IA opcional: a chave da própria pessoa, guardada só neste aparelho. Desligada por padrão. */
 export function IaPainel() {
@@ -23,7 +24,7 @@ export function IaPainel() {
       <select id="as-modelo" className="campo" value={modelo} onChange={(e) => { setModelo(e.target.value); gravarModelo(e.target.value) }}>
         {MODELOS_IA.map((m) => <option key={m.id} value={m.id}>{m.rotulo}</option>)}
       </select>
-      {estado && <p className="note" role="status" style={estado.ok ? undefined : { color: 'var(--err)' }}>{estado.texto}</p>}
+      {estado && <p key={estado.texto} ref={aoAparecer} className="note" role="status" style={estado.ok ? undefined : { color: 'var(--err)' }}>{estado.texto}</p>}
       <div className="foot sticky">
         <button className="btn" onClick={() => fechar(voltarAoInicio)}>Voltar</button>
         {ligada && <button className="btn warn" onClick={() => { gravarChave(''); setChave(''); setEstado({ ok: true, texto: 'Chave removida deste aparelho.' }); forca((n) => n + 1) }}>Remover a chave</button>}

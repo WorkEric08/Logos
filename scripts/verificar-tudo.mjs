@@ -35,6 +35,8 @@ const etapas = [
   ['celular: alvos de toque, rolagem, texto cortado e teclado (9 tamanhos)', 'node scripts/medir-mobile.mjs'],
   ['APK: pacote do Android com a ponte do Capacitor simulada', 'node scripts/e2e-android.mjs'],
   ['Lembrete diário por notificação: tela em Mais, permissão, horário, agenda de 14 dias, estudar tira o de hoje (plugin simulado)', 'node scripts/e2e-lembrete.mjs'],
+  ['Plano de estudo: seletor de tempo (segurar, limite de 5 horas), cartões → questões, sair no meio e voltar', 'node scripts/e2e-plano.mjs'],
+  ['câmera das telas: o que abre ou cresce por um toque aparece inteiro (Excluir baralho, Zerar tudo, Anotação, resultado da questão)', 'node scripts/e2e-camera.mjs'],
   ['Cópia de segurança: salvar o arquivo, apagar, restaurar (só acrescenta, imagem com os mesmos bytes), arquivo errado, 320 px', 'node scripts/e2e-copia.mjs'],
   ['abertura animada: 2 s, preto na 1ª pintura, centralizada, movimento reduzido', 'node scripts/e2e-splash.mjs'],
   ['visual: 6 tamanhos × 2 temas × 7 telas', 'node scripts/e2e-visual.mjs'],

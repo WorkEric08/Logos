@@ -18,15 +18,19 @@ export const AVISOS = {
   baralhoExcluido: 'Baralho excluído.',
   cartaoIncompleto: 'Preencha a frente e o verso.',
   cartaoExcluido: 'Cartão excluído.',
+  cartoesDoPlanoFeitos: 'Cartões feitos! Agora as questões.',
+  /** A ÚNICA mensagem que pode ter mais de uma linha (até 4 a 320 px): o dono pediu um recado de descanso inteiro. */
+  limiteDoPlano: 'É importante se esforçar, mas precisamos descansar. Vamos com calma até 5 horas; se precisar, montamos outro plano depois.',
 } as const
 
 /** Todas as mensagens no pior caso (números grandes), com o que vai ao lado (o botão "Desfazer", quando há). */
-export function todosOsAvisos(): { texto: string; acao?: string }[] {
+export function todosOsAvisos(): { texto: string; acao?: string; longo?: boolean }[] {
   const A = AVISOS
   return [
     { texto: A.semQuestoes }, { texto: A.bancoAtualizado(0) }, { texto: A.bancoAtualizado(99) }, { texto: A.bancoAtualizado(1) }, { texto: A.bancoFalhou },
     { texto: A.progressoRestaurado, acao: 'Desfazer' }, { texto: A.progressoZerado, acao: 'Desfazer' }, { texto: A.voltarParaSair },
     { texto: A.flashcardCriado }, { texto: A.flashcardExiste }, { texto: A.cardsNaoAbriu }, { texto: A.baralhoSemNome }, { texto: A.baralhoRepetido },
-    { texto: A.baralhoExcluido, acao: 'Desfazer' }, { texto: A.cartaoIncompleto }, { texto: A.cartaoExcluido, acao: 'Desfazer' },
+    { texto: A.baralhoExcluido, acao: 'Desfazer' }, { texto: A.cartaoIncompleto }, { texto: A.cartaoExcluido, acao: 'Desfazer' }, { texto: A.cartoesDoPlanoFeitos },
+    { texto: A.limiteDoPlano, longo: true },
   ]
 }

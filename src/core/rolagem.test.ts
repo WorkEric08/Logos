@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { inicioDaResposta, quantoRolar } from './rolagem'
+import { inicioDaResposta, quantoRevelar, quantoRolar } from './rolagem'
 
 describe('rolagem do chat quando o teclado abre', () => {
   it('rola o que falta para o fim da conversa ficar acima da caixa (com folga)', () => {
@@ -33,5 +33,30 @@ describe('onde começa a resposta do assistente', () => {
     expect(inicioDaResposta(['a', 'v'])).toBe(-1)
     expect(inicioDaResposta(['v'])).toBe(-1)
     expect(inicioDaResposta([])).toBe(-1)
+  })
+})
+
+describe('câmera: mostrar inteiro o que se abriu (quantoRevelar)', () => {
+  const tela = { topoVisivel: 60, baseVisivel: 700 } // a área rolável vai de 60 a 700 (o pé ou o teclado cobre o resto)
+  it('já cabe: não rola', () => {
+    expect(quantoRevelar({ ...tela, topo: 300, base: 500 })).toBe(0)
+    expect(quantoRevelar({ ...tela, topo: 100, base: 688 })).toBe(0) // dentro da folga de 12
+  })
+  it('passou da base (o caso do "Sim, excluir"): rola o que falta mais a folga', () => {
+    expect(quantoRevelar({ ...tela, topo: 600, base: 820 })).toBe(132) // 820 + 12 − 700
+    expect(quantoRevelar({ ...tela, topo: 640, base: 701 })).toBe(13)
+  })
+  it('ficou atrás do pé (a base visível já desconta os botões fixos)', () => {
+    expect(quantoRevelar({ topoVisivel: 60, baseVisivel: 640, topo: 500, base: 650 })).toBe(22)
+  })
+  it('maior que a tela: mostra o COMEÇO dele (quem lê começa por cima)', () => {
+    expect(quantoRevelar({ ...tela, topo: 400, base: 1400 })).toBe(328) // topo vai para 60 + 12
+    expect(quantoRevelar({ ...tela, topo: 30, base: 1400 })).toBe(-42)
+  })
+  it('ficou acima do que se vê: volta o suficiente', () => {
+    expect(quantoRevelar({ ...tela, topo: 20, base: 200 })).toBe(-52)
+  })
+  it('a folga é opcional', () => {
+    expect(quantoRevelar({ ...tela, topo: 600, base: 720, folga: 0 })).toBe(20)
   })
 })

@@ -38,7 +38,7 @@ export interface Session {
 }
 /** Quer sair da prova do simulado em andamento: espera a resposta de “tem certeza?”. `destino` = aba para onde ir se confirmar. */
 export interface Saida { destino: Tab }
-export interface ToastMsg { id: number; text: string; action?: { label: string; run: () => void } }
+export interface ToastMsg { id: number; text: string; action?: { label: string; run: () => void }; /** Recado de mais de uma linha (só o do limite do plano). */ longo?: boolean }
 
 interface State {
   ready: boolean; prog: ProgressMap; tema: string; hist: Hist; marks: Marks
@@ -79,7 +79,7 @@ interface State {
   /** A nuvem trouxe coisa nova (outro aparelho): relê do banco local o que mudou. */
   recarregar: (o: { progresso: boolean; marcas: boolean }) => Promise<void>
   setTema: (t: string) => void
-  showToast: (text: string, action?: ToastMsg['action']) => void
+  showToast: (text: string, action?: ToastMsg['action'], longo?: boolean) => void
   clearToast: () => void
 }
 
@@ -239,7 +239,7 @@ export const useApp = create<State>((set, get) => {
       try { localStorage.setItem('treino_tema', t) } catch { /* sem armazenamento: só não espelha */ }
       document.documentElement.dataset.tema = t
     },
-    showToast: (text, action) => set({ toast: { id: ++toastId, text, action } }),
+    showToast: (text, action, longo) => set({ toast: { id: ++toastId, text, action, ...(longo ? { longo: true } : {}) } }),
     clearToast: () => set({ toast: null }),
   }
 })

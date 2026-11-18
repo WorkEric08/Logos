@@ -37,7 +37,7 @@ export function ligarLembretes(): () => void {
   void App.addListener('appStateChange', ({ isActive }) => { if (isActive && prontos()) void useLembrete.getState().aoVoltar() }).then((h) => {
     if (vivo) limpezas.push(() => void h.remove()); else void h.remove()
   }).catch(() => { /* sem o plugin do aplicativo: sem esse ouvinte */ })
-  void aoTocarNaNotificacao(() => useApp.getState().irPara('assistente')).then((parar) => { if (vivo) limpezas.push(parar); else parar() }).catch(() => { /* sem o plugin de notificações: o lembrete simplesmente não existe */ })
+  void aoTocarNaNotificacao((destino) => useApp.getState().irPara(destino)).then((parar) => { if (vivo) limpezas.push(parar); else parar() }).catch(() => { /* sem o plugin de notificações: o lembrete simplesmente não existe */ })
 
   return () => { vivo = false; clearTimeout(t); for (const l of limpezas.splice(0)) l() }
 }

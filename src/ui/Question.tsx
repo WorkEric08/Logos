@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { sentidoDaQuestao } from '../core/movimento'
 import { createPortal } from 'react-dom'
 import { ALL_SUBJECTS, SOURCES, SUBJECT } from '../core/subjects'
@@ -13,6 +13,7 @@ import type { Question } from '../core/types'
 import { Aside, Hr, Icon, Top, useWide } from './bits'
 import { ehNativo } from '../services/native'
 import { useBackLayer } from './useBackLayer'
+import { aoTocarNoResumo, revelar } from './revelar'
 
 const ZOOMS = [1, 1.5, 2, 3]
 /** Imagem em tela cheia, com zoom por botões e rolagem (no APK, onde "abrir em outra aba" não existe). Voltar fecha só ela. */
@@ -117,6 +118,9 @@ export function Questao() {
   const soImg = !!q.ia || !!q.rv?.includes('texto_pode_ter_perdido_formulas__usar_imagem')
   const seen = prog[q.id]?.n ?? 0
   const hasBp = !!q.bp && q.bp !== q.p
+  // o quadro "Certo/Errou" aparece embaixo ao responder: a câmera desce para mostrá-lo inteiro (só por causa do toque; ao abrir uma questão já respondida a tela não rola)
+  const refResultado = useRef<HTMLDivElement>(null), acabouDeResponder = useRef(false)
+  useEffect(() => { if (a && acabouDeResponder.current) { acabouDeResponder.current = false; revelar(refResultado.current) } }, [a])
   return (
     <>
       <div className="split q">
@@ -140,7 +144,7 @@ export function Questao() {
             {imgUrl && !wide && <ImagemQuestao q={q} />}
             {q.b && BASES[q.b] && (
               <details className="base" open={q.m === 'Língua Inglesa' || q.m === 'Língua Portuguesa'}>
-                <summary>Texto da questão</summary><div className="txt">{BASES[q.b]}</div>
+                <summary onClick={aoTocarNoResumo}>Texto da questão</summary><div className="txt">{BASES[q.b]}</div>
               </details>
             )}
             {!soImg && <p className="enun">{q.e}</p>}
@@ -148,7 +152,7 @@ export function Questao() {
               {(Object.entries(q.o) as [keyof typeof q.o, string][]).map(([l, t]) => {
                 const cls = reveal && a ? (l === q.g ? 'ok' : l === a ? 'err' : 'dim') : ''
                 return (
-                  <li key={l}><button className={`alt ${cls}`} aria-pressed={a === l} disabled={reveal && !!a} onClick={() => answer(l)}>
+                  <li key={l}><button className={`alt ${cls}`} aria-pressed={a === l} disabled={reveal && !!a} onClick={() => { acabouDeResponder.current = true; answer(l) }}>
                     <span className="bub">{l}</span>{soImg ? <span className="sr-only">Alternativa {l}</span> : <span className="tx">{t}</span>}
                     {cls === 'ok' && <><span className="mk"><Icon n="check" size={22} /></span><span className="sr-only">Alternativa correta</span></>}
                     {cls === 'err' && <><span className="mk"><Icon n="x" size={22} /></span><span className="sr-only">Sua resposta, errada</span></>}
@@ -157,7 +161,7 @@ export function Questao() {
               })}
             </ul>
             {reveal && a && (
-              <div className={`fb ${a === q.g ? 'ok' : 'err'}`} role="status">
+              <div ref={refResultado} className={`fb ${a === q.g ? 'ok' : 'err'}`} role="status">
                 <b className="v">{a === q.g ? 'Certo.' : 'Errou.'} Gabarito: {q.g}</b>
                 <p>{q.a ? `Assunto: ${q.a}` : `Tema: ${q.t}`}{seen > 1 ? ` · você já viu ${seen}×` : ''}</p>
                 {q.ger && q.fonte && <p className="note">Questão gerada do seu material. Do trecho: “{q.fonte}”</p>}
@@ -165,7 +169,7 @@ export function Questao() {
             )}
             {reveal && a && <button className="btn small-btn criarcard" onClick={() => criarCartao(q, soImg, mk?.a)}><Icon n="cards" size={18} />Criar flashcard desta questão</button>}
             <details className="nota" key={q.id} open={!!mk?.a}>
-              <summary><Icon n="note" size={16} />Anotação{mk?.a ? ' · salva' : ''}</summary>
+              <summary onClick={aoTocarNoResumo}><Icon n="note" size={16} />Anotação{mk?.a ? ' · salva' : ''}</summary>
               <textarea value={mk?.a ?? ''} maxLength={2000} placeholder="Um lembrete para você sobre esta questão" aria-label="Anotação da questão" autoComplete="off" autoCapitalize="sentences"
                 onChange={(e) => setNote(q.id, e.target.value)} onBlur={flushMarks} />
             </details>

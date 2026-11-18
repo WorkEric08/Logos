@@ -96,10 +96,10 @@ describe('plano de estudo por tempo', () => {
     const pl = montarPlano(entrada({ cartoes: [vencido('a'), vencido('b')] }), 20, tf, rng())
     expect(pl.cartoes).toBe(2); expect(pl.questoes.ids).toHaveLength(Math.floor((20 - 1) / 2))
   })
-  it('sem cartões e sem erros: só questões novas; pelo menos uma questão; limites de 5 a 240 min', () => {
+  it('sem cartões e sem erros: só questões novas; pelo menos uma questão; limites de 5 a 300 min (5 horas)', () => {
     expect(montarPlano(entrada(), 5, tf, rng()).questoes.ids.length).toBeGreaterThanOrEqual(1)
     expect(montarPlano(entrada(), 1, tf, rng()).minutos).toBe(5)
-    expect(montarPlano(entrada(), 9999, tf, rng()).minutos).toBe(240)
+    expect(montarPlano(entrada(), 9999, tf, rng()).minutos).toBe(300)
     expect(montarPlano(entrada(), 30, tf, rng()).questoes.partes).toMatchObject({ erros: 0, novas: 15 })
   })
   it('é repetível (mesma semente, mesmo plano)', () => {
@@ -121,4 +121,13 @@ describe('quanto tempo a pessoa tem', () => {
     ['15 minutos', 15], ['tenho 3 minutos', undefined], ['500 minutos', undefined], ['simulado de 30 questões', undefined], ['treinar 20', undefined],
   ]
   it.each(casos)('"%s" → %s', (t, esperado) => expect(acharMinutos(t)).toBe(esperado))
+})
+
+describe('seletor de tempo do plano', () => {
+  it('"01:30" no seletor e "1 h 30" em palavras; o limite é de 5 horas', async () => {
+    const { horasMinutos, rotuloTempo, MAX_PLANO, MIN_SELETOR, PASSO_SELETOR } = await import('./dia')
+    expect([15, 30, 45, 60, 90, 135, 300].map(horasMinutos)).toEqual(['00:15', '00:30', '00:45', '01:00', '01:30', '02:15', '05:00'])
+    expect([15, 45, 60, 90, 120, 135, 300].map(rotuloTempo)).toEqual(['15 min', '45 min', '1 hora', '1 h 30', '2 horas', '2 h 15', '5 horas'])
+    expect(MAX_PLANO).toBe(300); expect(MIN_SELETOR).toBe(15); expect(PASSO_SELETOR).toBe(15)
+  })
 })

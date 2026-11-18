@@ -7,9 +7,12 @@ import { montarQuestoes, type MetaProva } from '../core/importar/montar'
 import type { QuestaoLida } from '../core/importar/prova'
 import { ACOES, acaoPorId, type IdAcao } from '../core/assistente'
 import { cadernoDoEspaco, dosErros, montarSemana, resumirCaderno, type Caderno } from '../core/caderno'
-import { estadoDoDiaDe, horaTexto, type EstadoDoDia } from '../core/lembrete'
+import { cartoesPorDia, estadoDoDiaDe, horaTexto, type EstadoDoDia } from '../core/lembrete'
 import { useLembrete } from './lembrete'
-import { montarPainel, montarPlano, textoDoPainel, textoDoPlano, type EntradaPainel, type Painel, type Plano, type SugestaoDia } from '../core/dia'
+import { MAX_PLANO, montarPainel, montarPlano, rotuloTempo, textoDoPainel, textoDoPlano, type EntradaPainel, type Painel, type Plano, type SugestaoDia } from '../core/dia'
+import { lerPlanoAtivo, novoPlanoAtivo, statusDoPlano, textoDoStatus, type MedidasDoPlano, type PlanoAtivo, type StatusPlano } from '../core/plano'
+import { AVISOS } from '../core/avisos'
+import { contar, diaDe, type Cartao } from '../core/cards'
 import { entender, semAcento } from '../core/conversa'
 import { gerarQuestoes, type Geracao } from '../core/questoes/gerar'
 import type { Evento } from '../core/sync/eventos'
@@ -23,7 +26,7 @@ import { pick } from '../core/weights'
 import type { Letter } from '../core/types'
 import { anexarImagens, paragrafosDoArquivo, prepararProva, type ProvaPreparada } from '../services/importar/arquivos'
 import { consultar, type Achado } from '../services/busca/consultar'
-import { apagarMaterial, gravarConversa, lerConversa, lerEventos, limparConversaSalva, listarMateriais, salvarMaterial, trechosDoMaterial } from '../services/db'
+import { apagarMaterial, gravarConversa, gravarPlanoGuardado, lerConversa, lerEventos, lerPlanoGuardado, limparConversaSalva, listarMateriais, salvarMaterial, trechosDoMaterial } from '../services/db'
 import { lerChave, lerModelo, mensagemErroIA, relerComIA } from '../services/importar/ia'
 import { recortarQuestao } from '../services/importar/recorte'
 import { BANK, TF, useApp } from './app'
@@ -32,7 +35,7 @@ import { useEspacos } from './espacos'
 
 export type Etapa = 'inicio' | 'espaco-novo' | 'prova-arquivos' | 'lendo' | 'prova-previa' | 'prova-pronta' | 'cartoes-arquivo' | 'cartoes-previa' | 'cartoes-pronto' | 'materiais' | 'material-arquivo' | 'material-pronto' | 'plano' | 'questoes-material' | 'questoes-previa' | 'caderno' | 'pergunta' | 'limpar' | 'espacos' | 'ia'
 /** `tipo`: erro (balão avermelhado que treme uma vez) ou ok (balão de sucesso); sem tipo é conversa normal. */
-export interface Msg { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok' | 'painel'; /** Achados de uma pergunta (trechos com a palavra em destaque e a fonte). */ achados?: Achado[] }
+export interface Msg { id: number; de: 'a' | 'v'; texto: string; tipo?: 'erro' | 'ok' | 'painel' | 'plano'; /** Achados de uma pergunta (trechos com a palavra em destaque e a fonte). */ achados?: Achado[] }
 /** A pergunta que o assistente fez para completar um pedido ("De qual matéria?"): as opções viram sugestões e o texto digitado também responde. */
 export interface Pendente { pedido: Pedido; slot: Slot; texto: string; opcoes: Opcao[] }
 /** As questões geradas de um material, na prévia (nada entra no espaço antes de a pessoa confirmar). */
@@ -80,6 +83,14 @@ interface State {
   painelMsgId: number | null
   /** O plano de estudo montado (as pílulas começam pelos cartões ou pelas questões). */
   plano: Plano | null
+  /** O plano de HOJE em andamento (o que combinamos e de onde contar o que já foi feito); guardado no aparelho. */
+  planoAtivo: PlanoAtivo | null
+  /** A pessoa saiu daqui para fazer os cartões do plano: quando eles acabarem, os Cards a levam direto às questões. */
+  planoEmCurso: boolean
+  /** O andamento do plano de hoje (feito e falta, cartões e questões); null se não há plano de hoje. */
+  statusPlano: () => StatusPlano | null
+  /** Chamado pelos Cards quando a parte dos cartões do plano acaba: vai direto para as questões do plano (ou volta aqui, se não há mais questões). */
+  concluirCartoesDoPlano: () => void
   /** Abre a aba: lê o histórico, se apresenta (primeira vez) e mostra o painel do dia (no máximo uma vez a cada 3 horas). */
   abrirAba: () => Promise<void>
   painelAcao: (s: SugestaoDia) => void
@@ -197,6 +208,26 @@ export const useAssistente = create<State>((set, get) => {
     const c = useCards.getState(), a = useApp.getState()
     return { agora: Date.now(), cartoes: c.cartoes, ajustes: c.ajustes, histQuestoes: a.hist, histCartoes: c.hist, prog: a.prog, bank: BANK, caderno: caderno() }
   }
+  /** O que o app já viu do plano de hoje: cartões estudados e questões respondidas desde que o plano foi montado. */
+  const medidasDoPlano = (p: PlanoAtivo): MedidasDoPlano => {
+    const c = useCards.getState(), agora = Date.now()
+    const respondidas = new Set<string>()
+    for (const e of get().eventos) if (e.k === 'r' && e.t >= p.criado) respondidas.add(e.q)
+    return { cartoesHoje: c.hist.dias[diaDe(agora)]?.n ?? 0, cartoesVencidos: contar(c.cartoes as Cartao[], c.ajustes, agora).hoje, respondidas }
+  }
+  const planoDeHoje = (): PlanoAtivo | null => { const p = get().planoAtivo; return p && p.dia === diaDe(Date.now()) ? p : null }
+  const statusAgora = (): StatusPlano | null => { const p = planoDeHoje(); return p ? statusDoPlano(p, medidasDoPlano(p)) : null }
+  const guardarPlano = (p: PlanoAtivo | null) => { set({ planoAtivo: p }); void gravarPlanoGuardado(p).catch(() => { /* sem banco: vale nesta abertura */ }) }
+  /** Ao voltar ao assistente: se o plano de hoje andou desde o último balão, diz o que já foi feito e o que falta (e as sugestões passam a começar pelo que vem agora). */
+  const mostrarAndamentoDoPlano = () => {
+    const p = planoDeHoje()
+    if (!p) return
+    const texto = textoDoStatus(p, statusDoPlano(p, medidasDoPlano(p)))
+    if (texto === p.ultimoTexto) return
+    const msg = m('a', texto, 'plano')
+    set((st) => ({ mensagens: [...st.mensagens, msg], etapa: 'plano' }))
+    guardarPlano({ ...p, ultimoTexto: texto })
+  }
   const SAUDACAO = "Oi! Eu sou o assistente do Logos. Monto o seu espaço de estudo a partir dos seus arquivos: provas em PDF, gabaritos e resumos. Tudo é lido aqui no seu aparelho. Por onde quer começar?"
   /** O painel do dia como fala do assistente (no máximo uma vez a cada 3 horas: o id da fala é a hora em que ela foi dita). */
   const mostrarPainel = () => {
@@ -211,7 +242,12 @@ export const useAssistente = create<State>((set, get) => {
     await get().atualizarCaderno()
     await get().carregarHistorico()
     if (!get().mensagens.length) set({ mensagens: [m('a', SAUDACAO)] })
-    if (comPainel) mostrarPainel()
+    if (comPainel) {
+      mostrarPainel()
+      set({ planoEmCurso: false }) // voltou aqui: o que estava em curso termina; se o plano andou, o balão de andamento vem depois do painel
+      if (!get().planoAtivo) { try { set({ planoAtivo: lerPlanoAtivo(await lerPlanoGuardado()) }) } catch { /* sem plano guardado */ } }
+      mostrarAndamentoDoPlano()
+    }
     set({ carregada: true })
   }
 
@@ -238,7 +274,16 @@ export const useAssistente = create<State>((set, get) => {
     const { prog, startSimulado, startCustom } = useApp.getState()
     inicio()
     if (p.acao === 'lembrete') { void aplicarLembrete(p); return }
-    if (p.acao === 'plano') { const pl = montarPlano(entradaPainel(), p.minutos ?? 30, TF); diz(textoDoPlano(pl)); set({ plano: pl }); ir('plano'); return }
+    if (p.acao === 'plano') {
+      const pedido = p.minutos ?? 30
+      const pl = montarPlano(entradaPainel(), pedido, TF)
+      if (pedido > MAX_PLANO) diz(`O máximo é ${rotuloTempo(MAX_PLANO)}: é importante se esforçar, mas também precisamos descansar. Montei o plano de ${rotuloTempo(MAX_PLANO)}; se precisar, depois montamos outro.`)
+      const agora = Date.now()
+      const ativo = novoPlanoAtivo(pl, diaDe(agora), agora, useCards.getState().hist.dias[diaDe(agora)]?.n ?? 0)
+      ativo.ultimoTexto = textoDoStatus(ativo, statusDoPlano(ativo, medidasDoPlano(ativo)))
+      diz(`${textoDoPlano(pl)}${pl.cartoes || pl.questoes.ids.length ? '\nQuando você voltar aqui, eu mostro o que ainda falta.' : ''}`)
+      set({ plano: pl, planoEmCurso: false }); guardarPlano(ativo); ir('plano'); return
+    }
     if (p.acao === 'simulado' && p.materia === 'edital') { dizOk('Montei o simulado do edital: questões sorteadas pelo peso de cada matéria, com nota e regras. Boa prova!'); startSimulado(); return }
     if (p.fonte === 'semana') {
       const s = montarSemana(BANK, prog, caderno(), TF, p.quantidade ?? 20)
@@ -375,7 +420,7 @@ export const useAssistente = create<State>((set, get) => {
 
   return {
     etapa: 'inicio', mensagens: [], ocupado: false, progresso: null, depois: null, previa: null, cartoes: null, resultado: null, materiais: [], sugestoes: {}, relendo: null, vistas: 0, desambiguar: [],
-    pendente: null, ultimaProva: null, desfazivel: null, rascunho: '', carregada: false, epoca: 0, eventos: [], geradas: null, painel: null, painelMsgId: null, plano: null,
+    pendente: null, ultimaProva: null, desfazivel: null, rascunho: '', carregada: false, epoca: 0, eventos: [], geradas: null, painel: null, painelMsgId: null, plano: null, planoAtivo: null, planoEmCurso: false, statusPlano: () => statusAgora(),
     painelAcao: (sug) => {
       voce(sug.rotulo)
       if (sug.id === 'cartoes') { useApp.getState().setTab('cartoes'); return }
@@ -388,11 +433,25 @@ export const useAssistente = create<State>((set, get) => {
     planoAcao: (que) => {
       const pl = get().plano
       if (que === 'outro') { voce('Outro tempo'); avancar({ acao: 'plano' }); return }
-      if (!pl) return
-      if (que === 'cartoes') { voce('Começar pelos cartões'); useApp.getState().setTab('cartoes'); return }
-      voce(`Fazer as ${pl.questoes.ids.length} questões`)
-      dizOk(`Pronto: ${plural(pl.questoes.ids.length, 'questão', 'questões')} do plano de ${pl.minutos} minutos. Bom treino!`)
-      inicio(); useApp.getState().startCustom(pl.questoes.ids, false)
+      const st = statusAgora()
+      if (!pl && !st) return
+      if (que === 'cartoes') {
+        voce(st && st.cartoesFeitos > 0 ? 'Continuar os cartões' : 'Começar pelos cartões')
+        // abre direto o estudo; quando os cartões do plano acabarem, os Cards levam às questões (concluirCartoesDoPlano)
+        set({ planoEmCurso: true }); useCards.getState().pedirEstudo(true); useApp.getState().setTab('cartoes'); return
+      }
+      const ids = st ? st.questoesFaltam : pl!.questoes.ids
+      if (!ids.length) { voce('Fazer as questões'); dizOk('Você já fez todas as questões do plano. Que tal montar outro?'); return }
+      voce(st && st.questoesFeitas > 0 ? 'Continuar as questões' : `Fazer as ${ids.length} questões`)
+      dizOk(`Pronto: ${plural(ids.length, 'questão', 'questões')} do plano${st && st.questoesFeitas > 0 ? ' que ainda faltavam' : ` de ${pl ? pl.minutos : planoDeHoje()?.minutos} minutos`}. Bom treino!`)
+      set({ planoEmCurso: false }); inicio(); useApp.getState().startCustom(ids, false)
+    },
+    concluirCartoesDoPlano: () => {
+      if (!get().planoEmCurso || !planoDeHoje()) return
+      set({ planoEmCurso: false })
+      const s = statusAgora()
+      if (s && s.questoesFaltam.length) { useApp.getState().showToast(AVISOS.cartoesDoPlanoFeitos); useApp.getState().startCustom(s.questoesFaltam, false) }
+      else useApp.getState().setTab('assistente') // não há mais questões: volta aqui, onde o balão diz que o plano acabou
     },
     gerarQuestoes: async (materialId) => {
       if (get().ocupado) return
@@ -433,7 +492,7 @@ export const useAssistente = create<State>((set, get) => {
         ir('prova-pronta')
       } catch (e) { dizErro('Não consegui adicionar: ' + erroTexto(e)); set({ ocupado: false }) }
     },
-    estadoDoDia: async () => { await get().atualizarCaderno(); return estadoDoDiaDe(montarPainel(entradaPainel())) },
+    estadoDoDia: async () => { await get().atualizarCaderno(); const e = entradaPainel(); return estadoDoDiaDe(montarPainel(e), cartoesPorDia(e.cartoes, e.ajustes, e.agora)) },
     atualizarCaderno: async () => { try { set({ eventos: await lerEventos() }) } catch { /* sem eventos: vale o progresso agregado */ } },
     cadernoAcao: (que) => {
       if (que === 'rever') { voce('Rever o caderno'); iniciarPedido('treinar', { erros: true }) }

@@ -3,6 +3,7 @@ import { temConteudo, textoDoResumo, type Resumo } from '../core/copia'
 import { lerUltimaCopia } from '../services/db'
 import { resumoDoAparelho, restaurarCopia, salvarCopia } from '../services/copia'
 import { useEspacos } from '../store/espacos'
+import { aoAparecer } from './revelar'
 
 const dataTexto = (ms: number) => new Date(ms).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -47,7 +48,7 @@ export function Copia() {
         <button type="button" className="btn" disabled={ocupado} onClick={() => arquivo.current?.click()}>Restaurar de um arquivo</button>
         <input ref={arquivo} id="copia-arquivo" type="file" accept=".json,application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void restaurar(f) }} />
       </div>
-      {nota && <p className="note" role={nota.erro ? 'alert' : 'status'} style={nota.erro ? { color: 'var(--err)' } : undefined}>{nota.texto}</p>}
+      {nota && <p key={nota.texto} ref={aoAparecer} className="note" role={nota.erro ? 'alert' : 'status'} style={nota.erro ? { color: 'var(--err)' } : undefined}>{nota.texto}</p>}
     </div>
   )
 }

@@ -81,7 +81,8 @@ await p.screenshot({ path: 'docs/verificacao-capturas/historico-simulado-1440-da
 // ---- 5. zerar apaga progresso e evolução, mantém marcações; Desfazer devolve tudo (o backup em arquivo saiu do app)
 const antes = { hoje: await resumo('Hoje'), sims: await p.locator('.simlist li').count() }
 await irPara(p, 'Mais')
-ok('Mais não tem mais a seção de backup', (await p.locator('text=Backup do progresso').count()) === 0 && (await p.locator('text=Salvar arquivo de backup').count()) === 0 && (await p.locator('input[type=file]').count()) === 0)
+// (a "Cópia de segurança" de 2026-11-17 é outra coisa: espaços, questões e materiais, não o progresso; o único seletor de arquivo de Mais é o dela)
+ok('Mais não tem mais a seção de backup do progresso', (await p.locator('text=Backup do progresso').count()) === 0 && (await p.locator('text=Salvar arquivo de backup').count()) === 0 && (await p.locator('input[type=file]:not(.copia input)').count()) === 0)
 await p.click('text=Zerar tudo'); await p.click('text=Sim, zerar'); await p.waitForTimeout(300)
 const desfazer = p.locator('.toast').getByRole('button', { name: 'Desfazer' })
 await irPara(p, 'Desempenho')

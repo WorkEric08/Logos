@@ -478,7 +478,7 @@ describe('assistente: lembrete diário pelo chat', () => {
     await aposta(true)
     estado().enviar('me lembre às 20h')
     await vi.waitFor(() => expect(ultimaFala()).toMatch(/^Pronto: lembrete diário às 20:00\./))
-    expect(cfg()).toEqual({ ativo: true, hora: 20, minuto: 0 })
+    expect(cfg()).toEqual({ ativo: true, hora: 20, minuto: 0, periodos: [] })
     expect(trocas.at(-1)!.length).toBeGreaterThanOrEqual(13)
     expect(ultimaFala()).toMatch(/Próximo aviso: (hoje|amanhã) às 20:00/)
   })
@@ -515,5 +515,114 @@ describe('assistente: lembrete diário pelo chat', () => {
     estado().enviar('me lembre às 20h')
     await vi.waitFor(() => expect(ultimaFala()).toMatch(/só funciona no aplicativo do Android/))
     expect(cfg().ativo).toBe(false)
+  })
+})
+
+describe('assistente: plano de estudo acompanhado (cartões → questões)', () => {
+  afterEach(async () => { await new Promise((r) => setTimeout(r, 80)) })
+  let app: typeof import('./app')
+  let cards: typeof import('./cards')
+  let cardsCore: typeof import('../core/cards')
+  let hist: typeof import('../core/historico')
+  beforeEach(async () => { app = await import('./app'); cards = await import('./cards'); cardsCore = await import('../core/cards'); hist = await import('../core/historico') })
+  const sessao = () => app.useApp.getState().session
+  const vencido = (id: string) => ({ ...cardsCore.criarCartao({ b: 'b', f: 'frente ' + id, v: 'verso' }, Date.now() - 9e8, id), estado: 'revisao' as const, due: Date.now() - 1000, ivl: 3, reps: 2 })
+  const comVencidos = (n: number) => cards.useCards.setState({ cartoes: Array.from({ length: n }, (_, i) => vencido('c' + i)), pronto: true })
+  /** Estuda `n` cartões: o histórico do dia sobe e os cartões estudados saem da fila (voltam em dias). */
+  const estudar = (n: number) => {
+    const s = cards.useCards.getState()
+    let h = s.hist; for (let i = 0; i < n; i++) h = hist.registrarResposta(h, true, Date.now())
+    const feitos = new Set(s.cartoes.filter((c) => c.due < Date.now()).slice(0, n).map((c) => c.id))
+    cards.useCards.setState({ hist: h, cartoes: s.cartoes.map((c) => (feitos.has(c.id) ? { ...c, due: Date.now() + 5 * 864e5 } : c)) })
+  }
+  /** Responde questões do plano (o registro de respostas é de onde o assistente lê). */
+  const responder = async (ids: string[]) => {
+    const ev = await import('../core/sync/eventos'), db = await import('../services/db')
+    for (const [i, id] of ids.entries()) await db.gravarResposta(id, { n: 1, c: 1, ok: true, last: app.BY_ID[id].g, t: Date.now() + 5000 + i }, hist.HIST_VAZIO, ev.resposta('d1', id, app.BY_ID[id].g, true, Date.now() + 5000 + i))
+  }
+  const montar = async (venc = 10, min = 60) => { comVencidos(venc); await estado().abrirAba(); estado().enviar(`tenho ${min} minutos`); return estado().plano! }
+
+  it('montar o plano guarda o andamento (cartões, questões e de onde contar) e promete acompanhar', async () => {
+    const pl = await montar(10, 60)
+    const a = estado().planoAtivo!
+    expect(a).toMatchObject({ cartoes: pl.cartoes, minutos: 60, baseCartoes: 0 }); expect(a.questoes).toEqual(pl.questoes.ids); expect(a.dia).toBe(hist.diaDe(Date.now()))
+    expect(fala().texto).toMatch(/Quando você voltar aqui, eu mostro o que ainda falta\.$/)
+    expect(estado().statusPlano()).toMatchObject({ fase: 'cartoes', cartoesFaltam: pl.cartoes })
+    const db = await import('../services/db'); expect(await db.lerPlanoGuardado()).toMatchObject({ cartoes: pl.cartoes })
+  })
+  it('"Começar pelos cartões" abre direto o estudo e marca que o plano está em curso', async () => {
+    await montar(); estado().planoAcao('cartoes')
+    expect(estado().planoEmCurso).toBe(true); expect(cards.useCards.getState().pedidoEstudo).toBe(true); expect(app.useApp.getState().tab).toBe('cartoes')
+  })
+  it('saiu dos cartões no meio: ao voltar, o assistente diz quantos faltam e o botão vira "Continuar os cartões"', async () => {
+    const pl = await montar(10, 60) // 10 cartões no plano
+    estado().planoAcao('cartoes'); estudar(7)
+    await estado().abrirAba()
+    expect(estado().planoEmCurso).toBe(false)
+    expect(fala()).toMatchObject({ de: 'a', tipo: 'plano' }); expect(fala().texto).toBe(`Faltam ${pl.cartoes - 7} de ${pl.cartoes} cartões do seu plano (você já fez 7). Depois, ${pl.questoes.ids.length} questões.`)
+    expect(estado().etapa).toBe('plano'); expect(estado().statusPlano()).toMatchObject({ fase: 'cartoes', cartoesFeitos: 7, cartoesFaltam: pl.cartoes - 7 })
+  })
+  it('voltar sem ter andado não repete o balão', async () => {
+    await montar(); const n = estado().mensagens.length
+    await estado().abrirAba(); await estado().abrirAba()
+    expect(estado().mensagens).toHaveLength(n)
+  })
+  it('terminou os cartões e voltou: o balão passa para as questões (a posição em destaque muda)', async () => {
+    const pl = await montar(10, 60)
+    estudar(pl.cartoes); await estado().abrirAba()
+    expect(fala().texto).toBe(`Cartões do plano concluídos! Agora as questões: ${pl.questoes.ids.length} questões.`)
+    expect(estado().statusPlano()).toMatchObject({ fase: 'questoes', cartoesFaltam: 0 })
+  })
+  it('responder parte das questões: ao voltar mostra quantas faltam, e "continuar" começa só com as que faltam', async () => {
+    const pl = await montar(4, 60); const q = pl.questoes.ids
+    estudar(pl.cartoes); await responder(q.slice(0, 5)); await estado().abrirAba()
+    expect(fala().texto).toBe(`Cartões do plano concluídos! Agora as questões: faltam ${q.length - 5} de ${q.length} questões.`)
+    estado().planoAcao('questoes')
+    expect(sessao()?.ids).toEqual(q.slice(5)); expect(sessao()?.sim).toBe(false); expect(fala().texto).toMatch(/do plano que ainda faltavam\. Bom treino!/)
+  })
+  it('tudo feito: o balão diz que o plano acabou e a saída é montar outro', async () => {
+    const pl = await montar(4, 60)
+    estudar(pl.cartoes); await responder(pl.questoes.ids); await estado().abrirAba()
+    expect(fala().texto).toMatch(/^Plano de 60 minutos concluído: \d+ cartões e \d+ questões\. Bom trabalho! Quer montar outro\?$/)
+    expect(estado().statusPlano()?.fase).toBe('fim')
+    estado().planoAcao('questoes'); expect(fala().texto).toMatch(/Você já fez todas as questões do plano/); expect(sessao()).toBeNull()
+  })
+  it('os Cards avisam que os cartões do plano acabaram: vai direto às questões (com o recado) e o plano deixa de estar em curso', async () => {
+    const pl = await montar(10, 60)
+    estado().planoAcao('cartoes'); estudar(pl.cartoes)
+    estado().concluirCartoesDoPlano()
+    expect(estado().planoEmCurso).toBe(false); expect(sessao()?.ids).toEqual(pl.questoes.ids); expect(app.useApp.getState().toast?.text).toBe('Cartões feitos! Agora as questões.')
+  })
+  it('só entra nas questões quando o plano estava em curso (estudar cartões por conta própria não leva a lugar nenhum)', async () => {
+    const pl = await montar(10, 60); estudar(pl.cartoes)
+    estado().concluirCartoesDoPlano(); expect(sessao()).toBeNull()
+  })
+  it('sem questões sobrando, concluir os cartões leva de volta ao assistente', async () => {
+    const pl = await montar(4, 60)
+    estado().planoAcao('cartoes'); estudar(pl.cartoes); await responder(pl.questoes.ids); await estado().atualizarCaderno()
+    app.useApp.getState().setTab('cartoes'); estado().concluirCartoesDoPlano()
+    expect(app.useApp.getState().tab).toBe('assistente'); expect(sessao()).toBeNull()
+  })
+  it('um plano de ontem não vale hoje', async () => {
+    await montar(); const a = estado().planoAtivo!
+    loja.useAssistente.setState({ planoAtivo: { ...a, dia: '2020-01-01' } })
+    expect(estado().statusPlano()).toBeNull(); const n = estado().mensagens.length; await estado().abrirAba(); expect(estado().mensagens).toHaveLength(n)
+  })
+  it('o plano guardado volta depois de fechar o app', async () => {
+    const pl = await montar(10, 60)
+    vi.resetModules(); loja = await import('./assistente'); app = await import('./app'); cards = await import('./cards')
+    expect(estado().planoAtivo).toBeNull()
+    cards.useCards.setState({ cartoes: Array.from({ length: 10 }, (_, i) => vencido('c' + i)), pronto: true })
+    await estado().abrirAba()
+    expect(estado().planoAtivo).toMatchObject({ cartoes: pl.cartoes }); expect(estado().statusPlano()?.fase).toBe('cartoes')
+  })
+  it('passar de 5 horas escrevendo: o plano sai de 5 horas e o assistente explica', async () => {
+    estado().enviar('tenho 8 horas')
+    expect(estado().plano?.minutos).toBe(300); expect(estado().mensagens.some((x) => /O máximo é 5 horas: é importante se esforçar, mas também precisamos descansar/.test(x.texto))).toBe(true)
+  })
+  it('as sugestões fixas não trazem mais "Perguntar ao meu material" nem "Ligar a ajuda de IA" (escrever o pedido continua valendo)', async () => {
+    const { ACOES } = await import('../core/assistente')
+    expect(ACOES.filter((a) => a.naLista === false).map((a) => a.id).sort()).toEqual(['ia', 'perguntar'])
+    estado().enviar('configurar a IA'); expect(estado().etapa).toBe('ia')
   })
 })

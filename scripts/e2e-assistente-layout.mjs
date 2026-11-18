@@ -64,12 +64,21 @@ for (const perfil of PERFIS) {
   const temSvg = await p.locator('.as-composer button svg').count()
   ok(`${perfil.nome}: um só botão (enviar), só com ícone, sem emoji nem texto`, botoes === 1 && textoBtn === '' && temSvg === 1 && (await p.locator('.as-composer button').getAttribute('aria-label')) === 'Enviar')
   ok(`${perfil.nome}: o botão de enviar é redondo e fica fixo à direita; o campo ocupa o resto (comprido)`, Math.abs(c0.btn.w - c0.btn.h) < 1 && c0.btn.right >= c0.right - 0.5 && c0.campo.right <= c0.btn.left && (c0.campo.right - c0.campo.left) > W - 32 - 70, JSON.stringify({ campo: [Math.round(c0.campo.left), Math.round(c0.campo.right)], btn: [Math.round(c0.btn.left), Math.round(c0.btn.right)] }))
-  ok(`${perfil.nome}: o botão está apagado enquanto não há texto e vira laranja ao escrever`, await (async () => {
-    const vazio = await p.locator('.as-enviar').isDisabled()
+  ok(`${perfil.nome}: enviar: só o ÍCONE fica laranja (sem fundo nem borda); apagado e cinza enquanto não há texto`, await (async () => {
+    const lerBtn = () => p.locator('.as-enviar').evaluate((e) => { const c = getComputedStyle(e), s = getComputedStyle(e.querySelector('svg')); return { fundo: c.backgroundColor, borda: c.borderTopColor, cor: c.color, icone: s.color, ativo: !e.disabled } })
+    const vazio = await lerBtn()
     await p.fill('#as-msg', 'simulado'); await p.waitForTimeout(300)
-    const cor = await p.locator('.as-enviar').evaluate((e) => getComputedStyle(e).backgroundColor)
+    const cheio = await lerBtn()
     await p.fill('#as-msg', '')
-    return vazio && cor === 'rgb(249, 115, 22)'
+    const semFundo = (b) => b.fundo === 'rgba(0, 0, 0, 0)' && b.borda === 'rgba(0, 0, 0, 0)'
+    return !vazio.ativo && cheio.ativo && semFundo(vazio) && semFundo(cheio) && cheio.cor === 'rgb(249, 115, 22)' && cheio.icone === 'rgb(249, 115, 22)' && vazio.cor !== 'rgb(249, 115, 22)'
+  })())
+  ok(`${perfil.nome}: a caixa de texto tem UMA linha cinza, igual com e sem foco (sem contorno nem segunda linha laranja)`, await (async () => {
+    const ler = () => p.locator('#as-msg').evaluate((e) => { const c = getComputedStyle(e); return { borda: c.borderTopColor, larg: c.borderTopWidth, contorno: c.outlineStyle === 'none' || c.outlineWidth === '0px', sombra: c.boxShadow } })
+    await p.locator('#as-msg').evaluate((e) => e.blur()); const sem = await ler()
+    await p.locator('#as-msg').evaluate((e) => e.focus({ preventScroll: true })); await p.waitForTimeout(250); const com = await ler()
+    await p.locator('#as-msg').evaluate((e) => e.blur())
+    return sem.borda === com.borda && sem.larg === com.larg && com.contorno && com.sombra === 'none' && sem.borda !== 'rgb(249, 115, 22)'
   })())
 
   // o campo cresce com o texto; o botão continua à direita, na base do campo, e a caixa não sai do lugar
@@ -82,8 +91,12 @@ for (const perfil of PERFIS) {
 
   // ───── 3. o teclado: a caixa pousa logo acima dele, de onde a pessoa tocar ─────
   const pre = await caixa(p) // o fim da conversa estava à vista logo antes de o teclado abrir?
-  await p.locator('#as-msg').evaluate((e) => e.focus({ preventScroll: true })); await teclado(p, perfil.kb)
+  await p.locator('#as-msg').evaluate((e) => e.focus({ preventScroll: true }))
+  await p.evaluate((v) => document.documentElement.style.setProperty('--teclado', v + 'px'), perfil.kb); await p.waitForTimeout(90)
+  const meio = await caixa(p) // a meio caminho: a caixa DESLIZA com o teclado (não salta)
+  await p.waitForTimeout(900)
   const k1 = await caixa(p)
+  ok(`${perfil.nome}: a caixa acompanha o teclado deslizando (a ${Math.round(100 * (pre.bottom - meio.bottom) / Math.max(1, pre.bottom - k1.bottom))}% do caminho aos 90 ms, não de um salto)`, meio.bottom < pre.bottom - 2 && meio.bottom > k1.bottom + 2, `antes ${Math.round(pre.bottom)}, meio ${Math.round(meio.bottom)}, depois ${Math.round(k1.bottom)}`)
   ok(`${perfil.nome}: com o teclado aberto, a caixa e o botão de enviar ficam logo acima dele (${Math.round(H - perfil.kb - k1.bottom)} px de folga)`, k1.bottom <= H - perfil.kb + 0.5 && k1.bottom >= H - perfil.kb - 16 && k1.btn.bottom <= H - perfil.kb + 0.5 && k1.btn.top >= 0, `base ${Math.round(k1.bottom)}, teclado a partir de ${H - perfil.kb}`)
   ok(`${perfil.nome}: a "câmera" não deixa a caixa cobrir o fim da conversa (se ele estava à vista)`, !(pre.fim <= H + 1) || k1.fim <= k1.top + 1, `fim ${Math.round(k1.fim)} · caixa ${Math.round(k1.top)}`)
   await p.keyboard.type('simulado'); await p.waitForTimeout(100)

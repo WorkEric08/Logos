@@ -12,7 +12,14 @@ export const META_DIA = 20
 /** Quanto leva, em média, cada coisa (usado para dividir o tempo do plano). Cartão: ler, lembrar e dar a nota; questão: ler, marcar e ver a correção. */
 export const MIN_POR_CARTAO = 0.5
 export const MIN_POR_QUESTAO = 2
-export const MIN_PLANO = 5, MAX_PLANO = 240
+export const MIN_PLANO = 5, MAX_PLANO = 300
+/** O seletor de tempo do plano (o mesmo desenho do horário do lembrete): de 15 em 15 minutos, de 15 minutos a 5 horas. */
+export const MIN_SELETOR = 15, PASSO_SELETOR = 15
+
+/** "01:30": o tempo no formato do seletor (horas e minutos). */
+export const horasMinutos = (n: number): string => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`
+/** "45 min", "1 hora", "1 h 30", "2 horas": o tempo em palavras (é também o texto do balão da pessoa ao escolher). */
+export const rotuloTempo = (n: number): string => (n < 60 ? `${n} min` : n % 60 === 0 ? (n === 60 ? '1 hora' : `${n / 60} horas`) : `${Math.floor(n / 60)} h ${n % 60}`)
 /** Quanto do tempo, no máximo, vai para os cartões (eles são rápidos, mas o resto também precisa de tempo). */
 const FRACAO_CARTOES = 0.4
 const MAX_ERROS_NA_SUGESTAO = 20

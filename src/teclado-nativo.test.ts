@@ -36,7 +36,9 @@ describe('teclado digital só cobre a tela', () => {
 
   it('o espaço do teclado é um espaçador no FIM do conteúdo, nunca padding do contêiner de rolagem (o position:sticky respeita o padding e sobe os botões para cima do teclado)', () => {
     const css = ler('src', 'ui', 'styles.css')
-    expect(css).toContain('.scroll-y::after{content:"";display:block;height:var(--teclado,0px)}')
+    expect(css).toContain('.scroll-y::after{content:"";display:block;height:0}')
+    // a altura só vale com um campo de texto em foco: um --teclado velho não pode deixar um vazio rolável no fim da tela (2026-11-17)
+    expect(css).toContain(':root:has(input:focus,textarea:focus,select:focus,[contenteditable]:focus) .scroll-y::after{height:var(--teclado,0px)}')
     expect(css).not.toMatch(/padding-bottom:\s*var\(--teclado/)
   })
 
