@@ -12,6 +12,7 @@ import { useConta } from '../services/sync/conta'
 import { Copia } from './Copia'
 import { Lembrete } from './Lembrete'
 import { aoAparecer } from './revelar'
+import { TreinoDoPlano } from './TreinoDoPlano'
 import { ICONES, descreverAba, type Icones } from '../core/aba'
 
 import { BANK, TF, useApp } from '../store/app'
@@ -130,6 +131,7 @@ export function Treinar() {
       <div className="split edge tr">
         <div className="col">
           <Top title="Treinar" sub={`${pool.length} questões nos filtros`} />
+          <TreinoDoPlano />
           <div className="card filters">
             <div className="field"><span className="lb">Matéria</span><div className="chips">
               <Chip on={!f.mat} label="Todas" run={() => setMatFilter('')} />

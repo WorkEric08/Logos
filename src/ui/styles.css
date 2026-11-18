@@ -918,6 +918,9 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .lemb-hora{display:flex;align-items:center;gap:10px}
 .lemb-hora .btn{flex:none;width:56px;font-size:24px;line-height:1;padding:0;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none} /* apertar e segurar repete o passo: sem seleção de texto nem menu de toque longo */
 .lemb-rel{flex:1;min-width:0;text-align:center;font:600 34px/1.3 var(--f-num);letter-spacing:.02em}
+.treino-plano{display:grid;gap:10px;margin-bottom:14px;border-color:var(--accent)}
+.treino-plano .row{display:flex;gap:10px;flex-wrap:wrap}
+.treino-plano .row .btn{flex:1 1 150px}
 .as-tempo{display:grid;gap:10px;margin-top:8px;padding:14px;animation:fc-entra .24s var(--ease-out) backwards}
 .as-tempo .row{display:flex;gap:10px;flex-wrap:wrap}
 .as-tempo .row .btn{flex:1 1 150px}

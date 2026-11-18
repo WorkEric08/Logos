@@ -2,7 +2,7 @@
 // cartões e quais questões) e, a cada vez que ela volta ao assistente, conta o que já foi feito e o que ainda falta: primeiro os cartões, depois as questões.
 // "Feito" vem do que o app viu desde que o plano foi montado: cartões estudados hoje (acima do que já havia no início) e respostas às questões do plano
 // (eventos de resposta depois do início). Cartão que vence e não é estudado continua faltando; cartão que sumiu da fila (nada mais vence) não falta mais.
-import type { Plano } from './dia'
+import { MIN_POR_QUESTAO, type Plano } from './dia'
 
 export interface PlanoAtivo {
   /** O dia do plano (AAAA-MM-DD, calendário local): amanhã ele deixa de valer. */
@@ -16,6 +16,11 @@ export interface PlanoAtivo {
   questoes: string[]
   /** Quantos cartões já tinham sido estudados hoje quando o plano foi montado. */
   baseCartoes: number
+  /**
+   * Até quando o treino do plano fica salvo (ms): o tempo que a pessoa disse ter, contado da criação do plano. Passou disso e ela não está dentro do treino, o plano é descartado;
+   * quem entrou no treino leva o tempo que precisar (ver `prorrogar`).
+   */
+  validoAte: number
   /** O texto do último balão de andamento (para não repetir o mesmo balão a cada volta ao assistente). */
   ultimoTexto?: string
 }
@@ -45,8 +50,17 @@ export interface MedidasDoPlano {
 }
 
 export const novoPlanoAtivo = (pl: Plano, dia: string, agora: number, cartoesHoje: number): PlanoAtivo => ({
-  dia, criado: agora, minutos: pl.minutos, cartoes: pl.cartoes, questoes: [...pl.questoes.ids], baseCartoes: cartoesHoje,
+  dia, criado: agora, minutos: pl.minutos, cartoes: pl.cartoes, questoes: [...pl.questoes.ids], baseCartoes: cartoesHoje, validoAte: agora + pl.minutos * 60_000,
 })
+
+/** O plano ainda vale? Só no dia em que foi montado, e só até o prazo (a não ser que a pessoa esteja dentro do treino dele: aí não há prazo). */
+export const planoVigente = (p: PlanoAtivo, agora: number, dia: string, dentroDoTreino: boolean): boolean => p.dia === dia && (dentroDoTreino || agora <= p.validoAte)
+
+/**
+ * A pessoa saiu do treino do plano sem terminar. Se ainda estava dentro do prazo, ele não muda (vale o que ela mesma disse ter). Se ficou lá dentro além do prazo (pode levar o tempo que precisar),
+ * não perde o que faltava ao sair: o treino fica salvo pelo tempo que as questões que faltam levam (2 min cada).
+ */
+export const prorrogar = (p: PlanoAtivo, agora: number, faltam: number): PlanoAtivo => (agora <= p.validoAte ? p : { ...p, validoAte: agora + faltam * MIN_POR_QUESTAO * 60_000 })
 
 export function statusDoPlano(p: PlanoAtivo, m: MedidasDoPlano): StatusPlano {
   const feitos = Math.max(0, m.cartoesHoje - p.baseCartoes)
@@ -84,5 +98,6 @@ export function lerPlanoAtivo(x: unknown): PlanoAtivo | null {
   const n = (v: unknown, padrao = 0) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : padrao)
   const questoes = Array.isArray(o.questoes) ? o.questoes.filter((id): id is string => typeof id === 'string') : []
   const ultimoTexto = texto(o.ultimoTexto)
-  return { dia: o.dia, criado: n(o.criado), minutos: n(o.minutos), cartoes: n(o.cartoes), questoes, baseCartoes: n(o.baseCartoes), ...(ultimoTexto ? { ultimoTexto } : {}) }
+  const criado = n(o.criado), minutos = n(o.minutos)
+  return { dia: o.dia, criado, minutos, cartoes: n(o.cartoes), questoes, baseCartoes: n(o.baseCartoes), validoAte: n(o.validoAte, criado + minutos * 60_000), ...(ultimoTexto ? { ultimoTexto } : {}) }
 }

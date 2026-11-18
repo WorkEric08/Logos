@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Plano } from './dia'
-import { lerPlanoAtivo, novoPlanoAtivo, statusDoPlano, textoDoStatus, type MedidasDoPlano, type PlanoAtivo } from './plano'
+import { lerPlanoAtivo, novoPlanoAtivo, planoVigente, prorrogar, statusDoPlano, textoDoStatus, type MedidasDoPlano, type PlanoAtivo } from './plano'
 
 const plano = (cartoes: number, questoes: string[], minutos = 60): Plano => ({
   minutos, cartoes, minutosCartoes: cartoes / 2, questoes: { ids: questoes, partes: { erros: 0, fracas: 0, novas: questoes.length, outras: 0 }, materiasFracas: [] }, minutosQuestoes: questoes.length * 2, folga: 0,
@@ -73,5 +73,33 @@ describe('plano guardado', () => {
     expect(lerPlanoAtivo(JSON.parse(JSON.stringify(p)))).toEqual(p)
     expect(lerPlanoAtivo(null)).toBeNull(); expect(lerPlanoAtivo('lixo')).toBeNull(); expect(lerPlanoAtivo({ dia: 'ontem' })).toBeNull()
     expect(lerPlanoAtivo({ dia: '2026-11-17', cartoes: -3, questoes: ['a', 7, 'b'] })).toMatchObject({ cartoes: 0, questoes: ['a', 'b'], baseCartoes: 0 })
+  })
+})
+
+describe('prazo do treino do plano', () => {
+  const MIN = 60_000
+  it('o prazo é o tempo que a pessoa disse ter, a partir de quando montou o plano', () => {
+    const p = novoPlanoAtivo(plano(4, ids(5), 90), '2026-11-17', 1_000_000, 0)
+    expect(p.validoAte).toBe(1_000_000 + 90 * MIN)
+  })
+  it('vale só no dia e dentro do prazo; lá dentro do treino não há prazo', () => {
+    const p = novoPlanoAtivo(plano(0, ids(5), 60), '2026-11-17', 0, 0)
+    expect(planoVigente(p, 59 * MIN, '2026-11-17', false)).toBe(true)
+    expect(planoVigente(p, 60 * MIN, '2026-11-17', false)).toBe(true) // no último minuto ainda vale
+    expect(planoVigente(p, 60 * MIN + 1, '2026-11-17', false)).toBe(false)
+    expect(planoVigente(p, 5 * 3_600_000, '2026-11-17', true)).toBe(true) // dentro do treino: o tempo que precisar
+    expect(planoVigente(p, 10 * MIN, '2026-11-18', false)).toBe(false) // outro dia: não vale
+    expect(planoVigente(p, 10 * MIN, '2026-11-18', true)).toBe(false)
+  })
+  it('saiu antes do prazo: o prazo não muda; saiu depois: fica salvo pelo tempo das questões que faltam (2 min cada)', () => {
+    const p = novoPlanoAtivo(plano(0, ids(5), 60), '2026-11-17', 0, 0)
+    expect(prorrogar(p, 30 * MIN, 20)).toBe(p)
+    expect(prorrogar(p, 60 * MIN, 20)).toBe(p) // exatamente no prazo ainda é "dentro"
+    expect(prorrogar(p, 100 * MIN, 20).validoAte).toBe(100 * MIN + 40 * MIN)
+    expect(prorrogar(p, 100 * MIN, 0).validoAte).toBe(100 * MIN)
+  })
+  it('um plano guardado antes de existir o prazo ganha um (o tempo dele a partir da criação)', () => {
+    expect(lerPlanoAtivo({ dia: '2026-11-17', criado: 5000, minutos: 30 })!.validoAte).toBe(5000 + 30 * MIN)
+    expect(lerPlanoAtivo({ dia: '2026-11-17', criado: 5000, minutos: 30, validoAte: 123 })!.validoAte).toBe(123)
   })
 })

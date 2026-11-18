@@ -546,7 +546,7 @@ describe('assistente: plano de estudo acompanhado (cartões → questões)', () 
     const pl = await montar(10, 60)
     const a = estado().planoAtivo!
     expect(a).toMatchObject({ cartoes: pl.cartoes, minutos: 60, baseCartoes: 0 }); expect(a.questoes).toEqual(pl.questoes.ids); expect(a.dia).toBe(hist.diaDe(Date.now()))
-    expect(fala().texto).toMatch(/Quando você voltar aqui, eu mostro o que ainda falta\.$/)
+    expect(fala().texto).toMatch(/Quando você voltar aqui, eu mostro o que ainda falta\. Se sair no meio, o treino fica salvo na aba Treinar por 1 hora; se você entrar nele, leva o tempo que precisar\.$/)
     expect(estado().statusPlano()).toMatchObject({ fase: 'cartoes', cartoesFaltam: pl.cartoes })
     const db = await import('../services/db'); expect(await db.lerPlanoGuardado()).toMatchObject({ cartoes: pl.cartoes })
   })
@@ -624,5 +624,91 @@ describe('assistente: plano de estudo acompanhado (cartões → questões)', () 
     const { ACOES } = await import('../core/assistente')
     expect(ACOES.filter((a) => a.naLista === false).map((a) => a.id).sort()).toEqual(['ia', 'perguntar'])
     estado().enviar('configurar a IA'); expect(estado().etapa).toBe('ia')
+  })
+})
+
+describe('assistente: treino do plano guardado na aba Treinar (prazo = o tempo que a pessoa tem)', () => {
+  afterEach(async () => { vi.useRealTimers(); await new Promise((r) => setTimeout(r, 80)) })
+  let app: typeof import('./app')
+  let cards: typeof import('./cards')
+  let cardsCore: typeof import('../core/cards')
+  beforeEach(async () => { app = await import('./app'); cards = await import('./cards'); cardsCore = await import('../core/cards') })
+  const sessao = () => app.useApp.getState().session
+  const vencido = (id: string) => ({ ...cardsCore.criarCartao({ b: 'b', f: 'frente ' + id, v: 'verso' }, Date.now() - 9e8, id), estado: 'revisao' as const, due: Date.now() - 1000, ivl: 3, reps: 2 })
+  /** Monta um plano só de questões (sem cartões vencidos) de `min` minutos, "agora". */
+  const montar = async (min = 60) => { cards.useCards.setState({ cartoes: [vencido('x')].slice(0, 0), pronto: true }); await estado().abrirAba(); estado().enviar(`tenho ${min} minutos`); return estado().plano! }
+  const MIN = 60_000
+
+  it('o plano guarda o prazo: o tempo que a pessoa disse ter, a partir de agora; e o treino aparece pronto para continuar', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 10, 0))
+    const pl = await montar(120)
+    expect(estado().planoAtivo!.validoAte).toBe(Date.now() + 120 * MIN)
+    expect(estado().treinoDoPlano()).toEqual({ faltam: pl.questoes.ids.length, total: pl.questoes.ids.length, minutos: 120, restanteMs: 120 * MIN })
+    expect(estado().mensagens.some((x) => /o treino fica salvo na aba Treinar por 2 horas; se você entrar nele, leva o tempo que precisar\.$/.test(x.texto))).toBe(true)
+  })
+  it('sem voltar até o fim do tempo: o treino some da aba Treinar e o plano é descartado (com aviso no assistente)', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 10, 0))
+    await montar(60)
+    vi.setSystemTime(new Date(2026, 10, 17, 10, 59)); expect(estado().treinoDoPlano()).not.toBeNull()
+    vi.setSystemTime(new Date(2026, 10, 17, 11, 1)); expect(estado().treinoDoPlano()).toBeNull(); expect(estado().statusPlano()).toBeNull()
+    await estado().abrirAba()
+    expect(estado().planoAtivo).toBeNull(); expect(estado().mensagens.at(-1)!.texto).toBe('O plano de 1 hora passou do tempo combinado e o treino salvo foi descartado. Se quiser, montamos outro.')
+    const db = await import('../services/db'); expect(await db.lerPlanoGuardado()).toBeNull()
+  })
+  it('entrou no treino: pode levar o tempo que precisar (o prazo não vale lá dentro)', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 10, 0))
+    const pl = await montar(60)
+    estado().continuarTreinoDoPlano()
+    expect(sessao()?.ids).toEqual(pl.questoes.ids); expect(estado().sessaoDoPlano).toBe(true)
+    vi.setSystemTime(new Date(2026, 10, 17, 14, 0)) // quatro horas depois, ainda dentro do treino
+    expect(estado().treinoDoPlano()).not.toBeNull(); expect(estado().statusPlano()?.fase).toBe('questoes')
+  })
+  it('saiu do treino depois do prazo sem terminar: o que faltava continua salvo pelo tempo que as questões levam (2 min cada)', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 10, 0))
+    const pl = await montar(30)
+    estado().continuarTreinoDoPlano()
+    vi.setSystemTime(new Date(2026, 10, 17, 13, 0))
+    app.useApp.getState().leave()
+    await vi.waitFor(() => expect(estado().sessaoDoPlano).toBe(false))
+    const novo = estado().planoAtivo!.validoAte, esperado = new Date(2026, 10, 17, 13, 0).getTime() + pl.questoes.ids.length * 2 * MIN
+    expect(novo).toBeGreaterThanOrEqual(esperado); expect(novo).toBeLessThan(esperado + 2000) // (o relógio de mentira anda um pouco enquanto o teste espera)
+    expect(estado().treinoDoPlano()).not.toBeNull()
+    vi.setSystemTime(novo + 1000); expect(estado().treinoDoPlano()).toBeNull() // e esse novo prazo também acaba
+  })
+  it('saiu do treino ANTES do prazo: vale o prazo original (o que a pessoa mesma disse; não estica)', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date(2026, 10, 17, 10, 0))
+    await montar(120); const antes = estado().planoAtivo!.validoAte
+    estado().continuarTreinoDoPlano(); vi.setSystemTime(new Date(2026, 10, 17, 10, 10)); app.useApp.getState().leave()
+    await vi.waitFor(() => expect(estado().sessaoDoPlano).toBe(false))
+    expect(estado().planoAtivo!.validoAte).toBe(antes)
+  })
+  it('terminou todas as questões: não há mais treino salvo', async () => {
+    const pl = await montar(60)
+    const ev = await import('../core/sync/eventos'), db = await import('../services/db'), { HIST_VAZIO } = await import('../core/historico')
+    for (const [i, id] of pl.questoes.ids.entries()) await db.gravarResposta(id, { n: 1, c: 1, ok: true, last: app.BY_ID[id].g, t: Date.now() + 5000 + i }, HIST_VAZIO, ev.resposta('d1', id, app.BY_ID[id].g, true, Date.now() + 5000 + i))
+    await estado().atualizarCaderno(); expect(estado().treinoDoPlano()).toBeNull()
+  })
+  it('descartar apaga o plano e o treino salvo; "Desfazer" traz de volta', async () => {
+    await montar(60); const antes = estado().planoAtivo!
+    estado().descartarPlano()
+    expect(estado().planoAtivo).toBeNull(); expect(estado().treinoDoPlano()).toBeNull(); expect(estado().plano).toBeNull()
+    const toast = app.useApp.getState().toast!; expect(toast.text).toBe('Treino descartado.'); expect(toast.action?.label).toBe('Desfazer')
+    toast.action!.run(); expect(estado().planoAtivo).toEqual(antes); expect(estado().treinoDoPlano()).not.toBeNull()
+  })
+  it('um plano novo substitui o treino salvo do anterior', async () => {
+    const a = await montar(60); const idsA = estado().planoAtivo!.questoes
+    app.useApp.getState().leave(); estado().voltarAoInicio(); estado().enviar('tenho 30 minutos')
+    expect(estado().planoAtivo!.minutos).toBe(30); expect(estado().planoAtivo!.questoes).not.toEqual(idsA); expect(a.minutos).toBe(60)
+  })
+  it('pedir o "painel do dia e plano de estudo" de novo, com um plano em andamento: mostra onde ele está (e não pergunta o tempo)', async () => {
+    const pl = await montar(60)
+    estado().voltarAoInicio(); estado().escolher('plano')
+    expect(estado().pendente).toBeNull(); expect(estado().etapa).toBe('plano')
+    expect(fala().texto).toMatch(new RegExp(`^Você já tem um plano de 1 hora em andamento\\. Seu plano de hoje: ${pl.questoes.ids.length} questões?`.replace('Seu plano de hoje: ', 'Agora as questões do seu plano: ')))
+    expect(fala().texto).toMatch(/O treino fica salvo na aba Treinar até \d\d:\d\d; entrando nele, você leva o tempo que precisar\./)
+    estado().planoAcao('outro'); expect(estado().pendente?.slot).toBe('minutos') // "Outro tempo" pergunta de novo
+  })
+  it('sem plano (ou com plano acabado), "plano de estudo" continua perguntando o tempo', async () => {
+    estado().escolher('plano'); expect(estado().pendente?.slot).toBe('minutos')
   })
 })

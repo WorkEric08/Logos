@@ -10,7 +10,7 @@ import { cadernoDoEspaco, dosErros, montarSemana, resumirCaderno, type Caderno }
 import { cartoesPorDia, estadoDoDiaDe, horaTexto, type EstadoDoDia } from '../core/lembrete'
 import { useLembrete } from './lembrete'
 import { MAX_PLANO, montarPainel, montarPlano, rotuloTempo, textoDoPainel, textoDoPlano, type EntradaPainel, type Painel, type Plano, type SugestaoDia } from '../core/dia'
-import { lerPlanoAtivo, novoPlanoAtivo, statusDoPlano, textoDoStatus, type MedidasDoPlano, type PlanoAtivo, type StatusPlano } from '../core/plano'
+import { lerPlanoAtivo, novoPlanoAtivo, planoVigente, prorrogar, statusDoPlano, textoDoStatus, type MedidasDoPlano, type PlanoAtivo, type StatusPlano } from '../core/plano'
 import { AVISOS } from '../core/avisos'
 import { contar, diaDe, type Cartao } from '../core/cards'
 import { entender, semAcento } from '../core/conversa'
@@ -89,6 +89,14 @@ interface State {
   planoEmCurso: boolean
   /** O andamento do plano de hoje (feito e falta, cartões e questões); null se não há plano de hoje. */
   statusPlano: () => StatusPlano | null
+  /** A pessoa está dentro do treino das questões do plano (sem prazo enquanto estiver). */
+  sessaoDoPlano: boolean
+  /** O treino do plano guardado na aba Treinar: quantas questões faltam e por quanto tempo ele ainda fica salvo; null se não há (ou se já passou do prazo). */
+  treinoDoPlano: () => { faltam: number; total: number; minutos: number; restanteMs: number } | null
+  /** Continua o treino salvo (só as questões que faltam). */
+  continuarTreinoDoPlano: () => void
+  /** Descarta o plano e o treino salvo (com "Desfazer" por alguns segundos). */
+  descartarPlano: () => void
   /** Chamado pelos Cards quando a parte dos cartões do plano acaba: vai direto para as questões do plano (ou volta aqui, se não há mais questões). */
   concluirCartoesDoPlano: () => void
   /** Abre a aba: lê o histórico, se apresenta (primeira vez) e mostra o painel do dia (no máximo uma vez a cada 3 horas). */
@@ -215,11 +223,19 @@ export const useAssistente = create<State>((set, get) => {
     for (const e of get().eventos) if (e.k === 'r' && e.t >= p.criado) respondidas.add(e.q)
     return { cartoesHoje: c.hist.dias[diaDe(agora)]?.n ?? 0, cartoesVencidos: contar(c.cartoes as Cartao[], c.ajustes, agora).hoje, respondidas }
   }
-  const planoDeHoje = (): PlanoAtivo | null => { const p = get().planoAtivo; return p && p.dia === diaDe(Date.now()) ? p : null }
+  const planoDeHoje = (): PlanoAtivo | null => { const p = get().planoAtivo; return p && planoVigente(p, Date.now(), diaDe(Date.now()), get().sessaoDoPlano) ? p : null }
   const statusAgora = (): StatusPlano | null => { const p = planoDeHoje(); return p ? statusDoPlano(p, medidasDoPlano(p)) : null }
   const guardarPlano = (p: PlanoAtivo | null) => { set({ planoAtivo: p }); void gravarPlanoGuardado(p).catch(() => { /* sem banco: vale nesta abertura */ }) }
   /** Ao voltar ao assistente: se o plano de hoje andou desde o último balão, diz o que já foi feito e o que falta (e as sugestões passam a começar pelo que vem agora). */
   const mostrarAndamentoDoPlano = () => {
+    const velho = get().planoAtivo
+    if (velho && !planoDeHoje()) {
+      // passou do prazo (ou do dia) sem a pessoa entrar no treino: o plano é descartado, e ela fica sabendo se ainda faltava algo
+      const faltava = velho.dia === diaDe(Date.now()) && statusDoPlano(velho, medidasDoPlano(velho)).fase !== 'fim'
+      guardarPlano(null); set({ plano: null, planoEmCurso: false, sessaoDoPlano: false })
+      if (faltava) set((st) => ({ mensagens: [...st.mensagens, m('a', `O plano de ${rotuloTempo(velho.minutos)} passou do tempo combinado e o treino salvo foi descartado. Se quiser, montamos outro.`, 'plano')], etapa: 'plano' }))
+      return
+    }
     const p = planoDeHoje()
     if (!p) return
     const texto = textoDoStatus(p, statusDoPlano(p, medidasDoPlano(p)))
@@ -281,8 +297,8 @@ export const useAssistente = create<State>((set, get) => {
       const agora = Date.now()
       const ativo = novoPlanoAtivo(pl, diaDe(agora), agora, useCards.getState().hist.dias[diaDe(agora)]?.n ?? 0)
       ativo.ultimoTexto = textoDoStatus(ativo, statusDoPlano(ativo, medidasDoPlano(ativo)))
-      diz(`${textoDoPlano(pl)}${pl.cartoes || pl.questoes.ids.length ? '\nQuando você voltar aqui, eu mostro o que ainda falta.' : ''}`)
-      set({ plano: pl, planoEmCurso: false }); guardarPlano(ativo); ir('plano'); return
+      diz(`${textoDoPlano(pl)}${pl.cartoes || pl.questoes.ids.length ? `\nQuando você voltar aqui, eu mostro o que ainda falta. Se sair no meio, o treino fica salvo na aba Treinar por ${rotuloTempo(pl.minutos)}; se você entrar nele, leva o tempo que precisar.` : ''}`)
+      set({ plano: pl, planoEmCurso: false, sessaoDoPlano: false }); guardarPlano(ativo); ir('plano'); return
     }
     if (p.acao === 'simulado' && p.materia === 'edital') { dizOk('Montei o simulado do edital: questões sorteadas pelo peso de cada matéria, com nota e regras. Boa prova!'); startSimulado(); return }
     if (p.fonte === 'semana') {
@@ -358,7 +374,13 @@ export const useAssistente = create<State>((set, get) => {
   const executar = (id: IdAcao, e: Entidades = {}, texto = '') => {
     if (id === 'lembrete') { avancar(pedidoDe('lembrete', e)); return }
     if (id === 'plano') {
-      // sem o tempo: mostra o dia e pergunta quanto tempo a pessoa tem; com o tempo: monta o plano
+      // sem o tempo: mostra o dia e pergunta quanto tempo a pessoa tem; com o tempo: monta o plano. Se já há um plano em andamento, o painel mostra ONDE ELE ESTÁ (continuar ou outro tempo)
+      const ativo = planoDeHoje(), st = ativo ? statusAgora() : null
+      if (!e.minutos && ativo && st && st.fase !== 'fim') {
+        const ate = new Date(ativo.validoAte)
+        diz(textoDoPainel(montarPainel(entradaPainel()), Date.now()), `Você já tem um plano de ${rotuloTempo(ativo.minutos)} em andamento. ${textoDoStatus(ativo, st)} O treino fica salvo na aba Treinar até ${horaTexto({ hora: ate.getHours(), minuto: ate.getMinutes() })}; entrando nele, você leva o tempo que precisar. Para mudar o tempo, toque em "Outro tempo".`)
+        ir('plano'); return
+      }
       if (!e.minutos) diz(textoDoPainel(montarPainel(entradaPainel()), Date.now()))
       avancar(pedidoDe('plano', e)); return
     }
@@ -418,9 +440,35 @@ export const useAssistente = create<State>((set, get) => {
     else inicio()
   }
 
+  // a pessoa saiu do treino do plano (terminou ou saiu no meio): se sobrou questão, o treino fica salvo, no mínimo, pelo tempo que elas levam; e deixa de estar "dentro"
+  useApp.subscribe((s, p) => {
+    if (!(p.session && !s.session) || !get().sessaoDoPlano) return
+    void get().atualizarCaderno().then(() => {
+      const pa = get().planoAtivo
+      if (pa) { const faltam = statusDoPlano(pa, medidasDoPlano(pa)).questoesFaltam.length; if (faltam > 0) guardarPlano(prorrogar(pa, Date.now(), faltam)) }
+      set({ sessaoDoPlano: false })
+    })
+  })
   return {
     etapa: 'inicio', mensagens: [], ocupado: false, progresso: null, depois: null, previa: null, cartoes: null, resultado: null, materiais: [], sugestoes: {}, relendo: null, vistas: 0, desambiguar: [],
-    pendente: null, ultimaProva: null, desfazivel: null, rascunho: '', carregada: false, epoca: 0, eventos: [], geradas: null, painel: null, painelMsgId: null, plano: null, planoAtivo: null, planoEmCurso: false, statusPlano: () => statusAgora(),
+    pendente: null, ultimaProva: null, desfazivel: null, rascunho: '', carregada: false, epoca: 0, eventos: [], geradas: null, painel: null, painelMsgId: null, plano: null, planoAtivo: null, planoEmCurso: false, statusPlano: () => statusAgora(), sessaoDoPlano: false,
+    treinoDoPlano: () => {
+      const p = planoDeHoje()
+      if (!p) return null
+      const s = statusDoPlano(p, medidasDoPlano(p))
+      return s.questoesFaltam.length ? { faltam: s.questoesFaltam.length, total: s.questoesTotal, minutos: p.minutos, restanteMs: p.validoAte - Date.now() } : null
+    },
+    continuarTreinoDoPlano: () => {
+      const s = statusAgora()
+      if (!s || !s.questoesFaltam.length) return
+      set({ planoEmCurso: false }); useApp.getState().startCustom(s.questoesFaltam, false); set({ sessaoDoPlano: true })
+    },
+    descartarPlano: () => {
+      const p = get().planoAtivo
+      if (!p) return
+      guardarPlano(null); set({ plano: null, planoEmCurso: false, sessaoDoPlano: false })
+      useApp.getState().showToast(AVISOS.treinoDescartado, { label: 'Desfazer', run: () => guardarPlano(p) })
+    },
     painelAcao: (sug) => {
       voce(sug.rotulo)
       if (sug.id === 'cartoes') { useApp.getState().setTab('cartoes'); return }
@@ -444,13 +492,13 @@ export const useAssistente = create<State>((set, get) => {
       if (!ids.length) { voce('Fazer as questões'); dizOk('Você já fez todas as questões do plano. Que tal montar outro?'); return }
       voce(st && st.questoesFeitas > 0 ? 'Continuar as questões' : `Fazer as ${ids.length} questões`)
       dizOk(`Pronto: ${plural(ids.length, 'questão', 'questões')} do plano${st && st.questoesFeitas > 0 ? ' que ainda faltavam' : ` de ${pl ? pl.minutos : planoDeHoje()?.minutos} minutos`}. Bom treino!`)
-      set({ planoEmCurso: false }); inicio(); useApp.getState().startCustom(ids, false)
+      set({ planoEmCurso: false }); inicio(); useApp.getState().startCustom(ids, false); set({ sessaoDoPlano: true })
     },
     concluirCartoesDoPlano: () => {
       if (!get().planoEmCurso || !planoDeHoje()) return
       set({ planoEmCurso: false })
       const s = statusAgora()
-      if (s && s.questoesFaltam.length) { useApp.getState().showToast(AVISOS.cartoesDoPlanoFeitos); useApp.getState().startCustom(s.questoesFaltam, false) }
+      if (s && s.questoesFaltam.length) { useApp.getState().showToast(AVISOS.cartoesDoPlanoFeitos); useApp.getState().startCustom(s.questoesFaltam, false); set({ sessaoDoPlano: true }) }
       else useApp.getState().setTab('assistente') // não há mais questões: volta aqui, onde o balão diz que o plano acabou
     },
     gerarQuestoes: async (materialId) => {

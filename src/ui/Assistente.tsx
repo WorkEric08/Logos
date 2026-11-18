@@ -173,7 +173,7 @@ function PlanoPainel() {
   useAssistente((s) => s.planoAtivo); useAssistente((s) => s.eventos); useCards((s) => s.hist); useCards((s) => s.cartoes)
   const { planoAcao, voltarAoInicio, statusPlano } = useAssistente.getState()
   const st = statusPlano()
-  if (!st) return null
+  if (!st) return <Pilulas itens={[{ id: 'plano-outro', rotulo: 'Montar um plano', pri: true, run: () => planoAcao('outro') }, { id: 'mais', rotulo: 'Mais sugestões', run: voltarAoInicio }]} rotuloGrupo="Plano de estudo" /> // (o plano foi descartado ou passou do prazo)
   const q = st.questoesFaltam.length
   const itens: ItemPilula[] = [
     ...(st.fase === 'cartoes' ? [{ id: 'plano-cartoes', rotulo: `${st.cartoesFeitos > 0 ? 'Continuar os cartões' : 'Começar pelos cartões'} (${st.cartoesFaltam})`, pri: true, run: () => planoAcao('cartoes') }] : []),
