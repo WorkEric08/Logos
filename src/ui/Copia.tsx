@@ -59,7 +59,7 @@ export function Copia() {
   return (
     <div className="card copia"><h3>Cópia de segurança</h3>
       <p className="note">O arquivo leva tudo o que é seu: <b>espaços, provas e questões importadas, materiais, progresso, histórico (dias e simulados), marcações e anotações, baralhos e cartões</b>. {logado
-        ? 'Progresso, histórico e cartões também ficam na conta Google (veja "Conta e sincronização"); o resto só neste aparelho.'
+        ? 'Progresso, histórico, cartões, espaços, provas e materiais também ficam na conta Google (veja "Conta e sincronização"), menos o que você mantiver "só neste aparelho".'
         : <>Sem entrar na conta Google, tudo isso fica <b>só neste aparelho</b>: salve uma cópia para não perder se o aplicativo for desinstalado ou o celular trocado.</>} Restaurar só junta: nada do que já está aqui é apagado nem diminui.</p>
       {resumo && estudo && <p className="note" role="status">{algo ? `Neste aparelho: ${textoDaCopia(resumo, estudo)}. ${ultima ? `Última cópia: ${dataTexto(ultima)}.` : 'Você ainda não salvou nenhuma cópia.'}` : 'Neste aparelho ainda não há nada seu para guardar.'}</p>}
       <div className="row" style={{ marginTop: 14 }}>

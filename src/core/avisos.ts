@@ -9,6 +9,7 @@ export const AVISOS = {
   bancoFalhou: 'Não consegui atualizar o banco.',
   progressoRestaurado: 'Progresso restaurado.',
   estudoRestaurado: 'Estudo restaurado.',
+  semEnunciado: 'Há questões importadas sem enunciado.',
   progressoZerado: 'Progresso zerado.',
   voltarParaSair: 'Toque em voltar de novo para sair',
   flashcardCriado: 'Flashcard criado em “Das questões”.',
@@ -30,7 +31,7 @@ export function todosOsAvisos(): { texto: string; acao?: string; longo?: boolean
   const A = AVISOS
   return [
     { texto: A.semQuestoes }, { texto: A.bancoAtualizado(0) }, { texto: A.bancoAtualizado(99) }, { texto: A.bancoAtualizado(1) }, { texto: A.bancoFalhou },
-    { texto: A.progressoRestaurado, acao: 'Desfazer' }, { texto: A.estudoRestaurado, acao: 'Desfazer' }, { texto: A.progressoZerado, acao: 'Desfazer' }, { texto: A.voltarParaSair },
+    { texto: A.progressoRestaurado, acao: 'Desfazer' }, { texto: A.estudoRestaurado, acao: 'Desfazer' }, { texto: A.semEnunciado }, { texto: A.progressoZerado, acao: 'Desfazer' }, { texto: A.voltarParaSair },
     { texto: A.flashcardCriado }, { texto: A.flashcardExiste }, { texto: A.cardsNaoAbriu }, { texto: A.baralhoSemNome }, { texto: A.baralhoRepetido },
     { texto: A.baralhoExcluido, acao: 'Desfazer' }, { texto: A.cartaoIncompleto }, { texto: A.cartaoExcluido, acao: 'Desfazer' }, { texto: A.cartoesDoPlanoFeitos }, { texto: A.treinoDescartado, acao: 'Desfazer' },
     { texto: A.limiteDoPlano, longo: true },

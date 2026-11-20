@@ -117,10 +117,12 @@ export interface IdsLocais { espacos: ReadonlySet<string>; questoes: ReadonlySet
 export interface Plano { acrescentar: ConteudoLocal; novos: Resumo; jaExistiam: Resumo }
 
 /** O que da cópia ainda falta neste aparelho (e o que já estava): restaurar só acrescenta. */
+/** A chave de uma questão ou imagem importada: o ESPAÇO e o id (a mesma questão em dois espaços são duas linhas; desde a F6.2 do banco, v8). */
+export const chaveLinha = (x: { e?: unknown; id: string }) => `${typeof x.e === 'string' ? x.e : ''}|${x.id}`
 export function planoDeRestauracao(c: Copia, locais: IdsLocais): Plano {
-  const falta = <T extends { id: string }>(lista: readonly T[], ja: ReadonlySet<string>) => lista.filter((x) => !ja.has(x.id))
+  const falta = <T extends { id: string }>(lista: readonly T[], ja: ReadonlySet<string>, chave: (x: T) => string = (x) => x.id) => lista.filter((x) => !ja.has(chave(x)))
   const acrescentar: ConteudoLocal = {
-    espacos: falta(c.espacos, locais.espacos), questoes: falta(c.questoes, locais.questoes), imagens: falta(c.imagens, locais.imagens),
+    espacos: falta(c.espacos, locais.espacos), questoes: falta(c.questoes, locais.questoes, chaveLinha), imagens: falta(c.imagens, locais.imagens, chaveLinha),
     materiais: falta(c.materiais, locais.materiais), trechos: falta(c.trechos, locais.trechos),
   }
   const novos = resumir(acrescentar), todos = resumir(c)

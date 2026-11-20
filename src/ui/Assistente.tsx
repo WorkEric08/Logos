@@ -17,6 +17,7 @@ import { BotaoRepete } from './BotaoRepete'
 import { MAX_PLANO, MIN_SELETOR, PASSO_SELETOR, horasMinutos, rotuloTempo } from '../core/dia'
 import { AVISOS } from '../core/avisos'
 import { useEspacos } from '../store/espacos'
+import { useConta } from '../services/sync/conta'
 import { IaPainel } from './AssistenteIA'
 import { Icon, Top } from './bits'
 import { useBackLayer } from './useBackLayer'
@@ -550,9 +551,22 @@ function PreviaCartoes() {
   )
 }
 
+/** O que a lista diz do espaço em relação à conta Google (F6.5). */
+function seloTexto(e: { local?: boolean; selo?: { total: number; baixar: number; subir: number; cota: number } }, naConta: boolean): string {
+  if (e.local) return 'Só neste aparelho: nada dele vai para a conta.'
+  const s = e.selo
+  if (!naConta) return 'Neste aparelho (entre na conta para enviar).'
+  if (!s || s.total === 0) return 'Sem provas nem materiais ainda: nada para enviar.'
+  if (s.baixar > 0) return `Baixando da conta: ${s.total - s.baixar} de ${s.total} pacotes.`
+  if (s.subir > 0) return `Aguardando envio: faltam ${s.subir} ${s.subir === 1 ? 'pacote' : 'pacotes'} (sobem quando houver internet).`
+  if (s.cota > 0) return `Na conta; ${s.cota} ${s.cota === 1 ? 'pacote passou' : 'pacotes passaram'} do limite e ficam só aqui.`
+  return `Na conta · ${s.total} ${s.total === 1 ? 'pacote' : 'pacotes'}.`
+}
 function Espacos() {
   const fechar = useFechar()
-  const { lista, ativo, ativar, apagar } = useEspacos()
+  const { lista, ativo, ativar, apagar, definirLocal } = useEspacos()
+  const logado = useConta((s) => s.estado === 'dentro')
+  useEffect(() => { void useEspacos.getState().atualizarSelos() }, []) // os selos leem o banco ao abrir o painel (material guardado offline ainda não passou por nenhum evento da nuvem)
   const { voltarAoInicio, novoEspaco } = useAssistente.getState()
   const [apagando, setApagando] = useState<string | null>(null)
   return (
@@ -561,7 +575,12 @@ function Espacos() {
         {lista.map((e) => (
           <li key={e.id} className="as-esp-i">
             <button className="chip" aria-pressed={e.id === ativo} onClick={() => void ativar(e.id)}>{e.nome}<small> · {e.n} questões</small></button>
+            {!e.embutido && (() => {
+              const s = e.selo, naConta = !!s && s.total - s.baixar - s.subir - s.cota - s.invalido > 0 // algum pacote já está na conta (enviado ou recebido): aí só apagando o espaço tira de lá
+              return !naConta && <button className="chip" aria-pressed={!!e.local} aria-label={`Só neste aparelho: ${e.nome}`} onClick={() => void definirLocal(e.id, !e.local)}>Só neste aparelho</button>
+            })()}
             {!e.embutido && <button className="btn small-btn" aria-label={`Apagar o espaço ${e.nome}`} onClick={() => setApagando(e.id)}><Icon n="trash" size={16} /></button>}
+            {!e.embutido && <small className="note as-selo" data-testid="selo-espaco">{seloTexto(e, logado)}</small>}
           </li>
         ))}
       </ul>

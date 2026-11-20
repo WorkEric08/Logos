@@ -12,7 +12,6 @@ import idMap from '../data/id-map.json'
 import { desfazerZerar, gravarResposta, gravarSimulado, gravarZerar, loadAll, refazerEventosDoAparelho, replaceAll, saveHist, saveMarks, saveOne, saveTema } from '../services/db'
 import { prepararSincronizacao } from '../services/sync/preparar'
 import { baseDe, resposta, simulado, zerar } from '../core/sync/eventos'
-import { apagarEventoNaNuvem } from '../services/sync/ponte'
 
 // As questões que o app mostra são as do ESPAÇO ATIVO. São "let" de propósito: trocar de espaço reatribui (definirBanco) e quem importa vê o valor novo.
 // Começam com o Banco do Brasil, o espaço embutido.
@@ -248,7 +247,7 @@ export const useApp = create<State>((set, get) => {
         // o zerar é um evento (vale para todos os aparelhos); nada é apagado, então desfazer é só apagar o evento e refazer o progresso a partir dos eventos
         const z = zerar(aparelho, Date.now())
         await gravarZerar(z)
-        get().showToast(AVISOS.progressoZerado, { label: 'Desfazer', run: () => { apagarEventoNaNuvem(z.id); void desfazerZerar(z.id).then((d) => set({ prog: d.prog, hist: d.hist })) } })
+        get().showToast(AVISOS.progressoZerado, { label: 'Desfazer', run: () => { void desfazerZerar(z.id).then((d) => set({ prog: d.prog, hist: d.hist })) } })
         return
       }
       await replaceAll({}); await saveHist(HIST_VAZIO)

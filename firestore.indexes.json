@@ -1,4 +1,7 @@
 {
   "indexes": [],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    { "collectionGroup": "corpo", "fieldPath": "d", "indexes": [] },
+    { "collectionGroup": "imagens", "fieldPath": "w", "indexes": [] }
+  ]
 }

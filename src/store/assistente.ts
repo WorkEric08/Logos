@@ -177,6 +177,8 @@ const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um :
 const NAO_ENTENDI = 'Não entendi esse pedido. Tente, por exemplo: "importar prova", "criar cartões", "o que é Copom?", "montar simulado" ou "meus espaços". Ou toque numa sugestão.'
 /** O que "Desfazer" faz agora (só a última coisa; some ao fazer outra). */
 let acaoDesfazer: (() => Promise<void>) | null = null
+/** O aviso de "questões sem enunciado" (C-10) é dado uma vez por abertura do app. */
+let avisouSemEnunciado = false
 /** O desfazer guardado é o de uma importação de questões (some quando a pessoa começa um treino: aí as questões passam a ser estudadas). */
 let desfazDaImportacao = false
 let gravadas = 0
@@ -271,6 +273,11 @@ export const useAssistente = create<State>((set, get) => {
     await get().atualizarCaderno()
     await get().carregarHistorico()
     if (!get().mensagens.length) set({ mensagens: [m('a', SAUDACAO)] })
+    const sem = useEspacos.getState().semEnunciado
+    if (sem > 0 && !avisouSemEnunciado) { // C-10: questões importadas antes do conserto perderam o enunciado; o id é por conteúdo, então importar a prova de novo as conserta sem perder o progresso
+      avisouSemEnunciado = true
+      set((st) => ({ mensagens: [...st.mensagens, m('a', `${sem === 1 ? '1 questão importada ficou sem enunciado' : `${sem} questões importadas ficaram sem enunciado`} por um defeito de versões antigas do app (as alternativas e o gabarito estão certos). Para consertar: nas provas, importe a prova de novo; nas questões geradas, gere de novo a partir do mesmo material. Seu progresso é mantido e nada duplica. Cartões e materiais não foram afetados.`, 'erro')] }))
+    }
     if (comPainel) {
       mostrarPainel()
       set({ planoEmCurso: false }) // voltou aqui: o que estava em curso termina; se o plano andou, o balão de andamento vem depois do painel

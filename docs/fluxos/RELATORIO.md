@@ -135,3 +135,67 @@ Legenda: OK / PROBLEMA. Estado de cada problema: aberto, enviado ao corretor, co
 ## Fechamento C-8, C-9, F-17, F-18
 - Todos corrigidos e verificados. Regressão no 5391: e2e-voltar 39 OK (uma 1ª execução caiu por lentidão do servidor enquanto o corretor rodava o `verificar`; a repetição passou) e e2e-simulado 25 OK, exit 0.
 - Resumo geral: 18 problemas F-01..F-18 + C-1..C-9. Em aberto só: F-03 (decisão do dono: fica como está). Backup do progresso em arquivo, antes "decisão do dono", agora feito (C-8).
+
+---
+
+# F6 — sincronização de espaços, questões e materiais (rodada de 2026-11-20)
+
+Método: dois "aparelhos" = dois contextos de navegador, emuladores do Firebase (Auth 9099, Firestore 8080) e login falso (`localStorage.logos_emulador`, ver `scripts/_emulador.mjs`). NUNCA o Firebase real. Banco v7 realista: `scripts/fluxo/31-gerar-banco-v7.mjs` gerou `scripts/fluxo/dados/banco-v7.json` (IndexedDB v70: 2 espaços importados, 17 questões, 1 imagem, 2 materiais, 16 trechos, 52 respostas, 3 cartões em 2 baralhos, simulado entregue, marcações, 34 falas da conversa, 53 eventos); `_idb.mjs` despeja/restaura o IndexedDB. IDs desta seção: S-01, S-02…
+
+## C-10 (hotfix antes da F6.2) — enunciado perdido ao gravar questão importada: VERIFICADO
+- `34-c10-enunciado.mjs` (6 checagens OK): importar prova (8 enunciados inteiros), RECARREGAR, abrir de novo: os mesmos 8; questões geradas idem (10 no espaço); cópia de segurança salva, aparelho novo (contexto limpo), restaurar, recarregar: 10 enunciados inteiros.
+- Banco v7 com linhas antigas (sem `enun`, gerado ANTES do hotfix, 17 questões sem enunciado): `35-linhas-antigas-sem-enun.mjs`: toast "Há questões importadas sem enunciado.", fala do assistente explicando, e recado na própria questão. `36-reimportar-conserta.mjs`: reimportar o mesmo PDF conserta as 8 da prova (prévia diz "8 já estão neste espaço"); as geradas só voltam a ter enunciado se forem GERADAS de novo (confirmado: 0 vazias depois).
+
+## F6.0 — a sincronização que já existia, com dois aparelhos e o emulador: VERIFICADO
+`38-f60-sync-base.mjs` (e-mail único por teste, sem limpar o emulador), 8 checagens OK: os dois entram na mesma conta e ficam "Sincronizado"; baralho e cartão do A chegam ao B; 4 respostas do A chegam ao B; baralho apagado no A some do B; B offline estuda 3 questões (situação "Sem internet: o que você fizer fica guardado aqui e sobe quando voltar."), volta online e o A passa a ver (6 vistas nos dois); "Zerar tudo" no A zera o B; "Desfazer" devolve o progresso nos dois; sem erros de script.
+
+## F6.2 — Dexie v8 (migração do banco v7): VERIFICADO (prévia, com o código que estava no dev server em 2026-11-20)
+- `32-migracao-v8.mjs` (41 checagens, 0 falhas): banco v7 realista restaurado (IndexedDB 70) e aberto pelo app novo (80, mesmo nome `treino-bb`): TODAS as linhas antigas continuam presentes e iguais em `prog` (52), `eventos` (53), `decks`/`cards` (2/3), `meta`, `sinc`, `conversa` (34), `espacos` (2), `questoes` (17), `imagens` (1, blob idêntico), `materiais` (2), `trechos` (16); Início mostra as mesmas vistas, Cards os 2 baralhos e 3 cartões, os 2 espaços aparecem, treino abre e responde nos dois espaços, busca "Copom" acha no material migrado, o simulado entregue continua em Desempenho, simulado novo abre; 2ª abertura mantém tudo.
+- `42-f62-pos-migracao.mjs` (14 checagens, 0 falhas): `questoesE` tem as 17 questões (cada `[e+id]`), `imagensE` a imagem com o mesmo blob, tabelas antigas intactas; apagar um espaço o tira de `espacos`, `questoesE`, `materiais`, `trechos` e ele NÃO volta depois de recarregar; "Meu BB" e o progresso do BB iguais; importar prova nova em Meu BB (1176 questões) e recarregar; cópia v1, v2 e a de enunciados restauram no banco v8; a cópia exportada do v8 continua `versao 2`.
+- `40-f62-casos.mjs` e `41-f62-ordem-contraria.mjs`: a mesma prova importada em dois espaços, apagar um (nas duas ordens) não tira as questões do outro; progresso de questões de um espaço apagado ("fantasma"): Início, Desempenho, Rever erros, caderno, painel do dia, "o que eu já tenho?" e Treino rápido sem erro.
+- Linhas antigas sem enunciado (C-10) migram como estavam (com o aviso do hotfix). Falta ainda: reconferir tudo quando o corretor avisar que fechou a F6.2.
+
+### S-02 (baixa) Apagar um espaço deixa as questões nas tabelas antigas `questoes` e `imagens`
+- Depois de apagar "Concurso X" no banco migrado, `questoesE` fica sem as 17 linhas, mas a tabela antiga `questoes` ainda guarda as 17 (e `imagens` a imagem). Não ressuscitam (testado com recarregar), mas é conteúdo "apagado" que continua no aparelho e ocupa espaço; é a "cópia de segurança do que existia" do plano. Sugestão: documentar, ou limpar as tabelas antigas numa versão futura depois de um tempo.
+
+### S-03 (baixa, já existia antes da F6) "Meu BB · 0 questões" na lista de espaços
+- Um espaço criado "Com as questões do BB" aparece em "Meus espaços de estudo" como "Meu BB · 0 questões", mas o Treinar tem 1168. A contagem da lista só soma as questões próprias do espaço. Sugestão: somar as do BB quando `usaBB` ("1168 questões") ou escrever "usa as do BB + N".
+
+## F6.3a / F6.3 / F6.4 / F6.5 — dois aparelhos + emulador (2026-11-20, dev server 5391, emuladores 9099/8080; nada contra o Firebase real)
+Scripts: `_dois.mjs`, `_espacos.mjs` (helpers), `39`, `43` (c1..c7), `44`, `45`, `46`, `47`, `48`, `49`, `50`. Conta falsa com e-mail único por teste (não limpa o emulador de ninguém).
+
+### Passou
+- **Espaço importado/criado no A chega ao B** (`39`, `43 c1`): espaço, 8 questões com enunciado inteiro, material pesquisável ("o que é Copom?"); trocar para o espaço e treinar no B.
+- **Desfazer a importação no A tira as questões do B; importar de novo volta** (`43 c1`). **Se o B já respondeu**, o desfazer do A é recusado com explicação ("Não consegui desfazer: você já respondeu algumas…"), ninguém perde nada (`49`).
+- **Apagar espaço no A some no B** e o BB abre sem erro (`39`, `43 c3`); **os dois apagam ao mesmo tempo**: some nos dois e não ressuscita (`43 c3`).
+- **B offline ao receber** recebe tudo quando volta (`43 c2`); **A offline cria espaço e material** e o B recebe quando o A volta online (`48`).
+- **Mesma prova em dois espaços diferentes** (um em cada aparelho): cada um vê os dois, 8 questões em cada; apagar um não tira as do outro (`43 c4`). **Mesma prova no mesmo espaço nos dois**: não duplica (8 em ambos) (`43 c5`).
+- **Espaço apagado no A enquanto o B está no meio de um treino dele**: o B NÃO é puxado (mesma questão, mesmo enunciado, ainda responde); ao sair do treino o espaço some e o app segue (`43 c6`).
+- **Material grande** (937 KB, vários pacotes): o B acha termo do fim do arquivo (`43 c7`). Apagar material no A: o B deixa de achar; "Desfazer" no A devolve (`49`).
+- **Progresso de questão cujo espaço não chegou** (A estuda em espaço "Manter só aqui"): os 8 eventos chegam ao B (8 linhas de progresso), mas Início, Desempenho, Rever erros (0), caderno, painel do dia, simulado da semana, "Errei por último" e Treino rápido não quebram nem contam questão fantasma; quando o A libera o espaço o B recebe as questões JÁ com o progresso e a marcação (`45`).
+- **F6.3a leitura incremental e "desfazer zerar"** (`46`): aparelho que "dorme" (cache do Firestore apagado) lê 11 eventos e 7 itens, não a conta toda, e mesmo assim recebe baralho novo, baralho apagado, respostas e o resultado de zerar+DESFAZER (evento `d`); zerar+desfazer com o C offline: ao voltar tem o mesmo progresso; zerar sem desfazer zera os dois; "Sincronizar tudo de novo" não apaga nada.
+- **F6.4 regras:** `scripts/testar-regras.mjs` 20/20.
+- **F6.5 aviso da 1ª subida** (`44`, 22 checagens): aparece ao criar o 1º espaço com conta ligada; foco em "Manter só aqui"; Esc, voltar do aparelho e tocar fora escolhem "Manter só aqui"; texto diz que o Google guarda em servidores (sem criptografia de ponta a ponta); "Manter só aqui": o B não recebe, selo "Só neste aparelho: nada dele vai para a conta"; chip "Só neste aparelho" LIGADO (aria-pressed); desligar o chip sobe o espaço, o B recebe e o selo vira "Na conta · 1 pacote"; o chip some depois que o espaço está na conta.
+- **Andamento** (`50`): em Mais o B mostrou "Baixando espaços e materiais: 0 de 8 pacotes … 2 … 4 … 6 … 7" e terminou em "Espaços e materiais: 8 pacotes na sua conta (3,5 MB)"; selo final "Na conta · 8 pacotes".
+- **Visual** (`47`, 48 checagens): aviso, Meus espaços (selos e chip) e Mais › Conta em 320x568, 360x780 e 390x844, claro e escuro: sem texto cortado, sem rolagem lateral, botões do aviso >= 44 px, aviso cabe na tela, botões da conta >= 44 px.
+- Regressão: `32-migracao-v8.mjs` 41/41 e `42-f62-pos-migracao.mjs` 14/14 de novo com o código final da F6.2 (S-02 e S-03 corrigidos: apagar espaço limpa as cópias antigas; "Meu BB · 1168 questões").
+
+### Problemas e observações
+- **S-04 (média)** Selo mente com o aparelho offline: um espaço criado/alterado SEM internet (nada subiu ainda) mostra "Na conta." (sem número) ao lado do chip "Só neste aparelho"; só depois de voltar online vira "Na conta · 1 pacote". Esperado: "Aguardando conexão / Enviando…". Passos: A offline > Novo espaço > Meus espaços. Suspeito: `ui/Assistente.tsx` (selo), estado do pacote `subir`. Capturas: `capturas/selo-offline.png` (via `scripts/fluxo` debug).
+- **S-05 (baixa)** O aviso "O que sobe para a sua conta" aparece de surpresa para um aparelho que só RECEBEU espaços e depois apaga um (ou importa algo): a primeira "subida" dele é a lápide/importação. Aceitável (é a 1ª subida), mas logo depois de tocar "Apagar" o diálogo novo confunde. Sugestão: não perguntar por lápide, só por conteúdo.
+- **S-06 (baixa)** Mais › andamento: a barra de progresso fica COLADA no botão "Sincronizar tudo de novo" (sem margem) e o texto mostra "(< 1 de 3,5 MB)". Captura: `capturas/f65-mais-baixando.png`.
+- **S-07 (baixa)** Mais › Cópia de segurança: "Progresso, histórico e cartões também ficam na conta Google…; o resto só neste aparelho" está desatualizado: espaços, provas e materiais agora também vão para a conta (exceto os mantidos só aqui).
+- **S-08 (baixa)** "Enviar para a conta" no aviso usa o estilo vermelho de botão perigoso (`warn`); é uma ação normal. Sugestão: estilo comum.
+- Observação: no B, enquanto o espaço do A não chegou, Desempenho diz "8 respostas no mês · acerto 13 %" mas "0 de 1168 questões vistas": coerente com o desenho (histórico vem dos eventos), só pode confundir.
+- **Não verificado:** conta Google real e Firestore real; imagens (F6.6 não implementada); "Pausar"/"dados móveis" (adiados de propósito); regras do Firestore PUBLICADAS no projeto real (só no emulador); aparelho real/APK; bateria e custo real de leituras/escritas; cota de 25 MB/100 MB (só leitura do código, o teste ficou pequeno); relógio muito errado entre aparelhos (janela de 7 dias).
+
+### Reverificação S-04..S-08 (`51-reverificar-s04-s08.mjs`, `50`, `44`, `47`)
+- **S-05 corrigido e verificado:** apagar num aparelho que só recebeu espaços não abre mais o aviso "O que sobe…"; quem cria/importa conteúdo continua sendo avisado.
+- **S-06 corrigido e verificado:** barra com margem e "Baixando espaços e materiais: 1 de 8 pacotes (442 KB de 3,5 MB)".
+- **S-07 corrigido e verificado:** a Cópia diz que espaços, provas e materiais também ficam na conta, "menos o que você mantiver só neste aparelho".
+- **S-08 corrigido e verificado:** "Enviar para a conta" é botão normal (classe `btn`, sem `warn`).
+- **S-04 PARCIAL (reaberto):** espaço vazio diz "Sem provas nem materiais ainda: nada para enviar." e online vira "Na conta · 2 pacotes" (OK), mas OFFLINE com 2 materiais guardados o selo continua "Sem provas nem materiais ainda: nada para enviar." (falso; esperado "Aguardando envio: faltam 2 pacotes (sobem quando houver internet)"). Provável causa: os pacotes por subir só passam a existir com conexão. Enviado ao corretor; sem resposta antes do fechamento.
+- Regressão depois das correções: `44` 22/22, `47` 48/48, `50` 4/4, `e2e-voltar` 39 OK, `e2e-simulado` 25 OK.
+
+### Resumo F6 (testador)
+Passou: F6.0, F6.2 (migração, 2 rodadas), F6.3a, F6.3 (sete casos difíceis), F6.4 (regras 20/20 no emulador), F6.5 (aviso, selos, chip, andamento, 320/360/390 claro/escuro), C-10. Corrigidos e verificados: S-02, S-03, S-05, S-06, S-07, S-08. Aberto: S-04 (selo offline com conteúdo). Não verificado: Firebase real, imagens (F6.6), regras publicadas, APK/aparelho, custo real, cotas de 25/100 MB, relógio muito errado.

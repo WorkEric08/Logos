@@ -19,6 +19,8 @@ import { Questao, Resultado } from './Question'
 import { AVISOS } from '../core/avisos'
 import { Splash } from './Splash'
 import { ConfirmarSaida } from './ConfirmarSaida'
+import { AvisoEspacos } from './AvisoEspacos'
+import { useConta } from '../services/sync/conta'
 import { PainelAlca } from './PainelAlca'
 import { reiniciarProvas } from './Provas'
 import { iniciarContaSeJaEntrou } from '../services/sync/conta'
@@ -39,6 +41,7 @@ export function App() {
   const [recolhida, alternarRail] = useRailRecolhida()
   const celular = useCelular()
   const aba = useAba()
+  const precisaAviso = useConta((s) => s.precisaAviso)
   const ordem = useOrdemRail((s) => s.ordem), moverItem = useOrdemRail((s) => s.mover)
   const itens = ordenarItens(ITENS, ordem) // a ordem dos ícones é de quem usa (arrastar um ícone na barra)
   const [slot, setSlot] = useState<HTMLElement | null>(null)
@@ -99,6 +102,7 @@ export function App() {
       <div className="slot" ref={setSlot} />
       <Toast />
       {saida && <ConfirmarSaida />}
+      {precisaAviso && !session && <AvisoEspacos />}{/* 1ª subida de espaços: nunca no meio de uma prova */}
     </div>
     </SlotCtx>
   )

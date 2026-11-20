@@ -8,10 +8,13 @@ import { REGRAS_BB, definirRegras } from '../core/scoring'
 import { BB_EXTRA, BB_SOURCES, BB_SUBJECTS, definirMaterias } from '../core/subjects'
 import { ID_ESPACO_BB, espacoVazio, juntarQuestoes, materiasDasQuestoes, planoSimulado, type Banco, type Espaco } from '../core/espaco'
 import type { Question, Subject } from '../core/types'
-import { apagarEspaco, gravarEspacoAtivoId, lerEspaco, lerEspacoAtivoId, listarEspacos, removerQuestoesDoEspaco, salvarEspaco, type EspacoRow } from '../services/db'
+import { apagarEspaco, gravarEspacoAtivoId, lerEspaco, lerEspacoAtivoId, listarEspacos, removerQuestoesDoEspaco, salvarEspaco, contarSemEnunciado, pacotesDoEspaco, definirEspacoLocal, type EspacoRow } from '../services/db'
+import { AVISOS } from '../core/avisos'
 import { BB_BANK, BB_BASES, definirBanco, useApp } from './app'
 
-export interface ResumoEspaco { id: string; nome: string; n: number; embutido?: boolean }
+/** O que a lista de espaços mostra sobre a conta Google (F6.5): quantos pacotes (provas/materiais) o espaço tem, quantos faltam baixar ou subir, quantos ficaram acima do limite. */
+export interface SeloEspaco { total: number; baixar: number; subir: number; cota: number; invalido: number; bytes: number }
+export interface ResumoEspaco { id: string; nome: string; n: number; embutido?: boolean; /** "Só neste aparelho": nada dele sobe. */ local?: boolean; selo?: SeloEspaco }
 
 /** O espaço do Banco do Brasil, montado do que vem no app. */
 export const espacoBB = (): Espaco => ({
@@ -50,9 +53,18 @@ interface State {
   lista: ResumoEspaco[]
   ativo: string
   pronto: boolean
+  /** Questões importadas que ficaram sem enunciado por um defeito antigo (C-10): importar a prova de novo conserta. */
+  semEnunciado: number
   /** Na abertura: lê qual espaço estava ativo e o aplica (antes de a tela abrir). Nunca falha para fora: erro = fica no Banco do Brasil. */
   iniciar: () => Promise<void>
   ativar: (id: string) => Promise<boolean>
+  /** Atualiza só os selos da lista (andamento dos pacotes), sem mexer no espaço ativo. */
+  atualizarSelos: () => Promise<void>
+  /** "Só neste aparelho" de um espaço (F6.5). Devolve false se o espaço já está na conta (aí só apagando). */
+  definirLocal: (id: string, local: boolean) => Promise<boolean>
+  /** Chegou coisa da nuvem (F6): relê a lista e, se o espaço ativo mudou (questões novas, ou foi apagado em outro aparelho), reaplica. Não mexe no meio de um treino/simulado:
+   *  nesse caso espera a sessão acabar. */
+  recarregar: () => Promise<void>
   /** Cria um espaço vazio (ou com as questões do BB embutidas) e o ativa. */
   criar: (nome: string, usaBB: boolean) => Promise<string>
   renomear: (id: string, nome: string) => Promise<void>
@@ -66,9 +78,15 @@ interface State {
 const novoId = () => 'e' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36).padStart(2, '0')
 const limpaNome = (n: string) => n.trim().replace(/\s+/g, ' ').slice(0, 40)
 
+export function seloDe(pacotes: readonly { estado: string; b: number }[]): SeloEspaco {
+  const conta = (e: string) => pacotes.filter((k) => k.estado === e).length
+  return { total: pacotes.length, baixar: conta('baixar'), subir: conta('subir'), cota: conta('cota'), invalido: conta('invalido'), bytes: pacotes.reduce((a, k) => a + k.b, 0) }
+}
 async function recarregarLista(): Promise<ResumoEspaco[]> {
   const meus = await listarEspacos()
-  return [{ id: ID_ESPACO_BB, nome: espacoBB().nome, n: BB_BANK.length, embutido: true }, ...meus.sort((a, b) => a.criado - b.criado).map((r) => ({ id: r.id, nome: r.nome, n: r.n }))]
+  const itens: ResumoEspaco[] = []
+  for (const r of meus.sort((a, b) => a.criado - b.criado)) itens.push({ id: r.id, nome: r.nome, n: r.n + (r.usaBB ? BB_BANK.length : 0), ...(r.local ? { local: true } : {}), selo: seloDe(await pacotesDoEspaco(r.id)) })
+  return [{ id: ID_ESPACO_BB, nome: espacoBB().nome, n: BB_BANK.length, embutido: true }, ...itens]
 }
 
 export const useEspacos = create<State>((set, get) => {
@@ -78,8 +96,20 @@ export const useEspacos = create<State>((set, get) => {
     // as telas recomeçam: filtros, sessão e aba do espaço anterior não valem no novo
     useApp.setState((s) => ({ versao: s.versao + 1, filters: DEFAULT_FILTERS, session: null, saida: null, tab: s.tab === 'assistente' ? s.tab : 'inicio' })) // quem troca de espaço pelo chat continua no chat
   }
+  // O que chegou da nuvem muda o espaço ativo: nunca no meio de um treino ou simulado (nada mexe numa questão em andamento); espera a sessão acabar.
+  let pendente = false
+  const reaplicarAtivo = async () => {
+    const id = get().ativo
+    if (id === ID_ESPACO_BB) return
+    const d = await lerEspaco(id)
+    if (!d) { trocar(espacoBB()); await gravarEspacoAtivoId(ID_ESPACO_BB); set({ lista: await recarregarLista() }); return } // o espaço foi apagado em outro aparelho
+    const novo = montarEspaco(d.row, d.questoes)
+    if (novo.questoes.length === atual.questoes.length && novo.nome === atual.nome && Object.keys(novo.fontes).length === Object.keys(atual.fontes).length) return // nada mudou para quem usa
+    aplicarEspaco(novo); useApp.setState((s) => ({ versao: s.versao + 1 }))
+  }
+  useApp.subscribe((s, p) => { if (p.session && !s.session && pendente) { pendente = false; void reaplicarAtivo() } })
   return {
-    lista: [{ id: ID_ESPACO_BB, nome: espacoBB().nome, n: BB_BANK.length, embutido: true }], ativo: ID_ESPACO_BB, pronto: false,
+    lista: [{ id: ID_ESPACO_BB, nome: espacoBB().nome, n: BB_BANK.length, embutido: true }], ativo: ID_ESPACO_BB, pronto: false, semEnunciado: 0,
     iniciar: async () => {
       try {
         set({ lista: await recarregarLista() })
@@ -90,6 +120,10 @@ export const useEspacos = create<State>((set, get) => {
         }
       } catch (e) { console.warn('[espaços] não abriu o espaço ativo; fica no Banco do Brasil', e) }
       set({ pronto: true })
+      try { // linhas antigas, gravadas quando o enunciado se perdia: avisa uma vez por abertura e o assistente explica
+        const c = await contarSemEnunciado(); set({ semEnunciado: c.total })
+        if (c.total > 0) useApp.getState().showToast(AVISOS.semEnunciado)
+      } catch { /* sem banco: sem aviso */ }
     },
     ativar: async (id) => {
       if (id === get().ativo) return true
@@ -99,6 +133,13 @@ export const useEspacos = create<State>((set, get) => {
       trocar(montarEspaco(d.row, d.questoes))
       await gravarEspacoAtivoId(id)
       return true
+    },
+    atualizarSelos: async () => { try { set({ lista: await recarregarLista() }) } catch { /* só informa */ } },
+    definirLocal: async (id, local) => { const r = await definirEspacoLocal(id, local); set({ lista: await recarregarLista() }); return r },
+    recarregar: async () => {
+      set({ lista: await recarregarLista() })
+      if (useApp.getState().session) { pendente = true; return }
+      await reaplicarAtivo()
     },
     criar: async (nome, usaBB) => {
       const id = novoId()

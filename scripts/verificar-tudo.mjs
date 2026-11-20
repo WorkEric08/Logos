@@ -20,6 +20,9 @@ const etapas = [
   ['Cards: o texto do cartão encolhe até caber na tela, sem rolagem vertical', 'node scripts/e2e-cards-cabe.mjs'],
   ['Movimento do app todo: telas deslizam, cascata, gráficos, aviso; "reduzir movimento"', 'node scripts/e2e-movimento.mjs'],
   ['Sincronização (parte B): eventos gravados junto com o progresso, base, zerar e desfazer', 'node scripts/e2e-sync-base.mjs'],
+  ['Regras do Firestore (firestore.rules) no emulador: dono, outro usuário, visitante, forma e tamanho dos documentos', 'node scripts/testar-regras.mjs'],
+  ['Espaços, questões e materiais pela conta (emuladores, 2 aparelhos): importar, receber, treinar, desfazer, apagar', 'node scripts/e2e-sync-espacos.mjs'],
+  ['Sincronização com DOIS aparelhos e o Firebase de mentira (emuladores): cartões, progresso, exclusão, offline, zerar/desfazer', 'node scripts/e2e-sync-emulador.mjs'],
   ['histórico, marcações, anotações e backup completo', 'node scripts/e2e-historico.mjs'],
   ['flashcards: baralhos, cartões, estudo, backup e celular', 'node scripts/e2e-cards.mjs'],
   ['Assistente: importar prova em PDF + gabarito, espaços, cartões, IA opcional (API simulada), comandos escritos', 'node scripts/e2e-assistente.mjs'],
@@ -38,9 +41,11 @@ const etapas = [
   ['Plano de estudo: seletor de tempo (segurar, limite de 5 horas), cartões → questões, sair no meio e voltar', 'node scripts/e2e-plano.mjs'],
   ['câmera das telas: o que abre ou cresce por um toque aparece inteiro (Excluir baralho, Zerar tudo, Anotação, resultado da questão)', 'node scripts/e2e-camera.mjs'],
   ['Cópia de segurança: salvar o arquivo, apagar, restaurar (só acrescenta, imagem com os mesmos bytes), arquivo errado, 320 px', 'node scripts/e2e-copia.mjs'],
+  ['Enunciado das questões importadas sobrevive a fechar e abrir o app; linhas antigas são avisadas (C-10)', 'node scripts/e2e-enunciado.mjs'],
   ['abertura animada: 2 s, preto na 1ª pintura, centralizada, movimento reduzido', 'node scripts/e2e-splash.mjs'],
   ['visual: 6 tamanhos × 2 temas × 7 telas', 'node scripts/e2e-visual.mjs'],
   ['atualização real: versão antiga → nova, backup e restauração', 'node scripts/e2e-migracao.mjs'],
+  ['banco local v7 → v8 (tabelas novas, chave composta): nada some, tabelas antigas intactas', 'node scripts/e2e-migracao-v8.mjs'],
 ]
 const noAr = async () => { try { return (await fetch(`http://localhost:${PORTA}/`)).ok } catch { return false } }
 let servidor = null

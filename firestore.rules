@@ -1,11 +1,56 @@
 rules_version = '2';
-// Logos: cada pessoa só lê e escreve o que é dela, em users/{uid}/... Tudo o mais fica fechado.
-// (A validação do formato de cada documento entra na Fase 5, com testes no emulador.)
+// Logos: cada pessoa só lê e escreve o que é dela, em users/{uid}/..., e só nas subcoleções que o app usa (lista fechada). Cada documento tem a FORMA e o TAMANHO conferidos
+// (F6.4): quem escreve é o app, mas as regras não confiam nele (o app pode ser de uma versão antiga ou o documento ter sido mexido à mão). Tudo o mais fica fechado.
+//   itens   {u, dev, x?, v}   cartões, baralhos, marcações, ajustes, ESPAÇOS (e:) e catálogo de PACOTES (p:)  (a última alteração vence; x = lápide)
+//   eventos                    respostas, simulados, zerar, desfeito, base (um registro por aparelho)
+//   corpo   {e, k, d, z?}      o conteúdo pesado dos pacotes de questões/material, em UM campo de texto (≤ 600 000 caracteres: o documento do Firestore tem 1 MiB)
+//   imagens {e, w, t, u, dev}  recortes de imagem como Bytes (≤ 600 000 bytes; F6.6)
+// SEM get()/exists() aqui: cada um é uma leitura cobrada. A cota por conta/espaço (100 MB / 25 MB) é conferida pelo app; estas regras limitam o tamanho de cada documento.
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{uid}/{documento=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    function dono(uid) { return request.auth != null && request.auth.uid == uid; }
+    function dados() { return request.resource.data; }
+
+    match /users/{uid}/itens/{chave} {
+      allow read, delete: if dono(uid);
+      allow create, update: if dono(uid)
+        && chave.size() >= 1 && chave.size() <= 200
+        && dados().keys().hasOnly(['u', 'dev', 'x', 'v'])
+        && dados().u is number && dados().dev is string && dados().dev.size() <= 64
+        && ((dados().x == 1 && !('v' in dados())) || (!('x' in dados()) && dados().v is map));
     }
+
+    match /users/{uid}/eventos/{id} {
+      allow read, delete: if dono(uid);
+      allow create, update: if dono(uid)
+        && id.size() >= 1 && id.size() <= 200
+        && dados().keys().hasOnly(['k', 'id', 'dev', 'q', 'l', 'ok', 't', 'sim', 'prog', 'dias', 'sims', 'z'])
+        && dados().id == id && dados().dev is string && dados().dev.size() <= 64
+        && dados().k in ['r', 's', 'b', 'z', 'd'];
+    }
+
+    match /users/{uid}/corpo/{pid} {
+      allow read, delete: if dono(uid);
+      allow create, update: if dono(uid)
+        && pid.matches('^[qm]-[A-Za-z0-9_-]{1,80}$')
+        && dados().keys().hasOnly(['e', 'k', 'd', 'z'])
+        && dados().e is string && dados().e.size() >= 1 && dados().e.size() <= 80
+        && dados().k in ['q', 'm'] && pid[0:1] == dados().k
+        && dados().d is string && dados().d.size() <= 600000
+        && (!('z' in dados()) || dados().z == 1);
+    }
+
+    match /users/{uid}/imagens/{qid} {
+      allow read, delete: if dono(uid);
+      allow create, update: if dono(uid)
+        && qid.size() >= 1 && qid.size() <= 200
+        && dados().keys().hasOnly(['e', 'w', 't', 'u', 'dev'])
+        && dados().e is string && dados().e.size() <= 80
+        && dados().w is bytes && dados().w.size() <= 600000
+        && dados().t in ['webp', 'png', 'jpeg']
+        && dados().u is number && dados().dev is string && dados().dev.size() <= 64;
+    }
+
     match /{outro=**} {
       allow read, write: if false;
     }

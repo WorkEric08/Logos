@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { HIST_VAZIO, MAX_SIMS, diaDe, registrarResposta, registrarSimulado, type Hist, type Sim } from '../historico'
 import { recordAnswer } from '../filters'
 import type { Letter, ProgressMap, Question } from '../types'
-import { baseDe, derivar, mesclarEventos, resposta, simulado, zerar, type Evento } from './eventos'
+import { baseDe, derivar, desfeito, mesclarEventos, resposta, simulado, zerar, type Evento } from './eventos'
 
 // gerador pseudoaleatório com semente: o teste repete igual sempre
 const sementeada = (s: number) => () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 2 ** 32 }
@@ -142,5 +142,23 @@ describe('zerar progresso entre aparelhos (e o desfazer)', () => {
   it('vários zerar: vale o mais recente', () => {
     const d = derivar([r('pc', 'q1', dia(1)), zerar('pc', dia(2)), r('pc', 'q2', dia(3)), zerar('cel', dia(4)), r('cel', 'q3', dia(5))])
     expect(Object.keys(d.prog)).toEqual(['q3'])
+  })
+})
+
+describe('desfazer o zerar por evento "desfeito" (F6.3a)', () => {
+  const r = (q: string, t: number) => resposta('pc', q, 'A', true, t)
+  it('o zerar desfeito deixa de valer; as respostas de antes voltam e as de depois continuam', () => {
+    const z = zerar('pc', 1000)
+    const ev = [r('q1', 500), r('q2', 800), z, r('q3', 1500)]
+    expect(Object.keys(derivar(ev).prog)).toEqual(['q3'])
+    const d = desfeito('pc', 2000, z.id)
+    expect(Object.keys(derivar([...ev, d]).prog).sort()).toEqual(['q1', 'q2', 'q3'])
+  })
+  it('em qualquer ordem e repetido dá o mesmo; desfazer um zerar não anula um zerar MAIS NOVO', () => {
+    const z1 = zerar('pc', 1000), z2 = zerar('cel', 3000), d1 = desfeito('pc', 2000, z1.id)
+    const ev = [r('q1', 500), z1, r('q2', 1500), d1, z2, r('q3', 3500)]
+    const esperado = derivar(ev)
+    expect(derivar(mesclarEventos([...ev].reverse()))).toEqual(esperado); expect(derivar(mesclarEventos(ev, ev))).toEqual(esperado)
+    expect(Object.keys(esperado.prog)).toEqual(['q3']) // o 2º zerar continua valendo
   })
 })

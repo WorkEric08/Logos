@@ -311,6 +311,24 @@ export function Desempenho() {
   )
 }
 
+const tam = (b: number) => (b < 1048576 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1048576).toFixed(1).replace('.', ',')} MB`)
+/** Espaços e materiais na conta (F6.5): o andamento do que baixa e sobe, em palavras e numa barra, e a saída "Sincronizar tudo de novo" (nada local é apagado). */
+function AndamentoDosPacotes() {
+  const p = useConta((s) => s.pacotes), sync = useConta((s) => s.sync), sincronizarTudo = useConta((s) => s.sincronizarTudo)
+  const feitos = p.total - p.baixar
+  const texto = p.baixar > 0 ? `Baixando espaços e materiais: ${feitos} de ${p.total} pacotes (${tam(p.bytesTotal - p.bytesBaixar)} de ${tam(p.bytesTotal)}).`
+    : p.subir > 0 ? `Enviando espaços e materiais: ${p.subir} ${p.subir === 1 ? 'pacote falta' : 'pacotes faltam'}.`
+    : p.total > 0 ? `Espaços e materiais: ${p.total} ${p.total === 1 ? 'pacote' : 'pacotes'} na sua conta (${tam(p.bytesTotal)}).` : 'Nenhum espaço ou material na conta ainda.'
+  return (
+    <div data-testid="conta-pacotes">
+      <p className="note" role="status" data-testid="conta-pacotes-texto">{texto}</p>
+      {p.baixar > 0 && <span className="bar" style={{ display: 'block', margin: '4px 0 6px' }} role="progressbar" aria-label="Pacotes baixados" aria-valuemin={0} aria-valuemax={p.total} aria-valuenow={feitos}><i style={{ width: `${Math.round((100 * feitos) / Math.max(1, p.total))}%` }} /></span>}
+      {p.cota > 0 && <p className="note">{p.cota} {p.cota === 1 ? 'pacote passou' : 'pacotes passaram'} do limite de tamanho e {p.cota === 1 ? 'fica' : 'ficam'} só neste aparelho (apague algo para liberar).</p>}
+      <div className="row" style={{ marginTop: 12 }}><button className="btn small-btn" onClick={() => void sincronizarTudo()}>{sync === 'erro' ? 'Tentar de novo' : 'Sincronizar tudo de novo'}</button></div>
+    </div>
+  )
+}
+
 /** Conta Google e sincronização: entrar é opcional (o app funciona igual sem conta e sem internet). */
 function Conta() {
   const { estado, usuario, sync, detalhe, ocupado, erro, entrar, sair } = useConta()
@@ -329,7 +347,8 @@ function Conta() {
         <>
           <p className="note" data-testid="conta-email">Conectado como <b>{usuario.email}</b>{usuario.nome ? ` (${usuario.nome})` : ''}.</p>
           <p className="note" role="status" data-testid="conta-situacao">{situacao}</p>
-          <p className="note">Progresso, histórico, cartões, marcações e anotações ficam iguais no celular e no computador. Sair da conta não apaga nada deste aparelho.</p>
+          <p className="note">Progresso, histórico, cartões, marcações, anotações, espaços e materiais ficam iguais no celular e no computador. Sair da conta não apaga nada deste aparelho.</p>
+          <AndamentoDosPacotes />
           <div className="row" style={{ marginTop: 10 }}><button className="btn" disabled={ocupado} onClick={() => void sair()}>Sair da conta</button></div>
         </>
       ) : (

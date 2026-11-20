@@ -57,7 +57,10 @@ describe('banco: eventos de sincronização', () => {
     expect(d.hist.dias['2026-11-10']).toEqual({ n: 4, c: 3 })
     const salvo = await db.loadAll()
     expect(salvo.prog).toEqual(d.prog); expect(salvo.hist).toEqual(d.hist) // o que ficou gravado é o mesmo que o app recebe
-    expect((await db.lerEventos()).some((e) => e.k === 'z')).toBe(false)
+    // o zerar FICA (uma exclusão não chegaria a quem lê só o que é novo): quem o anula é o evento "desfeito"
+    const evs = await db.lerEventos()
+    expect(evs.filter((e) => e.k === 'z')).toHaveLength(1); expect(evs.filter((e) => e.k === 'd').map((e) => (e as { z: string }).z)).toEqual([z.id])
+    expect((await db.desfazerZerar(z.id)).prog).toEqual(d.prog); expect((await db.lerEventos()).filter((e) => e.k === 'd')).toHaveLength(1) // desfazer de novo não duplica
   })
 
   it('na abertura: evento-base uma vez só (com progresso de antes), nada com o app vazio, e a conferência fica "ok"', async () => {
@@ -246,5 +249,132 @@ describe('banco: materiais de estudo (v6)', () => {
     await velho.open(); await velho.table('prog').put({ id: 'q1', n: 2, c: 1, ok: true }); velho.close()
     await abrir()
     expect((await db.loadAll()).prog.q1).toMatchObject({ n: 2, c: 1 }); expect(await db.listarMateriais('e1')).toEqual([])
+  })
+})
+
+// C-10: o enunciado de uma questão importada se perdia ao gravar (a tabela usa `e` para o id do ESPAÇO e `Question.e` é o ENUNCIADO)
+describe('banco: questões de espaços guardam o enunciado (C-10)', () => {
+  const row = { id: 'e1', nome: 'Direito', criado: 1, fontes: {}, bases: {}, materias: [], extras: [], bancos: [], simulado: null }
+  const q = (id: string, e: string) => ({ id, y: 2026, s: 'dir-2026', n: 1, m: 'Civil', t: 'Geral', a: '', e, b: '', o: { A: 'a', B: 'b', C: 'c', D: 'd', E: 'e' }, g: 'A' as const, p: null, bp: null, f: 0 as const, ol: 0 as const })
+  it('salvar e reler (inclusive depois de "fechar e abrir o app") devolve o enunciado inteiro', async () => {
+    await db.salvarEspaco(row, [q('u1', 'Qual é o prazo?'), q('u2', 'Segunda pergunta com acentuação: ação')])
+    expect((await db.lerEspaco('e1'))?.questoes.map((x) => x.e).sort()).toEqual(['Qual é o prazo?', 'Segunda pergunta com acentuação: ação'])
+    await abrir()
+    const r = await db.lerEspaco('e1')
+    expect(r?.questoes.find((x) => x.id === 'u1')).toMatchObject({ e: 'Qual é o prazo?', g: 'A', m: 'Civil' }); expect((await db.contarSemEnunciado()).total).toBe(0)
+  })
+  it('a cópia de segurança leva o enunciado e o devolve', async () => {
+    await db.salvarEspaco(row, [q('u1', 'Pergunta que não pode sumir')])
+    const c = await db.lerConteudoDoAparelho()
+    expect(c.questoes[0]).toMatchObject({ e: 'e1', enun: 'Pergunta que não pode sumir' })
+    await Dexie.delete('treino-bb'); await abrir()
+    await db.acrescentarConteudoDoAparelho(c)
+    expect((await db.lerEspaco('e1'))?.questoes[0].e).toBe('Pergunta que não pode sumir')
+  })
+})
+
+// ---------- F6.2: Dexie v8 (tabelas novas, migração por cópia) ----------
+const V7 = { prog: 'id', meta: 'key', decks: 'id', cards: 'id, b', eventos: 'id, [dev+t]', sinc: 'id', espacos: 'id', questoes: 'id, e', imagens: 'id, e', materiais: 'id, e', trechos: 'id, m, e', conversa: 'id' }
+/** Um banco como o app v7 deixava (sem as tabelas novas), com dados dentro. */
+async function criarBancoV7(c: { questoes?: unknown[]; espacos?: unknown[]; imagens?: unknown[]; materiais?: unknown[]; trechos?: unknown[]; prog?: unknown[]; cards?: unknown[]; decks?: unknown[] }) {
+  await Dexie.delete('treino-bb')
+  const v7 = new Dexie('treino-bb'); v7.version(7).stores(V7); await v7.open()
+  for (const [tabela, linhas] of Object.entries(c)) if (linhas?.length) await v7.table(tabela).bulkPut(linhas)
+  v7.close()
+}
+const rowE = (id: string, nome: string) => ({ id, nome, criado: 5, fontes: { 'dir-2026': 'Direito 2026' }, bases: {}, materias: [], extras: [], bancos: [{ id: 'dir', nome: 'Direito' }], simulado: null })
+const qq = (id: string, e: string, extra = {}) => ({ id, y: 2026, s: 'dir-2026', n: 1, m: 'Civil', t: 'Geral', a: '', e, b: '', o: { A: 'a', B: 'b', C: 'c', D: 'd', E: 'e' }, g: 'A' as const, p: null, bp: null, f: 0 as const, ol: 0 as const, ...extra })
+const imagem = (bytes: number[]) => new Blob([new Uint8Array(bytes)], { type: 'image/png' })
+
+describe('banco v8: migração da v7 por cópia (F6.2)', () => {
+  it('linha ANTIGA (sem `enun`, o enunciado já tinha sido sobrescrito) vira questão sem enunciado, é contada; importar de novo conserta', async () => {
+    await criarBancoV7({ questoes: [{ ...qq('uvelha', ''), e: 'e1' }], espacos: [rowE('e1', 'Direito')] })
+    await abrir()
+    expect((await db.lerEspaco('e1'))?.questoes[0]).toMatchObject({ id: 'uvelha', e: '' })
+    expect(await db.contarSemEnunciado()).toEqual({ total: 1, porEspaco: { e1: 1 } })
+    await db.salvarEspaco(rowE('e1', 'Direito'), [qq('uvelha', 'Enunciado de novo')]) // importar a prova outra vez (mesmo id por conteúdo)
+    expect((await db.lerEspaco('e1'))?.questoes[0].e).toBe('Enunciado de novo'); expect((await db.contarSemEnunciado()).total).toBe(0)
+  })
+  it('copia espaços, questões (com enunciado salvo ou perdido), imagens e materiais para as tabelas novas; as ANTIGAS ficam intactas; progresso e cartões também', async () => {
+    await criarBancoV7({
+      espacos: [rowE('e1', 'Direito'), rowE('e2', 'Civil')],
+      questoes: [{ ...qq('u1', 'e1'), enun: 'Enunciado salvo pelo conserto' }, { ...qq('u2', 'e1'), enun: undefined }, { ...qq('u3', 'e2'), enun: 'Outra' }],
+      imagens: [{ id: 'u1', e: 'e1', blob: imagem([1, 2, 3]) }],
+      materiais: [{ id: 'Mx', e: 'e1', nome: 'Resumo', tipo: 'texto', criado: 1, trechos: 1, caracteres: 5 }], trechos: [{ id: 'Mx:0', m: 'Mx', e: 'e1', i: 0, t: 'texto' }],
+      prog: [{ id: 'u1', n: 2, c: 1, ok: true, last: 'A', t: 9 }],
+    })
+    await abrir()
+    const e1 = await db.lerEspaco('e1'), e2 = await db.lerEspaco('e2')
+    expect(e1?.questoes.map((x) => x.id).sort()).toEqual(['u1', 'u2']); expect(e1?.questoes.find((x) => x.id === 'u1')?.e).toBe('Enunciado salvo pelo conserto')
+    expect(e1?.questoes.find((x) => x.id === 'u2')?.e).toBe('') // a que já estava sem enunciado continua assim (e é contada)
+    expect(e2?.questoes.map((x) => x.id)).toEqual(['u3']); expect((await db.listarEspacos()).map((x) => [x.id, x.n]).sort()).toEqual([['e1', 2], ['e2', 1]])
+    expect(await db.contarSemEnunciado()).toEqual({ total: 1, porEspaco: { e1: 1 } })
+    expect(await db.lerImagem('u1')).not.toBeNull(); expect((await db.listarMateriais('e1'))[0].nome).toBe('Resumo'); expect((await db.trechosDoMaterial('Mx')).map((t) => t.t)).toEqual(['texto'])
+    expect((await db.loadAll()).prog.u1).toMatchObject({ n: 2, c: 1 })
+    // as tabelas antigas continuam como estavam (nada foi apagado)
+    const raw = new Dexie('treino-bb'); await raw.open()
+    expect(await raw.table('questoes').count()).toBe(3); expect(await raw.table('imagens').count()).toBe(1); expect(raw.verno).toBe(8); raw.close()
+  })
+  it('abrir de novo depois de migrada não copia nem duplica nada', async () => {
+    await criarBancoV7({ espacos: [rowE('e1', 'Direito')], questoes: [{ ...qq('u1', 'e1'), enun: 'A' }] })
+    await abrir(); await abrir()
+    expect((await db.lerEspaco('e1'))?.questoes).toHaveLength(1)
+  })
+  it('a MESMA questão em dois espaços são duas linhas: apagar um espaço não mexe no outro (chave composta)', async () => {
+    await db.salvarEspaco(rowE('e1', 'Direito'), [qq('uigual', 'Pergunta compartilhada'), qq('uso1', 'Só do 1')])
+    await db.salvarEspaco(rowE('e2', 'Civil'), [qq('uigual', 'Pergunta compartilhada')])
+    await db.gravarImagem('uigual', 'e1', imagem([9])); await db.gravarImagem('uigual', 'e2', imagem([9]))
+    expect((await db.lerEspaco('e1'))?.questoes.map((x) => x.id).sort()).toEqual(['uigual', 'uso1']); expect((await db.lerEspaco('e2'))?.questoes.map((x) => x.id)).toEqual(['uigual'])
+    await db.apagarEspaco('e1')
+    expect(await db.lerEspaco('e1')).toBeNull(); expect((await db.lerEspaco('e2'))?.questoes[0]).toMatchObject({ id: 'uigual', e: 'Pergunta compartilhada' })
+    expect(await db.lerImagem('uigual')).not.toBeNull() // a imagem do e2 ficou
+  })
+})
+
+describe('banco v8: pacotes e carimbos da sincronização (F6.2)', () => {
+  const chaves = async () => (await db.lerSinc()).map((x) => x.id + (x.x ? '#x' : '')).sort()
+  it('salvar um espaço com questões registra os pacotes (um por prova) e carimba o espaço e os pacotes na mesma transação', async () => {
+    await db.salvarEspaco(rowE('e1', 'Direito'), [qq('u1', 'A'), qq('u2', 'B'), qq('u3', 'C', { s: 'outra-2026' })])
+    const c = await chaves()
+    expect(c.filter((k) => k.startsWith('e:'))).toEqual(['e:e1']); expect(c.filter((k) => k.startsWith('p:q-e1-'))).toHaveLength(2)
+    const vs = await db.valoresDe(await db.lerSinc())
+    expect(vs.find((i) => i.key === 'e:e1')?.v).toEqual({ nome: 'Direito', criado: 5 })
+    expect(vs.filter((i) => i.key.startsWith('p:')).map((i) => (i.v as { n: number }).n).sort()).toEqual([1, 2])
+    expect(JSON.stringify(vs)).not.toContain('"d":') // o catálogo nunca leva o corpo
+  })
+  it('importar a MESMA prova de novo não cria pacote nem carimbo novo (mesmo conjunto = mesmo pacote)', async () => {
+    const qs = [qq('u1', 'A'), qq('u2', 'B')]
+    await db.salvarEspaco(rowE('e1', 'Direito'), qs); const antes = (await chaves()).filter((k) => k.startsWith('p:'))
+    await db.salvarEspaco(rowE('e1', 'Direito'), [...qs].reverse())
+    expect((await chaves()).filter((k) => k.startsWith('p:'))).toEqual(antes)
+  })
+  it('espaço "só neste aparelho" não gera pacote nem carimbo', async () => {
+    await db.salvarEspaco({ ...rowE('e1', 'Privado'), local: true }, [qq('u1', 'A')])
+    expect(await chaves()).toEqual([])
+  })
+  it('material: pacote e carimbo; apagar o material vira lápide do pacote', async () => {
+    await db.salvarEspaco(rowE('e1', 'Direito'), [])
+    await db.salvarMaterial({ id: 'Mx', e: 'e1', nome: 'Resumo', tipo: 'texto', criado: 1, trechos: 2, caracteres: 10 }, [{ id: 'Mx:0', m: 'Mx', e: 'e1', i: 0, t: 'um' }, { id: 'Mx:1', m: 'Mx', e: 'e1', i: 1, t: 'dois' }])
+    expect(await chaves()).toContain('p:m-Mx-0')
+    await db.apagarMaterial('Mx')
+    expect(await chaves()).toContain('p:m-Mx-0#x')
+  })
+  it('apagar o espaço põe lápide no espaço e nos pacotes; desfazer a importação põe lápide só no pacote que ficou vazio', async () => {
+    const r1 = rowE('e1', 'Direito')
+    await db.salvarEspaco(r1, [qq('u1', 'A')]); await db.salvarEspaco(r1, [qq('u2', 'B', { s: 'outra-2026' })])
+    expect((await chaves()).filter((k) => k.startsWith('p:'))).toHaveLength(2)
+    await db.removerQuestoesDoEspaco(['u2'], r1) // desfaz a 2ª importação
+    expect((await chaves()).filter((k) => k.endsWith('#x'))).toHaveLength(1); expect((await db.lerEspaco('e1'))?.questoes.map((x) => x.id)).toEqual(['u1'])
+    await db.apagarEspaco('e1')
+    expect((await db.lerSinc()).every((x) => x.x === 1)).toBe(true); expect(await db.lerEspaco('e1')).toBeNull()
+  })
+  it('semear o carimbo (1º login) cria pacotes e carimbos para o que o aparelho já tinha, uma vez só', async () => {
+    await criarBancoV7({ espacos: [rowE('e1', 'Direito'), { ...rowE('e2', 'Privado'), local: true }], questoes: [{ ...qq('u1', 'e1'), enun: 'A' }, { ...qq('u2', 'e2'), enun: 'B' }],
+      materiais: [{ id: 'Mx', e: 'e1', nome: 'Resumo', tipo: 'texto', criado: 1, trechos: 1, caracteres: 5 }], trechos: [{ id: 'Mx:0', m: 'Mx', e: 'e1', i: 0, t: 'texto' }] })
+    await abrir()
+    expect(await db.semearSinc()).toBeGreaterThan(0)
+    const c = await chaves()
+    expect(c).toContain('e:e1'); expect(c.some((k) => k.startsWith('p:q-e1-'))).toBe(true); expect(c).toContain('p:m-Mx-0'); expect(c.some((k) => k.includes('e2'))).toBe(false) // o espaço privado não sobe
+    expect(await db.semearSinc()).toBe(0)
   })
 })

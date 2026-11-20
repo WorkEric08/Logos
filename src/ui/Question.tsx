@@ -153,6 +153,7 @@ export function Questao() {
                 <summary onClick={aoTocarNoResumo}>Texto da questão</summary><div className="txt">{BASES[q.b]}</div>
               </details>
             )}
+            {!soImg && !q.e && <div className="warnbox" role="status">Esta questão importada perdeu o enunciado (defeito de versões antigas do app). Importe a prova de novo no Assistente: o progresso é mantido.</div>}
             {!soImg && <p className="enun">{q.e}</p>}
             <ul className={`alts${soImg ? ' letras' : ''}`}>
               {(Object.entries(q.o) as [keyof typeof q.o, string][]).map(([l, t]) => {

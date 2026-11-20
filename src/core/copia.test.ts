@@ -9,6 +9,7 @@ const conteudo: ConteudoLocal = {
   materiais: [{ id: 'm1', e: 'e1', nome: 'Resumo' }],
   trechos: [{ id: 'm1:0', m: 'm1', e: 'e1', t: 'texto' }, { id: 'm1:1', m: 'm1', e: 'e1', t: 'mais texto' }],
 }
+// questões e imagens são chaveadas por espaço + id (a mesma questão em dois espaços são duas linhas): nos testes a chave é "e1|q1"
 const ids = (o: Partial<Record<keyof IdsLocais, string[]>> = {}): IdsLocais => ({ espacos: new Set(o.espacos), questoes: new Set(o.questoes), imagens: new Set(o.imagens), materiais: new Set(o.materiais), trechos: new Set(o.trechos) })
 
 describe('cópia de segurança do que só existe no aparelho', () => {
@@ -31,7 +32,7 @@ describe('cópia de segurança do que só existe no aparelho', () => {
   })
   it('restaurar só acrescenta: o que já existe fica como está e é contado à parte', () => {
     const c = montarCopia(conteudo, 1)
-    const p = planoDeRestauracao(c, ids({ espacos: ['e1'], questoes: ['q1', 'q2'], materiais: ['m1'], trechos: ['m1:0'] }))
+    const p = planoDeRestauracao(c, ids({ espacos: ['e1'], questoes: ['e1|q1', 'e1|q2'], materiais: ['m1'], trechos: ['m1:0'] }))
     expect(p.acrescentar.espacos.map((x) => x.id)).toEqual(['e2'])
     expect(p.acrescentar.questoes.map((x) => x.id)).toEqual(['q3'])
     expect(p.acrescentar.imagens.map((x) => x.id)).toEqual(['q1'])
@@ -42,7 +43,7 @@ describe('cópia de segurança do que só existe no aparelho', () => {
   it('num aparelho vazio entra tudo; num aparelho que já tem tudo não entra nada (restaurar duas vezes não duplica)', () => {
     const c = montarCopia(conteudo, 1)
     expect(planoDeRestauracao(c, ids()).novos).toEqual(resumir(conteudo))
-    const tudo = ids({ espacos: ['e1', 'e2'], questoes: ['q1', 'q2', 'q3'], imagens: ['q1'], materiais: ['m1'], trechos: ['m1:0', 'm1:1'] })
+    const tudo = ids({ espacos: ['e1', 'e2'], questoes: ['e1|q1', 'e1|q2', 'e2|q3'], imagens: ['e1|q1'], materiais: ['m1'], trechos: ['m1:0', 'm1:1'] })
     expect(planoDeRestauracao(c, tudo).novos).toEqual(resumir(vazio))
   })
   it('o nome do arquivo leva a data e o resumo diz só o que há, com concordância', () => {

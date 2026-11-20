@@ -3,7 +3,8 @@
 import { create } from 'zustand'
 import { useApp } from '../../store/app'
 import { useCards } from '../../store/cards'
-import { gravarUidSync, lerUidSync } from '../db'
+import { useEspacos } from '../../store/espacos'
+import { gravarAvisoEspacos, gravarUidSync, lerUidSync, limparCursores } from '../db'
 import { entrarComGoogle, mensagemDeErro, observarUsuario, sairDaConta } from './firebase'
 import { portaFirestore } from './firestore'
 import { iniciarSincronizacao, type EstadoSync, type Sincronizacao } from './motor'
@@ -19,21 +20,29 @@ interface State {
   estado: 'iniciando' | 'fora' | 'dentro'
   usuario: Usuario | null
   sync: EstadoSync
+  /** O andamento dos pacotes de espaços e materiais (F6): quantos faltam baixar e quantos bytes. */
+  pacotes: { total: number; baixar: number; subir: number; cota: number; bytesBaixar: number; bytesTotal: number }
   detalhe: string
   ocupado: boolean
   erro: string
   entrar: () => Promise<void>
   sair: () => Promise<void>
+  /** Há espaço ou material daqui para subir e a pessoa ainda não viu o aviso do que sobe (F6.5). */
+  precisaAviso: boolean
+  /** Responde ao aviso da primeira subida: 'enviar' ou 'manter' (o que já existe fica só neste aparelho). */
+  responderAviso: (modo: 'enviar' | 'manter') => Promise<void>
+  /** Lê TUDO da conta de novo (apaga o cursor da leitura incremental): a rede de segurança se algo parecer faltar (relógio muito errado, alteração antiga demais). */
+  sincronizarTudo: () => Promise<void>
 }
 
 let sincronizacao: Sincronizacao | null = null
 let parouOuvir: (() => void) | null = null
 let iniciou = false
 
-const pararSync = () => { sincronizacao?.parar(); sincronizacao = null; registrarApagarEvento(null) }
+const pararSync = () => { sincronizacao?.parar(); sincronizacao = null; registrarApagarEvento(null); set({ precisaAviso: false }) }
 
 export const useConta = create<State>((set, get) => ({
-  estado: 'fora', usuario: null, sync: 'parado', detalhe: '', ocupado: false, erro: '',
+  estado: 'fora', usuario: null, sync: 'parado', precisaAviso: false, pacotes: { total: 0, baixar: 0, subir: 0, cota: 0, bytesBaixar: 0, bytesTotal: 0 }, detalhe: '', ocupado: false, erro: '',
   entrar: async () => {
     if (get().ocupado) return
     set({ ocupado: true, erro: '' })
@@ -49,12 +58,23 @@ export const useConta = create<State>((set, get) => ({
     try { await sairDaConta() } catch (e) { set({ erro: mensagemDeErro(e) }) }
     poeFlag(false); set({ usuario: null, estado: 'fora', sync: 'parado', detalhe: '', ocupado: false }) // os dados do aparelho ficam: sair da conta não apaga nada
   },
+  responderAviso: async (modo) => {
+    await gravarAvisoEspacos(modo); set({ precisaAviso: false })
+    await useEspacos.getState().atualizarSelos()
+    void sincronizacao?.sincronizarAgora()
+  },
+  sincronizarTudo: async () => {
+    const u = useConta.getState().usuario
+    if (!u) return
+    pararSync(); await limparCursores(); ligar(u.uid) // nada local é apagado: só a próxima leitura volta a ser a coleção inteira
+  },
 }))
 
 /** Recarrega do banco local o que a nuvem trouxe (as telas leem dos estados em memória). */
-async function aoReceber(o: { progresso: boolean; cartoes: boolean; marcas: boolean }) {
+async function aoReceber(o: { progresso: boolean; cartoes: boolean; marcas: boolean; espacos: boolean }) {
   if (o.progresso || o.marcas) await useApp.getState().recarregar(o)
   if (o.cartoes) await useCards.getState().load()
+  if (o.espacos) await useEspacos.getState().recarregar() // chegaram espaços, questões ou materiais (F6): a lista e, se for o caso, o espaço ativo
 }
 
 async function usuarioMudou(u: { uid: string; email: string | null; displayName: string | null } | null) {
@@ -71,9 +91,15 @@ async function usuarioMudou(u: { uid: string; email: string | null; displayName:
   if (!dono) await gravarUidSync(u.uid)
   poeFlag(true)
   set({ usuario: { uid: u.uid, email: u.email ?? '', nome: u.displayName ?? '' }, estado: 'dentro', erro: '' })
-  sincronizacao = iniciarSincronizacao(portaFirestore(u.uid), {
+  ligar(u.uid)
+}
+function ligar(uid: string) {
+  sincronizacao = iniciarSincronizacao(portaFirestore(uid), {
     aoReceber: (o) => void aoReceber(o).catch((e) => console.warn('[sync] não recarregou a tela', e)),
     aoMudarEstado: (e, d) => set({ sync: e, detalhe: d ?? '' }),
+    espacoAtivo: () => useEspacos.getState().ativo,
+    aoPacotes: (pacotes) => { set({ pacotes }); void useEspacos.getState().atualizarSelos() },
+    aoPrecisaAviso: () => set({ precisaAviso: true }),
   })
   registrarApagarEvento((id) => sincronizacao?.apagarEventoNaNuvem(id))
 }

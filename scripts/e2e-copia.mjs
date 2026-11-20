@@ -31,10 +31,10 @@ const BYTES = [255, 216, 255, 224, 0, 16, 74, 70, 73, 70, 0, 1]
 /** Escreve direto no banco do app (o mesmo `treino-bb`), como se a pessoa tivesse importado uma prova e um material. */
 const semear = () => p.evaluate(async (bytes) => {
   const db = await new Promise((ok, no) => { const r = indexedDB.open('treino-bb'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error) })
-  const tx = db.transaction(['espacos', 'questoes', 'imagens', 'materiais', 'trechos'], 'readwrite')
+  const tx = db.transaction(['espacos', 'questoesE', 'imagensE', 'materiais', 'trechos'], 'readwrite')
   tx.objectStore('espacos').put({ id: 'esp-teste', nome: 'Concurso de teste', criado: 1700000000000, fontes: {}, bases: {}, materias: [], extras: [], bancos: [], simulado: null })
-  for (const id of ['q-a', 'q-b']) tx.objectStore('questoes').put({ id, e: 'esp-teste', materia: 'Português', enunciado: 'Enunciado ' + id, alternativas: ['a', 'b', 'c', 'd', 'e'], gabarito: 0 })
-  tx.objectStore('imagens').put({ id: 'q-a', e: 'esp-teste', blob: new Blob([new Uint8Array(bytes)], { type: 'image/jpeg' }) })
+  for (const id of ['q-a', 'q-b']) tx.objectStore('questoesE').put({ e: 'esp-teste', id, q: { id, e: 'Enunciado ' + id, m: 'Português', s: 'teste-2026', y: 2026, n: 1, t: 'Geral', a: '', b: '', o: { A: 'a', B: 'b', C: 'c', D: 'd', E: 'e' }, g: 'A', p: null, bp: null, f: 0, ol: 0 } })
+  tx.objectStore('imagensE').put({ id: 'q-a', e: 'esp-teste', blob: new Blob([new Uint8Array(bytes)], { type: 'image/jpeg' }) })
   tx.objectStore('materiais').put({ id: 'm-1', e: 'esp-teste', nome: 'Resumo.pdf', criado: 1700000000000 })
   tx.objectStore('trechos').put({ id: 't-1', m: 'm-1', e: 'esp-teste', texto: 'Um trecho do resumo.' })
   await new Promise((ok, no) => { tx.oncomplete = ok; tx.onerror = () => no(tx.error) })
@@ -42,17 +42,17 @@ const semear = () => p.evaluate(async (bytes) => {
 }, BYTES)
 const apagarTudo = () => p.evaluate(async () => {
   const db = await new Promise((ok, no) => { const r = indexedDB.open('treino-bb'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error) })
-  const nomes = ['espacos', 'questoes', 'imagens', 'materiais', 'trechos']
+  const nomes = ['espacos', 'questoesE', 'imagensE', 'materiais', 'trechos', 'pacotes', 'sinc']
   const tx = db.transaction(nomes, 'readwrite'); for (const n of nomes) tx.objectStore(n).clear()
   await new Promise((ok, no) => { tx.oncomplete = ok; tx.onerror = () => no(tx.error) })
   db.close()
 })
 const contar = () => p.evaluate(async () => {
   const db = await new Promise((ok, no) => { const r = indexedDB.open('treino-bb'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error) })
-  const nomes = ['espacos', 'questoes', 'imagens', 'materiais', 'trechos'], r = {}
+  const nomes = ['espacos', 'questoesE', 'imagensE', 'materiais', 'trechos'], r = {}
   const tx = db.transaction(nomes)
-  await Promise.all(nomes.map((n) => new Promise((ok) => { const q = tx.objectStore(n).count(); q.onsuccess = () => { r[n] = q.result; ok() } })))
-  const img = await new Promise((ok) => { const q = tx.objectStore('imagens').get('q-a'); q.onsuccess = () => ok(q.result) })
+  await Promise.all(nomes.map((n) => new Promise((ok) => { const q = tx.objectStore(n).count(); q.onsuccess = () => { r[n === 'questoesE' ? 'questoes' : n === 'imagensE' ? 'imagens' : n] = q.result; ok() } })))
+  const img = await new Promise((ok) => { const q = tx.objectStore('imagensE').get(['esp-teste', 'q-a']); q.onsuccess = () => ok(q.result) })
   r.imagemBytes = img ? [...new Uint8Array(await img.blob.arrayBuffer())] : null; r.imagemTipo = img?.blob.type ?? null
   db.close(); return r
 })

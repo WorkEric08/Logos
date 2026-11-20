@@ -14,17 +14,22 @@ export interface EvSimulado { k: 's'; id: string; dev: string; sim: Sim }
 export interface EvBase { k: 'b'; id: string; dev: string; t: number; prog: ProgressMap; dias: Record<string, Dia>; sims: Sim[] }
 /** "Zerar progresso": tudo o que é anterior a `t`, de qualquer aparelho, deixa de valer. Desfazer = apagar este evento (nada foi apagado de verdade). */
 export interface EvZerar { k: 'z'; id: string; dev: string; t: number }
-export type Evento = EvResposta | EvSimulado | EvBase | EvZerar
+/** "Desfazer o zerar" (F6.3a): em vez de APAGAR o evento de zerar (uma exclusão não aparece numa leitura incremental da nuvem), grava-se este evento, que anula aquele "zerar". Nada some. */
+export interface EvDesfeito { k: 'd'; id: string; dev: string; t: number; z: string }
+export type Evento = EvResposta | EvSimulado | EvBase | EvZerar | EvDesfeito
 
 // Os ids são determinísticos: enviar o mesmo evento duas vezes grava o mesmo documento (sem duplicar).
 export const idResposta = (dev: string, t: number, q: string) => `r:${dev}:${t}:${q}`
 export const idSimulado = (dev: string, t: number) => `s:${dev}:${t}`
 export const idBase = (dev: string) => `b:${dev}`
 export const idZerar = (dev: string, t: number) => `z:${dev}:${t}`
+/** O id é do "zerar" desfeito: desfazer duas vezes o mesmo zerar é um evento só. */
+export const idDesfeito = (idDoZerar: string) => `d:${idDoZerar}`
 
 export const resposta = (dev: string, q: string, l: Letter, ok: boolean, t: number): EvResposta => ({ k: 'r', id: idResposta(dev, t, q), dev, q, l, ok, t })
 export const simulado = (dev: string, sim: Sim): EvSimulado => ({ k: 's', id: idSimulado(dev, sim.t), dev, sim })
 export const zerar = (dev: string, t: number): EvZerar => ({ k: 'z', id: idZerar(dev, t), dev, t })
+export const desfeito = (dev: string, t: number, idDoZerar: string): EvDesfeito => ({ k: 'd', id: idDesfeito(idDoZerar), dev, t, z: idDoZerar })
 /** Foto do que o aparelho já tinha: vira o evento-base (guarda cópias, não referências). */
 export const baseDe = (dev: string, t: number, prog: ProgressMap, hist: Hist): EvBase =>
   ({ k: 'b', id: idBase(dev), dev, t, prog: structuredClone(prog), dias: structuredClone(hist.dias), sims: structuredClone(hist.sims) })
@@ -50,8 +55,10 @@ const mesmaSim = (a: Sim, b: Sim) => a.t === b.t && a.p === b.p && a.b === b.b &
 
 /** O progresso (por questão) e o histórico (por dia e simulados) que a tela mostra, calculados a partir dos eventos. */
 export function derivar(eventos: readonly Evento[]): { prog: ProgressMap; hist: Hist } {
-  let zt = 0 // o último "zerar" vence: o que vem antes dele não conta
-  for (const e of eventos) if (e.k === 'z' && e.t > zt) zt = e.t
+  const desfeitos = new Set<string>() // "zerar" desfeitos: não valem
+  for (const e of eventos) if (e.k === 'd') desfeitos.add(e.z)
+  let zt = 0 // o último "zerar" (não desfeito) vence: o que vem antes dele não conta
+  for (const e of eventos) if (e.k === 'z' && !desfeitos.has(e.id) && e.t > zt) zt = e.t
   const vale = (t: number | undefined) => zt === 0 || (t ?? 0) > zt
   const diaZ = zt ? diaDe(zt) : ''
   const prog: ProgressMap = {}

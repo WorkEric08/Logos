@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core'
 import type { FirebaseApp } from 'firebase/app'
 import type { Auth, User } from 'firebase/auth'
 import { firebaseConfig } from './firebaseConfig'
+import { configEmulador, tokenFalsoDoGoogle } from './emulador'
 
 export const ehAndroid = () => { try { return Capacitor.isNativePlatform() } catch { return false } }
 
@@ -16,7 +17,10 @@ let authP: Promise<Auth> | null = null
 export function authFirebase(): Promise<Auth> {
   return (authP ??= (async () => {
     const [app, mod] = await Promise.all([appFirebase(), import('firebase/auth')])
-    return ehAndroid() ? mod.initializeAuth(app, { persistence: mod.indexedDBLocalPersistence }) : mod.getAuth(app)
+    const auth = ehAndroid() ? mod.initializeAuth(app, { persistence: mod.indexedDBLocalPersistence }) : mod.getAuth(app)
+    const emu = configEmulador() // só em teste (localStorage.logos_emulador): o login vai para o emulador, nunca para o Google de verdade
+    if (emu) mod.connectAuthEmulator(auth, emu.auth, { disableWarnings: true })
+    return auth
   })())
 }
 
@@ -32,6 +36,8 @@ export async function observarUsuario(aoMudar: (u: User | null) => void, aoFalha
  */
 export async function entrarComGoogle(): Promise<void> {
   const [auth, mod] = await Promise.all([authFirebase(), import('firebase/auth')])
+  const emu = configEmulador()
+  if (emu) { await mod.signInWithCredential(auth, mod.GoogleAuthProvider.credential(tokenFalsoDoGoogle(emu))); return } // conta falsa do emulador (testes)
   if (ehAndroid()) {
     const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication')
     const r = await FirebaseAuthentication.signInWithGoogle()

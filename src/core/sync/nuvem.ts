@@ -2,12 +2,13 @@
 // A chave diz o tipo: `b:<id>` baralho, `c:<id>` cartão, `m:<id da questão>` marcação/anotação, `fc` ajustes dos Cards, `fch` histórico dos Cards.
 // "A última alteração vence" (versionados.ts); apagar vira lápide (`x: 1`) para a exclusão chegar ao outro aparelho.
 import { vence, type Versionado } from './versionados'
+import { valorEspacoValido, valorPacoteValido } from './espacos'
 
 export interface ItemNuvem { key: string; u: number; dev: string; x?: 1; v?: unknown }
 /** O que o aparelho guarda sobre cada item para sincronizar (sem o valor, que mora nas tabelas de sempre). */
 export interface Sinc { id: string; u: number; dev: string; x?: 1 }
 
-export type TipoItem = 'baralho' | 'cartao' | 'marca' | 'ajustes' | 'histCards'
+export type TipoItem = 'baralho' | 'cartao' | 'marca' | 'ajustes' | 'histCards' | 'espaco' | 'pacote'
 export const chaveBaralho = (id: string) => `b:${id}`
 export const chaveCartao = (id: string) => `c:${id}`
 export const chaveMarca = (id: string) => `m:${id}`
@@ -22,6 +23,8 @@ export function tipoDe(key: string): { tipo: TipoItem; id: string } | null {
   if (t === 'b:') return { tipo: 'baralho', id }
   if (t === 'c:') return { tipo: 'cartao', id }
   if (t === 'm:') return { tipo: 'marca', id }
+  if (t === 'e:') return { tipo: 'espaco', id }  // espaço de estudo criado pela pessoa (core/sync/espacos.ts)
+  if (t === 'p:') return { tipo: 'pacote', id }  // catálogo de um pacote de questões ou de material
   return null
 }
 
@@ -52,6 +55,9 @@ export function itemValido(key: string, d: unknown): ItemNuvem | null {
   if (typeof o.u !== 'number' || !Number.isFinite(o.u) || typeof o.dev !== 'string') return null
   if (o.x === 1) return { key, u: o.u, dev: o.dev, x: 1 }
   if (o.v === undefined || o.v === null || typeof o.v !== 'object') return null
+  const t = tipoDe(key)!
+  if (t.tipo === 'espaco') { const v = valorEspacoValido(o.v); return v ? { key, u: o.u, dev: o.dev, v } : null }
+  if (t.tipo === 'pacote') { const v = valorPacoteValido(t.id, o.v); return v ? { key, u: o.u, dev: o.dev, v } : null }
   return { key, u: o.u, dev: o.dev, v: o.v }
 }
 
@@ -72,6 +78,7 @@ export function eventoValido(id: string, d: unknown): Evento | null {
   if (o.k === 'r') return typeof o.q === 'string' && typeof o.l === 'string' && LETRAS.includes(o.l) && typeof o.ok === 'boolean' && num(o.t) ? (o as unknown as Evento) : null
   if (o.k === 's') return simOk(o.sim) ? (o as unknown as Evento) : null
   if (o.k === 'z') return num(o.t) ? (o as unknown as Evento) : null
+  if (o.k === 'd') return num(o.t) && typeof o.z === 'string' ? (o as unknown as Evento) : null
   if (o.k === 'b') {
     if (!num(o.t) || !o.prog || typeof o.prog !== 'object' || !o.dias || typeof o.dias !== 'object' || !Array.isArray(o.sims)) return null
     const prog = Object.fromEntries(Object.entries(o.prog).filter(([, p]) => !!p && typeof p === 'object' && num((p as { n?: unknown }).n) && num((p as { c?: unknown }).c)))

@@ -107,3 +107,24 @@ describe('simulado da semana', () => {
     expect(montarSemana(bank.slice(0, 5), {}, {}, tf, 20, rng).ids).toHaveLength(5)
   })
 })
+
+// F6.2 (3.6 do plano): respostas de questões de um espaço que AINDA NÃO CHEGOU a este aparelho (os eventos chegam pela sincronização antes dos pacotes) não podem quebrar nada
+describe('progresso de questão que não existe neste aparelho (espaço ainda não baixado)', () => {
+  const banco = [q('local1', 'Português'), q('local2', 'Matemática')]
+  const fantasmas: ProgressMap = {
+    fantasma1: { n: 3, c: 0, ok: false, last: 'B', t: 5 }, fantasma2: { n: 10, c: 9, ok: true, last: 'A', t: 6 },
+    local1: { n: 2, c: 0, ok: false, last: 'B', t: 7 },
+  }
+  const eventos: Evento[] = [...sequencia('fantasma1', 'eee'), ...sequencia('local1', 'ee'), ...sequencia('fantasma2', 'c')]
+  it('o caderno e o resumo ignoram a questão que não está no banco (e não lançam)', () => {
+    const c = cadernoDoEspaco(eventos, fantasmas, banco)
+    const r = resumirCaderno(c, banco)
+    expect(Object.keys(c)).toContain('local1'); expect(r.total).toBe(1); expect(r.porMateria.map((m) => m.materia)).toEqual(['Português'])
+    expect(dosErros(c, banco, 5).map((x) => x.id)).toEqual(['local1']) // "Rever erros" só traz questão que existe
+  })
+  it('matérias fracas e o simulado da semana só contam questões do banco', () => {
+    expect(() => materiasFracas(fantasmas, banco)).not.toThrow()
+    const s = montarSemana(banco, fantasmas, cadernoDoEspaco(eventos, fantasmas, banco), {}, 5)
+    expect(s.ids.every((id) => banco.some((b) => b.id === id))).toBe(true)
+  })
+})
