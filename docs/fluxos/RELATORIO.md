@@ -199,3 +199,12 @@ Scripts: `_dois.mjs`, `_espacos.mjs` (helpers), `39`, `43` (c1..c7), `44`, `45`,
 
 ### Resumo F6 (testador)
 Passou: F6.0, F6.2 (migração, 2 rodadas), F6.3a, F6.3 (sete casos difíceis), F6.4 (regras 20/20 no emulador), F6.5 (aviso, selos, chip, andamento, 320/360/390 claro/escuro), C-10. Corrigidos e verificados: S-02, S-03, S-05, S-06, S-07, S-08. Aberto: S-04 (selo offline com conteúdo). Não verificado: Firebase real, imagens (F6.6), regras publicadas, APK/aparelho, custo real, cotas de 25/100 MB, relógio muito errado.
+
+## C-11 — aviso de "questões sem enunciado" por espaço: VERIFICADO (2026-11-20)
+Banco com linhas antigas sem enunciado em dois espaços (`52-fixture-dois-espacos-sem-enunciado.mjs` gera `dados/banco-v7-dois.json`: "Concurso X" e "Segundo", cada um com 8 da prova + 9 geradas sem enunciado, mais "Meu BB"); `53-c11-sem-enunciado-por-espaco.mjs` (27 checagens) e `54-c11-tipos.mjs` (5 checagens), 0 falhas.
+- A fala do assistente lista cada espaço com o número ("• Espaço “Segundo”: 17 questões, 9 geradas do material" e o mesmo para "Concurso X"; total 34). Em Assistente › Meus espaços só os afetados mostram "17 questões sem enunciado (defeito de versões antigas)"; "Meu BB" e o BB embutido não.
+- Botão certo por tipo: espaço só com provas = só "Importar a prova de novo"; só com geradas = só "Gerar de novo"; misto = os dois.
+- "Importar a prova de novo" ativa o espaço certo (subtítulo "Espaço: Concurso X") e abre o passo de escolher os PDFs; o voltar do aparelho fecha o painel e fica no Assistente. Reimportar conserta SÓ aquele espaço: o contador de "Concurso X" cai de 17 para 9 (restam as geradas; as 8 da prova ficam com enunciado inteiro) e o "Segundo" continua com 17. "Gerar de novo" abre o fluxo de gerar no espaço certo; ao adicionar, o número SOME do "Concurso X" e o "Segundo" segue marcado.
+- Depois de recarregar a fala cita só o "Segundo"; apagar um espaço afetado o tira da fala e da lista.
+- 320x568, 360x780 e 390x844, claro e escuro: Meus espaços com contador e botões sem texto cortado, sem rolagem lateral, botões >= 36 px.
+- Regressão: `e2e-voltar` 39 OK e `e2e-simulado` 25 OK, ambos sem FALHOU.

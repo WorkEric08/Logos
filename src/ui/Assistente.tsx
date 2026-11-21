@@ -581,6 +581,13 @@ function Espacos() {
             })()}
             {!e.embutido && <button className="btn small-btn" aria-label={`Apagar o espaço ${e.nome}`} onClick={() => setApagando(e.id)}><Icon n="trash" size={16} /></button>}
             {!e.embutido && <small className="note as-selo" data-testid="selo-espaco">{seloTexto(e, logado)}</small>}
+            {!e.embutido && (e.semEnunciado ?? 0) > 0 && (
+              <div className="as-sem-enun" data-testid="sem-enunciado">
+                <small className="note as-selo" role="status"><b>{e.semEnunciado === 1 ? '1 questão sem enunciado' : `${e.semEnunciado} questões sem enunciado`}</b> (defeito de versões antigas).</small>
+                {(e.semEnunciado ?? 0) > (e.semEnunciadoGeradas ?? 0) && <button className="btn small-btn" onClick={() => fechar(async () => { await ativar(e.id); useAssistente.getState().escolher('prova') })}>Importar a prova de novo</button>}
+                {(e.semEnunciadoGeradas ?? 0) > 0 && <button className="btn small-btn" onClick={() => fechar(async () => { await ativar(e.id); useAssistente.getState().escolher('questoes') })}>Gerar de novo</button>}
+              </div>
+            )}
           </li>
         ))}
       </ul>

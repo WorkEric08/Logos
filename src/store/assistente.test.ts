@@ -743,3 +743,14 @@ describe('assistente: treino do plano guardado na aba Treinar (prazo = o tempo q
     estado().escolher('plano'); expect(estado().pendente?.slot).toBe('minutos')
   })
 })
+
+describe('assistente: fala das questões sem enunciado (C-11)', () => {
+  it('lista cada espaço afetado com o número e diz se são geradas; só os afetados; singular e plural', async () => {
+    const { textoSemEnunciado } = await import('./assistente')
+    const t = textoSemEnunciado([{ nome: 'BB' }, { nome: 'Direito', semEnunciado: 12 }, { nome: 'Civil', semEnunciado: 1, semEnunciadoGeradas: 1 }, { nome: 'Misto', semEnunciado: 5, semEnunciadoGeradas: 2 }])
+    expect(t).toMatch(/^18 questões importadas ficaram sem enunciado/)
+    expect(t).toContain('• Espaço “Direito”: 12 questões\n'); expect(t).toContain('• Espaço “Civil”: 1 questão (geradas do material)'); expect(t).toContain('• Espaço “Misto”: 5 questões, 2 geradas do material')
+    expect(t).not.toContain('“BB”'); expect(t).toMatch(/Importar a prova de novo.*Gerar de novo/s)
+    expect(textoSemEnunciado([{ nome: 'X', semEnunciado: 1 }])).toMatch(/^1 questão importada ficou sem enunciado/)
+  })
+})

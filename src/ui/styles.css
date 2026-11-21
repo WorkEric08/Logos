@@ -875,6 +875,7 @@ kbd{font:500 11px/1.4 var(--f-num);border:1px solid var(--line-strong);border-ra
 .as-esp{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .as-esp-i{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .as-selo{flex-basis:100%;margin:0}
+.as-sem-enun{flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 
 /* ───────── Movimento do chat (entrada → conversa → saída) ─────────
    Só transform e opacity. "Reduzir movimento": nada anima nem espera (regra global acima) e os efeitos que repetem (brilho) são desligados aqui. */

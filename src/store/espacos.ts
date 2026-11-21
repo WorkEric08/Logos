@@ -14,7 +14,9 @@ import { BB_BANK, BB_BASES, definirBanco, useApp } from './app'
 
 /** O que a lista de espaços mostra sobre a conta Google (F6.5): quantos pacotes (provas/materiais) o espaço tem, quantos faltam baixar ou subir, quantos ficaram acima do limite. */
 export interface SeloEspaco { total: number; baixar: number; subir: number; cota: number; invalido: number; bytes: number }
-export interface ResumoEspaco { id: string; nome: string; n: number; embutido?: boolean; /** "Só neste aparelho": nada dele sobe. */ local?: boolean; selo?: SeloEspaco }
+export interface ResumoEspaco { id: string; nome: string; n: number; embutido?: boolean; /** "Só neste aparelho": nada dele sobe. */ local?: boolean; selo?: SeloEspaco
+  /** C-11: quantas questões deste espaço ficaram sem enunciado (defeito antigo) e, dessas, quantas são GERADAS (o conserto é gerar de novo). Some sozinho quando o espaço é consertado. */
+  semEnunciado?: number; semEnunciadoGeradas?: number }
 
 /** O espaço do Banco do Brasil, montado do que vem no app. */
 export const espacoBB = (): Espaco => ({
@@ -84,9 +86,15 @@ export function seloDe(pacotes: readonly { estado: string; b: number }[]): SeloE
 }
 async function recarregarLista(): Promise<ResumoEspaco[]> {
   const meus = await listarEspacos()
+  const sem = await contarSemEnunciado()
   const itens: ResumoEspaco[] = []
-  for (const r of meus.sort((a, b) => a.criado - b.criado)) itens.push({ id: r.id, nome: r.nome, n: r.n + (r.usaBB ? BB_BANK.length : 0), ...(r.local ? { local: true } : {}), selo: seloDe(await pacotesDoEspaco(r.id)) })
+  for (const r of meus.sort((a, b) => a.criado - b.criado)) itens.push({ id: r.id, nome: r.nome, n: r.n + (r.usaBB ? BB_BANK.length : 0), ...(r.local ? { local: true } : {}), selo: seloDe(await pacotesDoEspaco(r.id)), ...(sem.porEspaco[r.id] ? { semEnunciado: sem.porEspaco[r.id], semEnunciadoGeradas: sem.geradas[r.id] ?? 0 } : {}) })
   return [{ id: ID_ESPACO_BB, nome: espacoBB().nome, n: BB_BANK.length, embutido: true }, ...itens]
+}
+/** A lista e o total de questões sem enunciado, juntos: toda vez que a lista é relida (importar, gerar, desfazer, apagar, chegar da nuvem) o contador é refeito e some sozinho quando o espaço é consertado. */
+async function estadoDaLista() {
+  const lista = await recarregarLista()
+  return { lista, semEnunciado: lista.reduce((a, e) => a + (e.semEnunciado ?? 0), 0) }
 }
 
 export const useEspacos = create<State>((set, get) => {
@@ -102,7 +110,7 @@ export const useEspacos = create<State>((set, get) => {
     const id = get().ativo
     if (id === ID_ESPACO_BB) return
     const d = await lerEspaco(id)
-    if (!d) { trocar(espacoBB()); await gravarEspacoAtivoId(ID_ESPACO_BB); set({ lista: await recarregarLista() }); return } // o espaço foi apagado em outro aparelho
+    if (!d) { trocar(espacoBB()); await gravarEspacoAtivoId(ID_ESPACO_BB); set(await estadoDaLista()); return } // o espaço foi apagado em outro aparelho
     const novo = montarEspaco(d.row, d.questoes)
     if (novo.questoes.length === atual.questoes.length && novo.nome === atual.nome && Object.keys(novo.fontes).length === Object.keys(atual.fontes).length) return // nada mudou para quem usa
     aplicarEspaco(novo); useApp.setState((s) => ({ versao: s.versao + 1 }))
@@ -112,7 +120,7 @@ export const useEspacos = create<State>((set, get) => {
     lista: [{ id: ID_ESPACO_BB, nome: espacoBB().nome, n: BB_BANK.length, embutido: true }], ativo: ID_ESPACO_BB, pronto: false, semEnunciado: 0,
     iniciar: async () => {
       try {
-        set({ lista: await recarregarLista() })
+        set(await estadoDaLista())
         const id = await lerEspacoAtivoId()
         if (id && id !== ID_ESPACO_BB) {
           const d = await lerEspaco(id)
@@ -121,8 +129,7 @@ export const useEspacos = create<State>((set, get) => {
       } catch (e) { console.warn('[espaços] não abriu o espaço ativo; fica no Banco do Brasil', e) }
       set({ pronto: true })
       try { // linhas antigas, gravadas quando o enunciado se perdia: avisa uma vez por abertura e o assistente explica
-        const c = await contarSemEnunciado(); set({ semEnunciado: c.total })
-        if (c.total > 0) useApp.getState().showToast(AVISOS.semEnunciado)
+        if (get().semEnunciado > 0) useApp.getState().showToast(AVISOS.semEnunciado) // uma vez por abertura; o número por espaço está em Meus espaços e na fala do assistente
       } catch { /* sem banco: sem aviso */ }
     },
     ativar: async (id) => {
@@ -134,10 +141,10 @@ export const useEspacos = create<State>((set, get) => {
       await gravarEspacoAtivoId(id)
       return true
     },
-    atualizarSelos: async () => { try { set({ lista: await recarregarLista() }) } catch { /* só informa */ } },
-    definirLocal: async (id, local) => { const r = await definirEspacoLocal(id, local); set({ lista: await recarregarLista() }); return r },
+    atualizarSelos: async () => { try { set(await estadoDaLista()) } catch { /* só informa */ } },
+    definirLocal: async (id, local) => { const r = await definirEspacoLocal(id, local); set(await estadoDaLista()); return r },
     recarregar: async () => {
-      set({ lista: await recarregarLista() })
+      set(await estadoDaLista())
       if (useApp.getState().session) { pendente = true; return }
       await reaplicarAtivo()
     },
@@ -145,7 +152,7 @@ export const useEspacos = create<State>((set, get) => {
       const id = novoId()
       const row: EspacoRow = { id, nome: limpaNome(nome) || 'Meu espaço', criado: Date.now(), fontes: {}, bases: {}, materias: [], extras: [], bancos: [], simulado: null, ...(usaBB ? { usaBB: true } : {}) }
       await salvarEspaco(row, [])
-      set({ lista: await recarregarLista() })
+      set(await estadoDaLista())
       await get().ativar(id)
       return id
     },
@@ -154,7 +161,7 @@ export const useEspacos = create<State>((set, get) => {
       const limpo = limpaNome(nome)
       if (!d || !limpo) return
       await salvarEspaco({ ...d.row, nome: limpo }, [])
-      set({ lista: await recarregarLista() })
+      set(await estadoDaLista())
       if (get().ativo === id) atual = { ...atual, nome: limpo }
     },
     apagar: async (id) => {
@@ -162,7 +169,7 @@ export const useEspacos = create<State>((set, get) => {
       const eraAtivo = get().ativo === id
       await apagarEspaco(id)
       if (eraAtivo) { trocar(espacoBB()); await gravarEspacoAtivoId(ID_ESPACO_BB) }
-      set({ lista: await recarregarLista() })
+      set(await estadoDaLista())
     },
     adicionar: async (novas, extra = {}) => {
       const id = get().ativo
@@ -178,14 +185,14 @@ export const useEspacos = create<State>((set, get) => {
       }
       await salvarEspaco(row, novas)
       trocar(montarEspaco(row, juntas.questoes))
-      set({ lista: await recarregarLista() })
+      set(await estadoDaLista())
       const jaTinha = new Set(d.questoes.map((q) => q.id))
       return { adicionadas: juntas.adicionadas, repetidas: juntas.repetidas, ids: [...new Set(novas.map((q) => q.id))].filter((qid) => !jaTinha.has(qid)), antes: d.row }
     },
     retirar: async (espacoId, ids, antes) => {
       await removerQuestoesDoEspaco(ids, antes)
       if (get().ativo === espacoId) { const d = await lerEspaco(espacoId); if (d) trocar(montarEspaco(d.row, d.questoes)) }
-      set({ lista: await recarregarLista() })
+      set(await estadoDaLista())
     },
   }
 })

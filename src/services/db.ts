@@ -490,10 +490,10 @@ export const salvarEspaco = (row: EspacoRow, questoes: Question[]) => avisa(db.t
   await marcar([chaveEspaco(row.id), ...criados.map((k) => chavePacote(k.id))])
 }))
 /** Quantas questões importadas ficaram sem enunciado por causa do defeito anterior (linhas antigas, sem `enun`), no total e por espaço. Importar a prova de novo conserta (o id é por conteúdo). */
-export async function contarSemEnunciado(): Promise<{ total: number; porEspaco: Record<string, number> }> {
-  const porEspaco: Record<string, number> = {}
-  await db.questoesE.filter((r) => !r.q.e).each((r) => { porEspaco[r.e] = (porEspaco[r.e] ?? 0) + 1 }) // enunciado vazio = linha antiga que perdeu o enunciado (uma questão importada nunca tem enunciado vazio)
-  return { total: Object.values(porEspaco).reduce((a, n) => a + n, 0), porEspaco }
+export async function contarSemEnunciado(): Promise<{ total: number; porEspaco: Record<string, number>; geradas: Record<string, number> }> {
+  const porEspaco: Record<string, number> = {}, geradas: Record<string, number> = {}
+  await db.questoesE.filter((r) => !r.q.e).each((r) => { porEspaco[r.e] = (porEspaco[r.e] ?? 0) + 1; if (r.q.ger) geradas[r.e] = (geradas[r.e] ?? 0) + 1 }) // enunciado vazio = linha antiga que perdeu o enunciado (uma questão importada nunca tem enunciado vazio); `geradas` = as que vieram de material (o conserto é gerar de novo, não importar PDF)
+  return { total: Object.values(porEspaco).reduce((a, n) => a + n, 0), porEspaco, geradas }
 }
 /** Apaga o espaço, as questões e as imagens dele. O progresso das questões fica (ids por conteúdo: voltar a importar o mesmo arquivo recupera). Os pacotes dele viram lápide
  *  (a exclusão chega aos outros aparelhos), como o próprio espaço. */

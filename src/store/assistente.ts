@@ -179,6 +179,13 @@ const NAO_ENTENDI = 'Não entendi esse pedido. Tente, por exemplo: "importar pro
 let acaoDesfazer: (() => Promise<void>) | null = null
 /** O aviso de "questões sem enunciado" (C-10) é dado uma vez por abertura do app. */
 let avisouSemEnunciado = false
+/** A fala do aviso de questões sem enunciado, com o número de cada espaço afetado (C-11). Pura: recebe a lista de espaços. */
+export function textoSemEnunciado(lista: readonly { nome: string; semEnunciado?: number; semEnunciadoGeradas?: number }[]): string {
+  const afetados = lista.filter((e) => (e.semEnunciado ?? 0) > 0)
+  const total = afetados.reduce((a, e) => a + (e.semEnunciado ?? 0), 0)
+  const linhas = afetados.map((e) => `• Espaço “${e.nome}”: ${e.semEnunciado === 1 ? '1 questão' : `${e.semEnunciado} questões`}${(e.semEnunciadoGeradas ?? 0) > 0 ? (e.semEnunciadoGeradas === e.semEnunciado ? ' (geradas do material)' : `, ${e.semEnunciadoGeradas} geradas do material`) : ''}`)
+  return `${total === 1 ? '1 questão importada ficou sem enunciado' : `${total} questões importadas ficaram sem enunciado`} por um defeito de versões antigas do app (as alternativas e o gabarito estão certos):\n${linhas.join('\n')}\nPara consertar, abra “Meus espaços”: em cada espaço afetado há o botão “Importar a prova de novo” (provas) ou “Gerar de novo” (questões geradas). Seu progresso é mantido e nada duplica. Cartões e materiais não foram afetados.`
+}
 /** O desfazer guardado é o de uma importação de questões (some quando a pessoa começa um treino: aí as questões passam a ser estudadas). */
 let desfazDaImportacao = false
 let gravadas = 0
@@ -274,9 +281,9 @@ export const useAssistente = create<State>((set, get) => {
     await get().carregarHistorico()
     if (!get().mensagens.length) set({ mensagens: [m('a', SAUDACAO)] })
     const sem = useEspacos.getState().semEnunciado
-    if (sem > 0 && !avisouSemEnunciado) { // C-10: questões importadas antes do conserto perderam o enunciado; o id é por conteúdo, então importar a prova de novo as conserta sem perder o progresso
+    if (sem > 0 && !avisouSemEnunciado) { // C-10/C-11: questões importadas antes do conserto perderam o enunciado; o id é por conteúdo, então importar a prova de novo as conserta sem perder o progresso
       avisouSemEnunciado = true
-      set((st) => ({ mensagens: [...st.mensagens, m('a', `${sem === 1 ? '1 questão importada ficou sem enunciado' : `${sem} questões importadas ficaram sem enunciado`} por um defeito de versões antigas do app (as alternativas e o gabarito estão certos). Para consertar: nas provas, importe a prova de novo; nas questões geradas, gere de novo a partir do mesmo material. Seu progresso é mantido e nada duplica. Cartões e materiais não foram afetados.`, 'erro')] }))
+      set((st) => ({ mensagens: [...st.mensagens, m('a', textoSemEnunciado(useEspacos.getState().lista), 'erro')] }))
     }
     if (comPainel) {
       mostrarPainel()

@@ -93,3 +93,27 @@ describe('espaços de estudo', () => {
     expect(r).toMatchObject({ points: 2, approved: true }); expect(sc.scoreSimulado(qs, { u1: 'A' }).approved).toBe(false)
   })
 })
+
+// C-11: o contador de "questões sem enunciado" por espaço (defeito antigo) aparece na lista e some sozinho quando o espaço é consertado
+describe('questões sem enunciado por espaço (C-11)', () => {
+  const vazia = (id: string, ger = false): Question => ({ ...q(id, 'Civil'), e: '', ...(ger ? { ger: 1 as const, fonte: 'trecho' } : {}) })
+  it('a lista traz o número por espaço (e quantas são geradas); só os afetados; o total soma; importar de novo conserta e o contador some; apagar o espaço também', async () => {
+    await esp.useEspacos.getState().iniciar()
+    const idA = await esp.useEspacos.getState().criar('Espaço A', false)
+    await esp.useEspacos.getState().adicionar([vazia('u1'), vazia('u2'), vazia('u3', true), q('u4', 'Civil')], { fontes: { 'dir-2024': 'Direito 2024' } })
+    const idB = await esp.useEspacos.getState().criar('Espaço B', false)
+    await esp.useEspacos.getState().adicionar([q('u9', 'Civil')])
+    let st = esp.useEspacos.getState()
+    const a = st.lista.find((e) => e.id === idA), b = st.lista.find((e) => e.id === idB)
+    expect(a).toMatchObject({ semEnunciado: 3, semEnunciadoGeradas: 1 }); expect(b?.semEnunciado).toBeUndefined(); expect(st.lista[0].semEnunciado).toBeUndefined() // o BB nunca é afetado
+    expect(st.semEnunciado).toBe(3)
+    // importar a prova de novo (mesmos ids, agora com enunciado) conserta
+    await esp.useEspacos.getState().ativar(idA)
+    await esp.useEspacos.getState().adicionar([q('u1', 'Civil'), q('u2', 'Civil')])
+    st = esp.useEspacos.getState()
+    expect(st.lista.find((e) => e.id === idA)).toMatchObject({ semEnunciado: 1, semEnunciadoGeradas: 1 }); expect(st.semEnunciado).toBe(1) // sobrou a gerada
+    // desfazer a importação (retirar) e apagar o espaço também recontam
+    await esp.useEspacos.getState().apagar(idA)
+    expect(esp.useEspacos.getState().semEnunciado).toBe(0); expect(esp.useEspacos.getState().lista.some((e) => (e.semEnunciado ?? 0) > 0)).toBe(false)
+  })
+})
